@@ -348,6 +348,8 @@ body {
   display: grid;
   gap: 8px;
   align-content: start;
+  min-height: 0;
+  overflow: auto;
 }
 
 .heroDetailHead {

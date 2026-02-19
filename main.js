@@ -574,16 +574,42 @@
     },
   };
 
+  let scaleRaf = 0;
+
+  function viewportSize() {
+    const visual = window.visualViewport;
+    if (visual && Number.isFinite(visual.width) && Number.isFinite(visual.height) && visual.width > 0 && visual.height > 0) {
+      return { width: visual.width, height: visual.height };
+    }
+    const doc = document.documentElement;
+    return {
+      width: doc?.clientWidth || window.innerWidth,
+      height: doc?.clientHeight || window.innerHeight,
+    };
+  }
+
   function setScale() {
-    const scale = Math.min(1.5, Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H));
+    const { width, height } = viewportSize();
+    const scale = Math.min(1.5, Math.min(width / STAGE_W, height / STAGE_H));
     stage.style.transform = `scale(${scale})`;
-    const portrait = window.innerHeight > window.innerWidth;
+    const portrait = height > width;
     rotateOverlay.classList.toggle("open", portrait);
     rotateOverlay.setAttribute("aria-hidden", portrait ? "false" : "true");
   }
 
-  window.addEventListener("resize", setScale, { passive: true });
-  window.addEventListener("orientationchange", setScale, { passive: true });
+  function scheduleScale() {
+    if (scaleRaf) cancelAnimationFrame(scaleRaf);
+    scaleRaf = requestAnimationFrame(() => {
+      scaleRaf = 0;
+      setScale();
+    });
+  }
+
+  window.addEventListener("resize", scheduleScale, { passive: true });
+  window.addEventListener("orientationchange", scheduleScale, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", scheduleScale, { passive: true });
+  }
   setScale();
 
   document.addEventListener(
