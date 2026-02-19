@@ -459,8 +459,8 @@ body {
   padding: 7px;
   display: grid;
   gap: 6px;
-  max-height: 132px;
-  overflow: auto;
+  max-height: none;
+  overflow: visible;
 }
 
 .heroPassiveItem {
