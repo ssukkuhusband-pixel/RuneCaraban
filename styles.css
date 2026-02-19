@@ -2081,6 +2081,14 @@ body {
   border-bottom: 1px solid rgba(92, 96, 145, 0.28);
 }
 
+.modalHeader {
+  position: relative;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .modalFooter {
   border-top: 1px solid rgba(92, 96, 145, 0.28);
   border-bottom: 0;
@@ -2097,6 +2105,16 @@ body {
 .modalTitle {
   font-size: 14px;
   font-weight: 900;
+  width: 100%;
+  padding: 0 74px;
+  text-align: center;
+}
+
+.modalHeader #btnModalClose {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .modalBody {
@@ -2108,6 +2126,12 @@ body {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+}
+
+.rewardChoiceGrid {
+  grid-template-columns: repeat(3, minmax(152px, 176px));
+  justify-content: center;
+  gap: 10px;
 }
 
 .rewardCard {

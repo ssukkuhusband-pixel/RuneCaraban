@@ -3129,7 +3129,7 @@
   function showRewardModal() {
     const options = makeRewardOptions();
     const body = document.createElement("div");
-    body.className = "rewardGrid";
+    body.className = "rewardGrid rewardChoiceGrid";
 
     options.forEach((option, index) => {
       const card = document.createElement("div");
