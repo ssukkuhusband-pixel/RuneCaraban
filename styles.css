@@ -1574,6 +1574,14 @@ body {
   border-color: rgba(117, 215, 255, 0.68);
 }
 
+.reelMark.clone {
+  border-color: rgba(208, 170, 255, 0.7);
+}
+
+.reelMark.morph {
+  border-color: rgba(124, 231, 189, 0.72);
+}
+
 .reel.locked {
   animation: reelLock 210ms ease-out;
   border-color: rgba(247, 201, 72, 0.72);

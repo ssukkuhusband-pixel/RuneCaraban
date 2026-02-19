@@ -535,6 +535,7 @@
     relics: [],
     phase: "idle", // idle | spin_ready | spinning | resolving | enemy | reward | end
     slotResult: [],
+    slotExtraRunes: [],
     comboStep: 0,
     runMetaGain: 0,
     teamGuardTurns: 0,
@@ -576,6 +577,9 @@
       specialRuneChance: 0,
       spinChargeChance: 0,
       spinEchoChance: 0,
+      spinBonusReelChance: 0,
+      spinCloneChance: 0,
+      spinMorphChance: 0,
       runeWeightDelta: {},
     },
   };
@@ -2109,6 +2113,7 @@
     const result = runes.map((rune) => ({
       ...rune,
       effects: {
+        ...(rune.effects || {}),
         double: Math.random() < x2Chance,
         reroll: Math.random() < rerollChance,
         charge: Math.random() < chargeChance,
@@ -2154,6 +2159,36 @@
     return runes;
   }
 
+  function applySpinTransformEffects(runes) {
+    if (!Array.isArray(runes) || runes.length === 0) return;
+
+    const morphChance = clamp(state.modifiers.spinMorphChance || 0, 0, 0.85);
+    const cloneChance = clamp(state.modifiers.spinCloneChance || 0, 0, 0.75);
+    const aliveIds = aliveHeroes().map((hero) => hero.id);
+
+    if (Math.random() < morphChance && aliveIds.length > 0) {
+      const tacticIndices = runes
+        .map((rune, index) => ({ rune, index }))
+        .filter((entry) => entry.rune.kind === "tactic")
+        .map((entry) => entry.index);
+      if (tacticIndices.length > 0) {
+        const targetIndex = tacticIndices[randInt(tacticIndices.length)];
+        const heroId = aliveIds[randInt(aliveIds.length)];
+        runes[targetIndex] = {
+          ...runeById(heroId),
+          effects: { ...(runes[targetIndex]?.effects || {}), morph: true },
+        };
+      }
+    }
+
+    if (Math.random() < cloneChance && runes.length >= 3) {
+      runes[2] = {
+        ...runeById(runes[0].id),
+        effects: { ...(runes[2]?.effects || {}), clone: true },
+      };
+    }
+  }
+
   function runeLabelWithEffects(rune) {
     if (!rune) return "?";
     const tags = [];
@@ -2161,6 +2196,9 @@
     if (rune.effects?.reroll) tags.push("↺");
     if (rune.effects?.charge) tags.push("▲");
     if (rune.effects?.echo) tags.push("∞");
+    if (rune.effects?.clone) tags.push("⧉");
+    if (rune.effects?.morph) tags.push("🧬");
+    if (rune.effects?.bonus) tags.push("+");
     return `${rune.icon}${tags.length > 0 ? `(${tags.join(",")})` : ""}`;
   }
 
@@ -2168,7 +2206,24 @@
     const weights = computeRuneWeights();
     const result = [];
     for (let idx = 0; idx < 3; idx += 1) result.push(runeById(pickWeighted(weights)));
-    return ensurePlayableHeroRunes(decorateRunesWithSpinEffects(result));
+    applySpinTransformEffects(result);
+    const primaryRunes = ensurePlayableHeroRunes(decorateRunesWithSpinEffects(result));
+
+    const extraRunes = [];
+    const bonusReelChance = clamp(state.modifiers.spinBonusReelChance || 0, 0, 0.95);
+    if (Math.random() < bonusReelChance) {
+      const extraBase = runeById(pickWeighted(weights));
+      const extraDecorated = decorateRunesWithSpinEffects([extraBase])[0];
+      extraDecorated.effects = {
+        ...(extraDecorated.effects || {}),
+        bonus: true,
+        reroll: false,
+      };
+      extraRunes.push(extraDecorated);
+    }
+
+    primaryRunes.extraRunes = extraRunes;
+    return primaryRunes;
   }
 
   function setReels(runes, spinning = false) {
@@ -2204,6 +2259,18 @@
           const tag = document.createElement("span");
           tag.className = "reelMark echo";
           tag.textContent = "∞";
+          marks.appendChild(tag);
+        }
+        if (rune.effects?.clone) {
+          const tag = document.createElement("span");
+          tag.className = "reelMark clone";
+          tag.textContent = "⧉";
+          marks.appendChild(tag);
+        }
+        if (rune.effects?.morph) {
+          const tag = document.createElement("span");
+          tag.className = "reelMark morph";
+          tag.textContent = "🧬";
           marks.appendChild(tag);
         }
         if (rune.kind === "special") {
@@ -2248,6 +2315,9 @@
     if (state.modifiers.spinChargeChance > 0) spinMarks.push("▲");
     if (state.modifiers.spinEchoChance > 0) spinMarks.push("∞");
     if (state.modifiers.specialRuneChance > 0) spinMarks.push("★");
+    if (state.modifiers.spinBonusReelChance > 0) spinMarks.push("+1릴");
+    if (state.modifiers.spinCloneChance > 0) spinMarks.push("⧉");
+    if (state.modifiers.spinMorphChance > 0) spinMarks.push("🧬");
     const markLabel = spinMarks.length > 0 ? ` · 표식 ${spinMarks.join("/")}` : "";
     rulePill.textContent =
       state.teamGuardTurns > 0
@@ -2764,6 +2834,9 @@
     if (effect.type === "specialRune") state.modifiers.specialRuneChance += effect.value;
     if (effect.type === "spinCharge") state.modifiers.spinChargeChance += effect.value;
     if (effect.type === "spinEcho") state.modifiers.spinEchoChance += effect.value;
+    if (effect.type === "spinBonusReel") state.modifiers.spinBonusReelChance += effect.value;
+    if (effect.type === "spinClone") state.modifiers.spinCloneChance += effect.value;
+    if (effect.type === "spinMorph") state.modifiers.spinMorphChance += effect.value;
     if (effect.type === "weight") {
       state.modifiers.runeWeightDelta[effect.id] = (state.modifiers.runeWeightDelta[effect.id] || 0) + effect.value;
     }
@@ -3073,6 +3146,33 @@
         perkTag: { icon: "∞", name: "메아리 +10%" },
       },
       {
+        id: "perk_spin_bonus_reel",
+        group: "spin",
+        icon: "➕",
+        title: "확장 릴",
+        desc: "스핀마다 22% 확률로 보너스 릴 1칸이 추가 발동됩니다.",
+        apply: () => applyPerk({ type: "spinBonusReel", value: 0.22 }),
+        perkTag: { icon: "➕", name: "보너스 릴 +22%" },
+      },
+      {
+        id: "perk_spin_clone",
+        group: "spin",
+        icon: "⧉",
+        title: "선두 복제",
+        desc: "스핀마다 28% 확률로 3번째 심볼이 1번째 심볼로 복제됩니다.",
+        apply: () => applyPerk({ type: "spinClone", value: 0.28 }),
+        perkTag: { icon: "⧉", name: "선두 복제 +28%" },
+      },
+      {
+        id: "perk_spin_morph",
+        group: "spin",
+        icon: "🧬",
+        title: "전술 변환",
+        desc: "스핀마다 35% 확률로 전술 심볼 1개가 생존 영웅 심볼로 변환됩니다.",
+        apply: () => applyPerk({ type: "spinMorph", value: 0.35 }),
+        perkTag: { icon: "🧬", name: "전술 변환 +35%" },
+      },
+      {
         id: "perk_rune_hero",
         icon: "🎲",
         title: "영웅 편중",
@@ -3096,6 +3196,9 @@
       "perk_spin_charge",
       "perk_spin_echo",
       "perk_spin_special",
+      "perk_spin_bonus_reel",
+      "perk_spin_clone",
+      "perk_spin_morph",
       "perk_rune_hero",
     ]);
     if (eliteReward || progressRate >= 0.66) {
@@ -3316,6 +3419,7 @@
     });
     applyBattleStartEffects();
     state.slotResult = [];
+    state.slotExtraRunes = [];
     state.comboStep = 0;
     resetTurnBuff();
     setReels([null, null, null], false);
@@ -3415,6 +3519,7 @@
     if (state.currentNodeType === "rest") {
       state.enemies = [];
       state.slotResult = [];
+      state.slotExtraRunes = [];
       setPhase("reward");
       renderAll();
       showRestNodeModal();
@@ -3424,7 +3529,7 @@
   }
 
   async function resolveTurn() {
-    if (state.slotResult.length === 0) {
+    if (state.slotResult.length === 0 && state.slotExtraRunes.length === 0) {
       setResolvingReel(-1);
       return;
     }
@@ -3466,6 +3571,23 @@
       if (!triggeredReroll || hasWonBattle()) break;
       pass += 1;
     }
+
+    if (!hasWonBattle() && state.slotExtraRunes.length > 0) {
+      log(`➕ 확장 릴 발동: ${state.slotExtraRunes.map((rune) => runeLabelWithEffects(rune)).join(" ")}`, true);
+      for (const extraRune of state.slotExtraRunes) {
+        await wait(120);
+        await resolveRune(extraRune, { allowEcho: true });
+        if (extraRune?.effects?.double) {
+          log(`x2 표식 발동: ${extraRune.name} 추가 1회`, true);
+          await resolveRune(extraRune, { allowEcho: false });
+        }
+        state.comboStep = Math.min(5, state.comboStep + 1);
+        renderAll();
+        await wait(120);
+        if (hasWonBattle()) break;
+      }
+    }
+
     setResolvingReel(-1);
 
     renderAll();
@@ -3503,6 +3625,7 @@
   function spin() {
     if (state.phase !== "spin_ready") return;
     state.slotResult = [];
+    state.slotExtraRunes = [];
     setResolvingReel(-1);
     setPhase("spinning");
     resetTurnBuff();
@@ -3524,8 +3647,11 @@
         return;
       }
       state.slotResult = rollRunes();
+      state.slotExtraRunes = Array.isArray(state.slotResult.extraRunes) ? state.slotResult.extraRunes : [];
       setReels(state.slotResult, false);
-      log(`결과 룬: ${state.slotResult.map((rune) => runeLabelWithEffects(rune)).join(" ")}`);
+      const extraLabel =
+        state.slotExtraRunes.length > 0 ? ` + ${state.slotExtraRunes.map((rune) => runeLabelWithEffects(rune)).join(" ")}` : "";
+      log(`결과 룬: ${state.slotResult.map((rune) => runeLabelWithEffects(rune)).join(" ")}${extraLabel}`);
       void resolveTurn();
     };
     requestAnimationFrame(tick);
@@ -3560,6 +3686,7 @@
     state.relics = [];
     state.phase = "idle";
     state.slotResult = [];
+    state.slotExtraRunes = [];
     state.comboStep = 0;
     state.runMetaGain = 0;
     state.teamGuardTurns = 0;
@@ -3588,6 +3715,9 @@
       specialRuneChance: 0,
       spinChargeChance: 0,
       spinEchoChance: 0,
+      spinBonusReelChance: 0,
+      spinCloneChance: 0,
+      spinMorphChance: 0,
       runeWeightDelta: {},
     };
 
