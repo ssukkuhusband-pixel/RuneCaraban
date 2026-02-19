@@ -575,7 +575,7 @@
   };
 
   function setScale() {
-    const scale = Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H);
+    const scale = Math.min(2, Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H));
     stage.style.transform = `scale(${scale})`;
     const portrait = window.innerHeight > window.innerWidth;
     rotateOverlay.classList.toggle("open", portrait);
@@ -1408,7 +1408,26 @@
     setTimeout(() => shock.remove(), 300);
   }
 
-  function spawnTrail(attackerNode, targetNode, team, variant = "normal") {
+  function spawnTargetPin(targetNode, options = {}) {
+    const point = pointInRect(targetNode);
+    if (!point) return () => {};
+    const pin = document.createElement("div");
+    pin.className = "targetPin";
+    if (options.crit) pin.classList.add("crit");
+    if (options.ultimate) pin.classList.add("ult");
+    if (options.finisher) pin.classList.add("finisher");
+    pin.style.left = `${point.x}px`;
+    pin.style.top = `${point.y}px`;
+    fxLayer.appendChild(pin);
+    const ttl = clamp(Number.isFinite(options.duration) ? options.duration : 250, 120, 520);
+    const timer = setTimeout(() => pin.remove(), ttl);
+    return () => {
+      clearTimeout(timer);
+      pin.remove();
+    };
+  }
+
+  function spawnTrail(attackerNode, targetNode, team, variant = "normal", options = {}) {
     const from = pointInRect(attackerNode);
     const to = pointInRect(targetNode);
     if (!from || !to) return;
@@ -1416,16 +1435,35 @@
     const dy = to.y - from.y;
     const len = Math.hypot(dx, dy);
     const angle = Math.atan2(dy, dx);
+    const shotMs = clamp(Number.isFinite(options.projectileMs) ? options.projectileMs : 100, 56, 220);
+    const clearPin = spawnTargetPin(targetNode, { ...options, duration: shotMs + 140 });
+
     const trail = document.createElement("div");
     trail.className = `trail ${team}`;
     if (variant === "crit") trail.classList.add("crit");
     if (variant === "ult") trail.classList.add("ult");
     trail.style.left = `${from.x}px`;
     trail.style.top = `${from.y}px`;
-    trail.style.width = `${len}px`;
+    trail.style.width = `${clamp(len * 0.56, 26, 120)}px`;
     trail.style.transform = `translateY(-50%) rotate(${angle}rad)`;
     fxLayer.appendChild(trail);
-    setTimeout(() => trail.remove(), 260);
+    setTimeout(() => trail.remove(), shotMs + 90);
+
+    const shot = document.createElement("div");
+    shot.className = `shotOrb ${team}`;
+    if (variant === "crit") shot.classList.add("crit");
+    if (variant === "ult") shot.classList.add("ult");
+    shot.style.left = `${from.x}px`;
+    shot.style.top = `${from.y}px`;
+    shot.style.setProperty("--shot-dx", `${dx}px`);
+    shot.style.setProperty("--shot-dy", `${dy}px`);
+    shot.style.setProperty("--shot-ms", `${shotMs}ms`);
+    fxLayer.appendChild(shot);
+    requestAnimationFrame(() => shot.classList.add("fly"));
+    setTimeout(() => {
+      shot.remove();
+      clearPin();
+    }, shotMs + 150);
 
     const impact = document.createElement("div");
     impact.className = "impact";
@@ -1433,8 +1471,10 @@
     if (variant === "ult") impact.classList.add("ult");
     impact.style.left = `${to.x}px`;
     impact.style.top = `${to.y}px`;
-    fxLayer.appendChild(impact);
-    setTimeout(() => impact.remove(), 260);
+    setTimeout(() => {
+      fxLayer.appendChild(impact);
+      setTimeout(() => impact.remove(), 260);
+    }, Math.max(shotMs - 28, 24));
   }
 
   function floatNumber(node, text, tone = "damage") {
@@ -1519,8 +1559,13 @@
     if (options.ultimate) targetNode.classList.add("ultimate");
     if (options.ultimate) targetNode.classList.add("ultimate-target");
     if (options.finisher) targetNode.classList.add("finisher");
+    let clearTargetPin = () => {};
     try {
       if (attackStyle === "melee") {
+        clearTargetPin = spawnTargetPin(targetNode, {
+          ...options,
+          duration: clamp(feel.lungeMs + feel.contactMs + 170, 180, 520),
+        });
         const dash = meleeDashDistance(attackerNode, targetNode, team, feel);
         attackerNode.style.setProperty("--dash-x", `${dash}px`);
         attackerNode.style.setProperty("--move-ms", `${clamp(feel.dashMs, 70, 220)}ms`);
@@ -1534,13 +1579,15 @@
         await wait(clamp(feel.recoverMs, 48, 170));
         attackerNode.style.removeProperty("--move-ms");
       } else {
-        spawnTrail(attackerNode, targetNode, team, variant);
-        await wait(clamp(feel.projectileLeadMs, 56, 170));
+        const projectileMs = clamp(feel.projectileLeadMs, 56, 170);
+        spawnTrail(attackerNode, targetNode, team, variant, { ...options, projectileMs });
+        await wait(projectileMs);
         spawnHitBurst(targetNode, { ...options, impactScale: feel.impactScale });
         flashBattlefield(options.finisher || options.ultimate || feel.shake >= 1.2);
         await wait(clamp(feel.impactHoldMs, 56, 170));
       }
     } finally {
+      clearTargetPin();
       attackerNode.classList.remove("acting");
       attackerNode.classList.remove("ultimate");
       attackerNode.classList.remove("ultimate-casting");

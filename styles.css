@@ -1569,7 +1569,8 @@ body {
   height: 4px;
   border-radius: 999px;
   transform-origin: left center;
-  animation: fade 220ms ease-out forwards;
+  opacity: 0.92;
+  animation: trailFade 220ms ease-out forwards;
 }
 
 .trail.hero {
@@ -1588,6 +1589,88 @@ body {
 .trail.ult {
   height: 6px;
   background: linear-gradient(90deg, rgba(179, 124, 255, 0.95), rgba(255, 215, 122, 0.78), rgba(255, 211, 94, 0));
+}
+
+.targetPin {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 150, 161, 0.88);
+  box-shadow: 0 0 0 2px rgba(255, 76, 128, 0.24), 0 0 14px rgba(255, 112, 112, 0.38);
+  transform: translate(-50%, -50%);
+  animation: targetPinPulse 290ms ease-out forwards;
+}
+
+.targetPin.crit {
+  border-color: rgba(255, 221, 125, 0.9);
+  box-shadow: 0 0 0 2px rgba(255, 190, 86, 0.26), 0 0 16px rgba(255, 218, 115, 0.44);
+}
+
+.targetPin.ult,
+.targetPin.finisher {
+  width: 54px;
+  height: 54px;
+  border-color: rgba(209, 171, 255, 0.92);
+  box-shadow: 0 0 0 2px rgba(196, 140, 255, 0.28), 0 0 20px rgba(218, 183, 255, 0.5);
+}
+
+.targetPin::before,
+.targetPin::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: currentColor;
+  opacity: 0.75;
+  transform: translate(-50%, -50%);
+}
+
+.targetPin::before {
+  width: 2px;
+  height: 66%;
+}
+
+.targetPin::after {
+  width: 66%;
+  height: 2px;
+}
+
+.shotOrb {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%) scale(0.84);
+  opacity: 0.96;
+  transition: transform var(--shot-ms, 100ms) linear, opacity var(--shot-ms, 100ms) ease-out;
+}
+
+.shotOrb.hero {
+  background: radial-gradient(circle, rgba(221, 255, 253, 0.96) 0%, rgba(105, 247, 223, 0.88) 52%, rgba(31, 138, 132, 0.2) 100%);
+  box-shadow: 0 0 10px rgba(31, 138, 132, 0.55);
+}
+
+.shotOrb.enemy {
+  background: radial-gradient(circle, rgba(255, 236, 236, 0.96) 0%, rgba(255, 133, 133, 0.86) 56%, rgba(196, 81, 67, 0.2) 100%);
+  box-shadow: 0 0 10px rgba(196, 81, 67, 0.52);
+}
+
+.shotOrb.crit {
+  width: 13px;
+  height: 13px;
+  box-shadow: 0 0 14px rgba(255, 219, 126, 0.68);
+}
+
+.shotOrb.ult {
+  width: 14px;
+  height: 14px;
+  box-shadow: 0 0 16px rgba(208, 157, 255, 0.7);
+}
+
+.shotOrb.fly {
+  transform: translate(calc(-50% + var(--shot-dx, 0px)), calc(-50% + var(--shot-dy, 0px))) scale(1.05);
+  opacity: 0.18;
 }
 
 .hitBurst {
@@ -1661,6 +1744,30 @@ body {
   to {
     opacity: 0;
     transform: translate(-50%, -50%) scale(2.2);
+  }
+}
+
+@keyframes trailFade {
+  0% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes targetPinPulse {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.72);
+  }
+  35% {
+    opacity: 0.96;
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.24);
   }
 }
 
