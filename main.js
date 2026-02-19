@@ -575,7 +575,7 @@
   };
 
   function setScale() {
-    const scale = Math.min(2, Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H));
+    const scale = Math.min(1.5, Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H));
     stage.style.transform = `scale(${scale})`;
     const portrait = window.innerHeight > window.innerWidth;
     rotateOverlay.classList.toggle("open", portrait);
