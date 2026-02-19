@@ -263,20 +263,21 @@ body {
 .heroPageBody {
   min-height: 0;
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 250px;
   gap: 8px;
 }
 
 .heroRosterGrid {
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: rgba(20, 21, 37, 0.9);
+  background: rgba(19, 20, 36, 0.92);
   padding: 8px;
   display: grid;
   gap: 6px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   overflow: auto;
+  order: 2;
 }
 
 .heroChip {
@@ -287,7 +288,7 @@ body {
   border-radius: 10px;
   background: linear-gradient(180deg, rgba(38, 39, 63, 0.92), rgba(27, 28, 46, 0.92));
   padding: 6px;
-  min-height: 60px;
+  min-height: 54px;
   display: grid;
   align-content: space-between;
   gap: 4px;
@@ -302,18 +303,18 @@ body {
 .heroChipTop {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
 .heroChipIcon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 6px;
   position: relative;
   display: grid;
   place-items: center;
-  font-size: 14px;
+  font-size: 15px;
   border: 1px solid rgba(111, 114, 166, 0.4);
   overflow: hidden;
 }
@@ -325,7 +326,7 @@ body {
 }
 
 .heroChipName {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
@@ -334,22 +335,62 @@ body {
 
 .heroChipMeta {
   font-size: 9px;
-  color: #b9b8ca;
+  color: #b8c1d9;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.heroChipInfo {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.heroChipRarity {
+  margin-left: auto;
+  justify-self: end;
+  min-width: 34px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(118, 123, 178, 0.45);
+  background: rgba(35, 37, 63, 0.9);
+  display: grid;
+  place-items: center;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  color: #dde5ff;
+  padding: 0 6px;
+}
+
+.heroChipRarity.r {
+  border-color: rgba(130, 181, 255, 0.48);
+  color: #cfe4ff;
+}
+
+.heroChipRarity.sr {
+  border-color: rgba(194, 144, 255, 0.58);
+  color: #ead6ff;
+}
+
+.heroChipRarity.ssr {
+  border-color: rgba(247, 201, 72, 0.62);
+  color: #fff0bd;
+  background: linear-gradient(180deg, rgba(68, 55, 25, 0.95), rgba(42, 33, 17, 0.95));
+}
+
 .heroDetail {
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: rgba(20, 21, 37, 0.92);
+  background: rgba(18, 20, 35, 0.95);
   padding: 10px;
   display: grid;
   gap: 8px;
   align-content: start;
   min-height: 0;
   overflow: auto;
+  order: 1;
 }
 
 .heroDetailHead {
@@ -383,15 +424,112 @@ body {
 
 .heroDetailSub {
   font-size: 10px;
-  color: #b8b6ca;
+  color: #9fd9d4;
 }
 
 .heroDetailStat {
   border: 1px solid rgba(89, 92, 136, 0.34);
   border-radius: 10px;
   background: rgba(28, 30, 49, 0.9);
-  padding: 7px;
+  padding: 8px;
   font-size: 10px;
+}
+
+.heroDetailHeadText {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.rarityBadge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 34px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 129, 184, 0.5);
+  background: rgba(32, 34, 58, 0.9);
+  color: #e4e7ff;
+  font-size: 8px;
+  font-weight: 900;
+  vertical-align: middle;
+  margin-right: 4px;
+  padding: 0 6px;
+}
+
+.rarityBadge.r {
+  border-color: rgba(130, 181, 255, 0.5);
+  color: #d6e9ff;
+}
+
+.rarityBadge.sr {
+  border-color: rgba(196, 146, 255, 0.58);
+  color: #eddcff;
+}
+
+.rarityBadge.ssr {
+  border-color: rgba(247, 201, 72, 0.66);
+  color: #fff0bd;
+  background: linear-gradient(180deg, rgba(69, 55, 23, 0.95), rgba(41, 33, 16, 0.95));
+}
+
+.heroLevelBadge {
+  color: #ffd98e;
+}
+
+.heroDetailStatGrid {
+  display: grid;
+  gap: 5px;
+}
+
+.heroStatLine {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.heroStatIcon {
+  width: 14px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+}
+
+.heroStatLabel {
+  color: #b9bbd6;
+}
+
+.heroStatValue {
+  font-weight: 900;
+  color: #ebebfb;
+}
+
+.heroStatValue.main {
+  margin-left: auto;
+}
+
+.heroStatValue.main + .heroStatValue {
+  margin-left: 6px;
+}
+
+.heroStatValue.attack {
+  color: #ffb8c2;
+}
+
+.heroStatValue.hp {
+  color: #a9e7be;
+}
+
+.heroStatValue.growth {
+  color: #9ad7ff;
+}
+
+.heroStatValue.resource {
+  color: #f7d98b;
+}
+
+.heroStatValue.target {
+  color: #c3b8ff;
 }
 
 .heroDetailActions {
@@ -449,7 +587,7 @@ body {
 .heroDetailSubTitle {
   font-size: 10px;
   font-weight: 800;
-  color: #dcd9f0;
+  color: #e8e3ff;
 }
 
 .heroPassiveList {
@@ -485,7 +623,7 @@ body {
 .heroPassiveName {
   font-size: 10px;
   font-weight: 800;
-  color: #eceaf8;
+  color: #f6f5ff;
 }
 
 .heroPassiveDesc {
@@ -512,6 +650,12 @@ body {
 .summonDesc {
   font-size: 10px;
   color: #c6c4d8;
+}
+
+.lobbyStat span,
+.summonDesc span {
+  font-weight: 900;
+  color: #ffe39f;
 }
 
 .summonActions {
@@ -562,7 +706,7 @@ body {
 .panelTitle {
   font-weight: 800;
   font-size: 11px;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.3px;
   color: var(--gold);
 }
@@ -652,23 +796,29 @@ body {
 }
 
 #nodePill {
-  max-width: 88px;
+  max-width: 100px;
+  color: #ffe39f;
+  border-color: rgba(247, 201, 72, 0.44);
 }
 
 #partyPill {
-  max-width: 96px;
+  max-width: 108px;
+  color: #ffd6dd;
+  border-color: rgba(233, 124, 162, 0.42);
 }
 
 #comboPill {
-  max-width: 118px;
+  max-width: 134px;
 }
 
 #turnPill {
-  max-width: 100px;
+  max-width: 118px;
 }
 
 #rulePill {
-  max-width: 132px;
+  max-width: 148px;
+  color: #ccefff;
+  border-color: rgba(96, 160, 193, 0.42);
 }
 
 .pill.accent {

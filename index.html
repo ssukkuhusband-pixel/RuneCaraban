@@ -32,7 +32,7 @@
                   </div>
                 </div>
                 <div class="chapterPanel panel">
-                  <div class="panelTitle">챕터 선택</div>
+                  <div class="panelTitle">🗺️ 챕터 선택</div>
                   <div class="chapterSelector">
                     <button class="btn ghost chapterArrow" id="btnChapterPrev" type="button" aria-label="이전 챕터">◀</button>
                     <div class="chapterCurrent">
@@ -41,12 +41,12 @@
                     </div>
                     <button class="btn ghost chapterArrow" id="btnChapterNext" type="button" aria-label="다음 챕터">▶</button>
                   </div>
-                  <button class="btn primary chapterEnterBtn" id="btnChapterEnter" type="button">입장</button>
+                  <button class="btn primary chapterEnterBtn" id="btnChapterEnter" type="button">🚪 입장</button>
                 </div>
                 <div class="lobbyActions">
-                  <button class="btn ghost" id="btnLobbyHeroes" type="button">영웅 목록</button>
-                  <button class="btn ghost" id="btnLobbySummon" type="button">영웅 뽑기</button>
-                  <button class="btn danger" id="btnResetData" type="button">데이터 초기화</button>
+                  <button class="btn ghost" id="btnLobbyHeroes" type="button">🧙 영웅 목록</button>
+                  <button class="btn ghost" id="btnLobbySummon" type="button">🎲 영웅 뽑기</button>
+                  <button class="btn danger" id="btnResetData" type="button">🗑️ 데이터 초기화</button>
                 </div>
               </div>
             </section>
@@ -54,12 +54,12 @@
             <section id="lobbyHeroes" class="lobbyScreen">
               <div class="lobbyPanel panel">
                 <div class="lobbyPanelHead">
-                  <div class="panelTitle">영웅 목록</div>
-                  <button class="btn tiny ghost" id="btnHeroBack" type="button">메인으로</button>
+                  <div class="panelTitle">🧙 영웅 목록</div>
+                  <button class="btn tiny ghost" id="btnHeroBack" type="button">🏕️ 메인으로</button>
                 </div>
                 <div class="heroPageBody">
-                  <div id="heroRosterGrid" class="heroRosterGrid"></div>
                   <div id="heroDetail" class="heroDetail"></div>
+                  <div id="heroRosterGrid" class="heroRosterGrid"></div>
                 </div>
               </div>
             </section>
@@ -67,19 +67,19 @@
             <section id="lobbySummon" class="lobbyScreen">
               <div class="lobbyPanel panel">
                 <div class="lobbyPanelHead">
-                  <div class="panelTitle">영웅 뽑기</div>
-                  <button class="btn tiny ghost" id="btnSummonBack" type="button">메인으로</button>
+                  <div class="panelTitle">🎲 영웅 뽑기</div>
+                  <button class="btn tiny ghost" id="btnSummonBack" type="button">🏕️ 메인으로</button>
                 </div>
                 <div class="summonBody">
                   <div class="summonMeta">
-                    <div class="summonDesc">현재 결정: <span id="summonShard">0</span></div>
-                    <div class="summonDesc" id="summonRateInfo">확률 정보</div>
+                    <div class="summonDesc">🧿 현재 결정: <span id="summonShard">0</span></div>
+                    <div class="summonDesc" id="summonRateInfo">🎯 확률 정보</div>
                   </div>
                   <div class="summonActions">
-                    <button class="btn primary" id="btnSummon1" type="button">1회 뽑기</button>
-                    <button class="btn primary" id="btnSummon10" type="button">10회 뽑기</button>
+                    <button class="btn primary" id="btnSummon1" type="button">🎟️ 1회 뽑기</button>
+                    <button class="btn primary" id="btnSummon10" type="button">🎟️ 10회 뽑기</button>
                   </div>
-                  <div class="summonDesc">최근 결과</div>
+                  <div class="summonDesc">📜 최근 결과</div>
                   <div id="summonResultList" class="summonResultList"></div>
                 </div>
               </div>
@@ -102,8 +102,8 @@
               <div class="pill" id="rulePill">규칙: 룬 → 행동 주체</div>
             </div>
             <div class="actions">
-              <button class="btn ghost" id="btnPause" type="button">일시정지</button>
-              <button class="btn ghost danger" id="btnRetry" type="button">다시 시작</button>
+              <button class="btn ghost" id="btnPause" type="button">⏸️ 일시정지</button>
+              <button class="btn ghost danger" id="btnRetry" type="button">🔄 다시 시작</button>
             </div>
           </header>
 
@@ -115,11 +115,11 @@
                 <div class="battleDust"></div>
                 <div class="runOverlay">
                   <div class="runOverlayRow">
-                    <div class="runOverlayTitle">특성</div>
+                    <div class="runOverlayTitle">✨ 런 특성</div>
                     <div id="perkList" class="iconRack"></div>
                   </div>
                   <div class="runOverlayRow">
-                    <div class="runOverlayTitle">유물</div>
+                    <div class="runOverlayTitle">🧿 유물</div>
                     <div id="relicList" class="iconRack"></div>
                   </div>
                 </div>
@@ -129,7 +129,7 @@
                 <div id="fxLayer" class="fxLayer" aria-hidden="true"></div>
               </div>
               <div class="logHead">
-                <div class="panelTitle">전투 로그</div>
+                <div class="panelTitle">📜 전투 로그</div>
                 <button class="btn tiny ghost" id="btnLogToggle" type="button">로그 숨김</button>
               </div>
               <div id="battleLog" class="battleLog"></div>
@@ -143,7 +143,7 @@
                 <div class="reel" id="reel1">?</div>
                 <div class="reel" id="reel2">?</div>
               </div>
-              <button class="btn primary spinBtn" id="btnSpin" type="button">회전</button>
+              <button class="btn primary spinBtn" id="btnSpin" type="button">🎰 회전</button>
             </div>
           </footer>
 

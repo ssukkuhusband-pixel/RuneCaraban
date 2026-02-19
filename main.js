@@ -410,6 +410,12 @@
     return "R";
   }
 
+  function rarityClass(rarity) {
+    if (rarity === "SSR") return "ssr";
+    if (rarity === "SR") return "sr";
+    return "r";
+  }
+
   function defaultRoster() {
     const roster = {};
     HERO_LIBRARY.forEach((hero) => {
@@ -802,7 +808,7 @@
     if (!heroDetail) return;
     const hero = heroById(heroId);
     if (!hero) {
-      heroDetail.innerHTML = '<div class="heroDetailStat">영웅을 선택해주세요.</div>';
+      heroDetail.innerHTML = '<div class="heroDetailStat">🧙 우측 목록에서 영웅을 선택해주세요.</div>';
       return;
     }
 
@@ -817,23 +823,28 @@
 
     const head = document.createElement("div");
     head.className = "heroDetailHead";
+    const rarity = rarityLabel(hero.rarity);
+    const rarityTone = rarityClass(hero.rarity);
     head.innerHTML = `<div class="heroDetailArt">${
       heroArt
         ? `<img src="${heroArt}" alt="${hero.name}" loading="lazy" /><span class="heroSymbolBadge">${hero.icon}</span>`
         : hero.icon
-    }</div><div><div class="heroDetailTitle">${hero.name} [${rarityLabel(hero.rarity)}] Lv.${progress.level}</div><div class="heroDetailSub">${
-      hero.role
-    }</div></div>`;
+    }</div><div class="heroDetailHeadText"><div class="heroDetailTitle"><span class="rarityBadge ${rarityTone}">${rarity}</span>${hero.name} <span class="heroLevelBadge">Lv.${progress.level}</span></div><div class="heroDetailSub">${hero.icon} ${hero.role}</div></div>`;
     heroDetail.appendChild(head);
 
     const stat = document.createElement("div");
     stat.className = "heroDetailStat";
-    stat.innerHTML = `기본 공격 ${hero.baseAtk} + 성장 ${growth.atk}<br/>기본 체력 ${hero.baseHp} + 성장 ${growth.hp}<br/>조각 ${
-      progress.fragments
-    }${progress.level >= MAX_HERO_LEVEL ? "" : ` / 필요 ${needFragments}`}<br/>기본 타겟: ${targetRuleLabel(
+    stat.innerHTML = `<div class="heroDetailStatGrid">
+      <div class="heroStatLine"><span class="heroStatIcon">⚔️</span><span class="heroStatLabel">공격력</span><span class="heroStatValue main attack">${hero.baseAtk}</span><span class="heroStatValue growth">+${growth.atk}</span></div>
+      <div class="heroStatLine"><span class="heroStatIcon">❤️</span><span class="heroStatLabel">체력</span><span class="heroStatValue main hp">${hero.baseHp}</span><span class="heroStatValue growth">+${growth.hp}</span></div>
+      <div class="heroStatLine"><span class="heroStatIcon">🧩</span><span class="heroStatLabel">조각</span><span class="heroStatValue main resource">${progress.fragments}${
+      progress.level >= MAX_HERO_LEVEL ? "" : ` / ${needFragments}`
+    }</span></div>
+      <div class="heroStatLine"><span class="heroStatIcon">🎯</span><span class="heroStatLabel">기본 타겟</span><span class="heroStatValue main target">${targetRuleLabel(
       hero.targetRule || "front",
       "enemy"
-    )}`;
+    )}</span></div>
+    </div>`;
     heroDetail.appendChild(stat);
 
     const trait = heroTraitById(hero.id);
@@ -848,7 +859,7 @@
     positionBox.className = "heroPositionBox";
     const positionText = document.createElement("div");
     positionText.className = "heroPositionText";
-    positionText.textContent = equippedPos ? `출전 위치 ${formationLabel(equippedPos.index, equippedPos.total)}` : "현재 대기중";
+    positionText.textContent = equippedPos ? `📍 출전 위치 ${formationLabel(equippedPos.index, equippedPos.total)}` : "🪑 현재 대기중";
     positionBox.appendChild(positionText);
     if (equippedPos) {
       const positionActions = document.createElement("div");
@@ -856,7 +867,7 @@
       const moveBack = document.createElement("button");
       moveBack.className = "btn tiny ghost";
       moveBack.type = "button";
-      moveBack.textContent = "뒤로 이동";
+      moveBack.textContent = "◀ 뒤로";
       moveBack.disabled = equippedPos.index <= 0;
       moveBack.addEventListener("click", () => {
         const result = tryShiftLoadout(hero.id, -1);
@@ -866,7 +877,7 @@
       const moveFront = document.createElement("button");
       moveFront.className = "btn tiny ghost";
       moveFront.type = "button";
-      moveFront.textContent = "앞으로 이동";
+      moveFront.textContent = "앞으로 ▶";
       moveFront.disabled = equippedPos.index >= equippedPos.total - 1;
       moveFront.addEventListener("click", () => {
         const result = tryShiftLoadout(hero.id, 1);
@@ -884,7 +895,7 @@
     const equipBtn = document.createElement("button");
     const equipped = isHeroEquipped(hero.id);
     equipBtn.className = `btn tiny ${equipped ? "ghost" : "primary"}`;
-    equipBtn.textContent = equipped ? "출전 해제" : "출전 장착";
+    equipBtn.textContent = equipped ? "🧳 출전 해제" : "⚔️ 출전 장착";
     if (equipped && currentLoadout().length <= 1) equipBtn.disabled = true;
     if (!equipped && currentLoadout().length >= MAX_ACTIVE) equipBtn.disabled = true;
     equipBtn.addEventListener("click", () => {
@@ -897,10 +908,10 @@
     const levelBtn = document.createElement("button");
     levelBtn.className = "btn tiny primary";
     if (progress.level >= MAX_HERO_LEVEL) {
-      levelBtn.textContent = "최대 레벨";
+      levelBtn.textContent = "🏁 최대 레벨";
       levelBtn.disabled = true;
     } else {
-      levelBtn.textContent = `레벨업 ${needShards}`;
+      levelBtn.textContent = `⬆️ 레벨업 ${needShards}`;
       levelBtn.title = `필요: 조각 ${needFragments}, 결정 ${needShards}`;
       levelBtn.disabled = progress.fragments < needFragments || state.meta.shards < needShards;
     }
@@ -915,7 +926,7 @@
 
     const passiveTitle = document.createElement("div");
     passiveTitle.className = "heroDetailSubTitle";
-    passiveTitle.textContent = "패시브 스킬";
+    passiveTitle.textContent = "✨ 패시브 스킬";
     heroDetail.appendChild(passiveTitle);
 
     const passiveList = document.createElement("div");
@@ -947,7 +958,9 @@
       const progress = heroProgress(hero.id);
       const heroArt = heroVisual(hero.id);
       const equippedPos = loadoutPosition(hero.id);
-      const stateText = equippedPos ? `출전 ${equippedPos.index + 1}/${equippedPos.total}` : "대기";
+      const stateText = equippedPos ? `⚔️ 출전 ${equippedPos.index + 1}/${equippedPos.total}` : "🪑 대기";
+      const rarity = rarityLabel(hero.rarity);
+      const rarityTone = rarityClass(hero.rarity);
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = `heroChip${state.ui.selectedHeroId === hero.id ? " selected" : ""}`;
@@ -955,7 +968,7 @@
         heroArt
           ? `<img src="${heroArt}" alt="${hero.name}" loading="lazy" /><span class="heroSymbolBadge small">${hero.icon}</span>`
           : hero.icon
-      }</div><div class="heroChipName">${hero.name}</div></div><div class="heroChipMeta">Lv.${progress.level} · ${stateText}</div>`;
+      }</div><div class="heroChipInfo"><div class="heroChipName">${hero.name}</div><div class="heroChipMeta">🆙 Lv.${progress.level} · ${stateText}</div></div><span class="heroChipRarity ${rarityTone}">${rarity}</span></div>`;
       chip.addEventListener("click", () => {
         state.ui.selectedHeroId = hero.id;
         renderHeroRoster();
@@ -2222,13 +2235,13 @@
   }
 
   function renderTopStats() {
-    nodePill.textContent = `C${state.chapter} ${state.nodeIndex + 1}/${TOTAL_NODES} · ${nodeTypeLabel(state.currentNodeType)}`;
+    nodePill.textContent = `🗺️ C${state.chapter} ${state.nodeIndex + 1}/${TOTAL_NODES} · ${nodeTypeLabel(state.currentNodeType)}`;
     const hp = state.activeHeroes.reduce((sum, hero) => sum + Math.max(0, hero.hp), 0);
     const max = state.activeHeroes.reduce((sum, hero) => sum + hero.maxHp, 0);
     const readyCount = state.activeHeroes.filter((hero) => hero.hp > 0 && (hero.energy || 0) >= 100).length;
-    partyPill.textContent = `HP ${hp}/${max}`;
-    comboPill.textContent = `연계x${comboMultiplier().toFixed(2)} 궁${readyCount} 유물${state.relics.length}`;
-    if (turnPill) turnPill.textContent = `보너스 ${state.turnBuff.label}`;
+    partyPill.textContent = `❤️ ${hp}/${max}`;
+    comboPill.textContent = `⚡ x${comboMultiplier().toFixed(2)} · 🌟 ${readyCount} · 🧿 ${state.relics.length}`;
+    if (turnPill) turnPill.textContent = `🎁 ${state.turnBuff.label}`;
     const spinMarks = [];
     if (state.modifiers.spinDoubleChance > 0) spinMarks.push("x2");
     if (state.modifiers.spinRerollChance > 0) spinMarks.push("↺");
@@ -2238,8 +2251,8 @@
     const markLabel = spinMarks.length > 0 ? ` · 표식 ${spinMarks.join("/")}` : "";
     rulePill.textContent =
       state.teamGuardTurns > 0
-        ? `룬=행동 · 피해감소 ${(state.teamGuardRate * 100).toFixed(0)}%${markLabel}`
-        : `룬=행동 · 기본타겟 전열${markLabel}`;
+        ? `🎰 룬=행동 · 🛡 ${(state.teamGuardRate * 100).toFixed(0)}%${markLabel}`
+        : `🎰 룬=행동 · 🎯 기본타겟 전열${markLabel}`;
   }
 
   function makeStatusDot(icon, label) {
