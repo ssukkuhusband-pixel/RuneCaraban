@@ -176,9 +176,17 @@ body {
 }
 
 .chapterPanel {
+  width: 100%;
   align-self: end;
+  justify-self: center;
   padding: 8px;
   background: transparent;
+  display: grid;
+  justify-items: center;
+}
+
+.chapterUiBox {
+  width: 33.3333%;
 }
 
 .chapterPanel.panel {
