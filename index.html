@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#0a0a0f" />
+    <title>룬 캐러밴 - 프로토타입</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="viewport">
+      <div id="stageWrap">
+        <div id="stage">
+          <div id="rotateOverlay" aria-hidden="true">
+            <div class="rotateCard">
+              <div class="rotateTitle">가로 모드로 돌려주세요</div>
+              <div class="rotateDesc">이 프로토타입은 모바일 가로 화면에 최적화되어 있습니다.</div>
+            </div>
+          </div>
+
+          <div id="lobbyLayer" class="lobbyLayer">
+            <section id="lobbyMain" class="lobbyScreen active">
+              <div id="lobbyScene" class="lobbyScene">
+                <div class="lobbySceneOverlay"></div>
+                <div class="lobbyMainTop">
+                  <div class="lobbyTitle">룬 캐러밴</div>
+                  <div class="lobbySubtitle">모닥불 야영지 · 던전 원정 준비</div>
+                  <div class="lobbyStats">
+                    <div class="lobbyStat">🧿 결정 <span id="lobbyShard">0</span></div>
+                    <div class="lobbyStat">🎴 영웅 <span id="lobbyOwned">0/6</span></div>
+                    <div class="lobbyStat">⚔ 편성 <span id="lobbyEquipped">0/4</span></div>
+                  </div>
+                </div>
+                <div class="chapterPanel panel">
+                  <div class="panelTitle">챕터 선택</div>
+                  <div class="chapterSelector">
+                    <button class="btn ghost chapterArrow" id="btnChapterPrev" type="button" aria-label="이전 챕터">◀</button>
+                    <div class="chapterCurrent">
+                      <div class="chapterName" id="chapterName">챕터 1 · 잿빛 입구</div>
+                      <div class="chapterHint" id="chapterHint">좌우 화살표로 챕터를 선택하세요</div>
+                    </div>
+                    <button class="btn ghost chapterArrow" id="btnChapterNext" type="button" aria-label="다음 챕터">▶</button>
+                  </div>
+                  <button class="btn primary chapterEnterBtn" id="btnChapterEnter" type="button">입장</button>
+                </div>
+                <div class="lobbyActions">
+                  <button class="btn ghost" id="btnLobbyHeroes" type="button">영웅 목록</button>
+                  <button class="btn ghost" id="btnLobbySummon" type="button">영웅 뽑기</button>
+                  <button class="btn danger" id="btnResetData" type="button">데이터 초기화</button>
+                </div>
+              </div>
+            </section>
+
+            <section id="lobbyHeroes" class="lobbyScreen">
+              <div class="lobbyPanel panel">
+                <div class="lobbyPanelHead">
+                  <div class="panelTitle">영웅 목록</div>
+                  <button class="btn tiny ghost" id="btnHeroBack" type="button">메인으로</button>
+                </div>
+                <div class="heroPageBody">
+                  <div id="heroRosterGrid" class="heroRosterGrid"></div>
+                  <div id="heroDetail" class="heroDetail"></div>
+                </div>
+              </div>
+            </section>
+
+            <section id="lobbySummon" class="lobbyScreen">
+              <div class="lobbyPanel panel">
+                <div class="lobbyPanelHead">
+                  <div class="panelTitle">영웅 뽑기</div>
+                  <button class="btn tiny ghost" id="btnSummonBack" type="button">메인으로</button>
+                </div>
+                <div class="summonBody">
+                  <div class="summonMeta">
+                    <div class="summonDesc">현재 결정: <span id="summonShard">0</span></div>
+                    <div class="summonDesc" id="summonRateInfo">확률 정보</div>
+                  </div>
+                  <div class="summonActions">
+                    <button class="btn primary" id="btnSummon1" type="button">1회 뽑기</button>
+                    <button class="btn primary" id="btnSummon10" type="button">10회 뽑기</button>
+                  </div>
+                  <div class="summonDesc">최근 결과</div>
+                  <div id="summonResultList" class="summonResultList"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <header id="battleTopBar" class="topBar">
+            <div class="brand">
+              <div class="crest">룬</div>
+              <div class="brandText">
+                <div class="title">룬 캐러밴</div>
+                <div class="subtitle">슬롯 전술 로그라이트</div>
+              </div>
+            </div>
+            <div class="statusRow">
+              <div class="pill" id="nodePill">노드 1/10</div>
+              <div class="pill" id="partyPill">파티 체력 0/0</div>
+              <div class="pill accent" id="comboPill">연계 x1.00</div>
+              <div class="pill info" id="turnPill">턴 보너스 없음</div>
+              <div class="pill" id="rulePill">규칙: 룬 → 행동 주체</div>
+            </div>
+            <div class="actions">
+              <button class="btn ghost" id="btnPause" type="button">일시정지</button>
+              <button class="btn ghost danger" id="btnRetry" type="button">다시 시작</button>
+            </div>
+          </header>
+
+          <main id="battleMainGrid" class="mainGrid">
+            <section class="battlefieldPanel">
+              <div id="battlefield" class="battlefield">
+                <div class="parallax"></div>
+                <div class="battleGlow"></div>
+                <div class="battleDust"></div>
+                <div class="runOverlay">
+                  <div class="runOverlayRow">
+                    <div class="runOverlayTitle">특성</div>
+                    <div id="perkList" class="iconRack"></div>
+                  </div>
+                  <div class="runOverlayRow">
+                    <div class="runOverlayTitle">유물</div>
+                    <div id="relicList" class="iconRack"></div>
+                  </div>
+                </div>
+                <div class="clashBand"><span>교전</span></div>
+                <div id="heroLane" class="lane heroes" aria-label="아군 라인"></div>
+                <div id="enemyLane" class="lane enemies" aria-label="적군 라인"></div>
+                <div id="fxLayer" class="fxLayer" aria-hidden="true"></div>
+              </div>
+              <div class="logHead">
+                <div class="panelTitle">전투 로그</div>
+                <button class="btn tiny ghost" id="btnLogToggle" type="button">로그 숨김</button>
+              </div>
+              <div id="battleLog" class="battleLog"></div>
+            </section>
+          </main>
+
+          <footer id="battleSlotBar" class="slotBar">
+            <div class="slotRow">
+              <div class="reels">
+                <div class="reel" id="reel0">?</div>
+                <div class="reel" id="reel1">?</div>
+                <div class="reel" id="reel2">?</div>
+              </div>
+              <button class="btn primary spinBtn" id="btnSpin" type="button">회전</button>
+            </div>
+          </footer>
+
+          <div id="floatLayer" class="floatLayer" aria-hidden="true"></div>
+          <div id="skillCueLayer" class="skillCueLayer" aria-hidden="true"></div>
+
+          <div id="modalLayer" class="modalLayer" aria-hidden="true">
+            <div class="modalBackdrop"></div>
+            <div class="modal">
+              <div class="modalHeader">
+                <div class="modalTitle" id="modalTitle">제목</div>
+                <button class="btn ghost tiny" id="btnModalClose" type="button">닫기</button>
+              </div>
+              <div class="modalBody" id="modalBody"></div>
+              <div class="modalFooter" id="modalFooter"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./assets/generated/assets-manifest.js"></script>
+    <script src="./main.js"></script>
+  </body>
+</html>
