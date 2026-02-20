@@ -38,6 +38,7 @@
   const btnSpin = byId("btnSpin");
   const btnRetry = byId("btnRetry");
   const btnPause = byId("btnPause");
+  const btnHudToggle = byId("btnHudToggle");
   const modalLayer = byId("modalLayer");
   const modalTitle = byId("modalTitle");
   const modalBody = byId("modalBody");
@@ -261,6 +262,7 @@
   ];
 
   const META_STORAGE_KEY = "rune_caravan_meta_v1";
+  const HUD_STORAGE_KEY = "rune_caravan_hud_v1";
   const STARTER_HERO_IDS = ["H1", "H3"];
   const HERO_PULL_COST = 24;
   const MAX_HERO_LEVEL = 10;
@@ -675,6 +677,22 @@
     }
   }
 
+  function loadHudExpanded() {
+    try {
+      return localStorage.getItem(HUD_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function saveHudExpanded(expanded) {
+    try {
+      localStorage.setItem(HUD_STORAGE_KEY, expanded ? "1" : "0");
+    } catch {
+      return;
+    }
+  }
+
   const state = {
     chapter: 1,
     nodeIndex: 0,
@@ -703,6 +721,7 @@
       selectedHeroId: null,
       summonResults: [],
       selectedChapter: 1,
+      hudExpanded: loadHudExpanded(),
     },
     modifiers: {
       atkFlat: 0,
@@ -980,6 +999,16 @@
       if (!node) return;
       node.classList.toggle("hidden", !visible);
     });
+  }
+
+  function syncHudExpanded() {
+    if (!battleTopBar) return;
+    const expanded = Boolean(state.ui.hudExpanded);
+    battleTopBar.classList.toggle("hud-expanded", expanded);
+    if (!btnHudToggle) return;
+    btnHudToggle.textContent = expanded ? "🔼 상세 닫기" : "🔽 상세";
+    btnHudToggle.setAttribute("aria-pressed", expanded ? "true" : "false");
+    btnHudToggle.setAttribute("aria-label", expanded ? "상세 HUD 닫기" : "상세 HUD 열기");
   }
 
   function setLobbyVisible(visible) {
@@ -4437,6 +4466,13 @@
   btnSpin.addEventListener("click", spin);
   btnRetry.addEventListener("click", () => resetRun({ startBattle: true, chapter: state.chapter }));
   btnPause.addEventListener("click", showPauseModal);
+  if (btnHudToggle) {
+    btnHudToggle.addEventListener("click", () => {
+      state.ui.hudExpanded = !state.ui.hudExpanded;
+      saveHudExpanded(state.ui.hudExpanded);
+      syncHudExpanded();
+    });
+  }
   btnLogToggle.addEventListener("click", () => {
     state.logCollapsed = !state.logCollapsed;
     syncLogVisibility();
@@ -4458,5 +4494,6 @@
   if (btnEquipSummon10) btnEquipSummon10.addEventListener("click", () => runEquipmentSummon(10));
 
   syncLogVisibility();
+  syncHudExpanded();
   resetRun({ startBattle: false, chapter: 1 });
 })();

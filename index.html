@@ -101,14 +101,19 @@
                 <div class="subtitle">슬롯 전술 로그라이트</div>
               </div>
             </div>
-            <div class="statusRow">
-              <div class="pill" id="nodePill">노드 1/10</div>
-              <div class="pill" id="partyPill">파티 체력 0/0</div>
-              <div class="pill accent" id="comboPill">연계 x1.00</div>
-              <div class="pill info" id="turnPill">턴 보너스 없음</div>
-              <div class="pill" id="rulePill">규칙: 룬 → 행동 주체</div>
+            <div class="statusWrap">
+              <div class="statusRow core">
+                <div class="pill" id="nodePill">노드 1/10</div>
+                <div class="pill" id="partyPill">파티 체력 0/0</div>
+                <div class="pill accent" id="comboPill">연계 x1.00</div>
+              </div>
+              <div class="statusRow detail">
+                <div class="pill info" id="turnPill">턴 보너스 없음</div>
+                <div class="pill" id="rulePill">규칙: 룬 → 행동 주체</div>
+              </div>
             </div>
             <div class="actions">
+              <button class="btn ghost tiny" id="btnHudToggle" type="button" aria-pressed="false">🔽 상세</button>
               <button class="btn ghost" id="btnPause" type="button">⏸️ 일시정지</button>
               <button class="btn ghost danger" id="btnRetry" type="button">🔄 다시 시작</button>
             </div>
