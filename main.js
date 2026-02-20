@@ -68,6 +68,7 @@
   const btnSummonBack = byId("btnSummonBack");
   const heroRosterGrid = byId("heroRosterGrid");
   const heroDetail = byId("heroDetail");
+  const heroShowcase = byId("heroShowcase");
   const summonShard = byId("summonShard");
   const summonRateInfo = byId("summonRateInfo");
   const summonEquipRateInfo = byId("summonEquipRateInfo");
@@ -980,7 +981,7 @@
       if (
         event.target &&
         event.target.closest &&
-        event.target.closest(".battleLog, .modalBody, .heroRosterGrid, .summonResultList")
+        event.target.closest(".battleLog, .modalBody, .heroRosterGrid, .heroDetail, .summonResultList")
       )
         return;
       if (event.cancelable) event.preventDefault();
@@ -1344,10 +1345,11 @@
   }
 
   function renderHeroDetail(heroId) {
-    if (!heroDetail) return;
+    if (!heroDetail || !heroShowcase) return;
     const hero = heroById(heroId);
     if (!hero) {
       heroDetail.innerHTML = '<div class="heroDetailStat">🧙 우측 목록에서 영웅을 선택해주세요.</div>';
+      heroShowcase.innerHTML = '<div class="heroShowcaseEmpty">🖼️ 중앙에서 선택 영웅의 장착 장비를 확인할 수 있습니다.</div>';
       return;
     }
 
@@ -1359,25 +1361,28 @@
     const equippedPos = loadoutPosition(hero.id);
     const equippedItems = heroEquippedItems(hero.id);
     const equipEffects = heroEquipmentEffects(hero.id);
+    const equipAtk = Math.floor(equipEffects.atkFlat || 0);
+    const equipHp = Math.floor(equipEffects.hpFlat || 0);
 
     heroDetail.innerHTML = "";
+    heroShowcase.innerHTML = "";
 
     const head = document.createElement("div");
     head.className = "heroDetailHead";
     const rarity = rarityLabel(hero.rarity);
     const rarityTone = rarityClass(hero.rarity);
-    head.innerHTML = `<div class="heroDetailArt">${
-      heroArt
-        ? `<img src="${heroArt}" alt="${hero.name}" loading="lazy" /><span class="heroSymbolBadge">${hero.icon}</span>`
-        : hero.icon
-    }</div><div class="heroDetailHeadText"><div class="heroDetailTitle"><span class="rarityBadge ${rarityTone}">${rarity}</span>${hero.name} <span class="heroLevelBadge">Lv.${progress.level}</span></div><div class="heroDetailSub">${hero.icon} ${hero.role}</div></div>`;
+    head.innerHTML = `<div class="heroDetailHeadText"><div class="heroDetailTitle"><span class="rarityBadge ${rarityTone}">${rarity}</span>${hero.name} <span class="heroLevelBadge">Lv.${progress.level}</span></div><div class="heroDetailSub">${hero.icon} ${hero.role}</div></div>`;
     heroDetail.appendChild(head);
 
     const stat = document.createElement("div");
     stat.className = "heroDetailStat";
     stat.innerHTML = `<div class="heroDetailStatGrid">
-      <div class="heroStatLine"><span class="heroStatIcon">⚔️</span><span class="heroStatLabel">공격력</span><span class="heroStatValue main attack">${hero.baseAtk}</span><span class="heroStatValue growth">+${growth.atk}</span></div>
-      <div class="heroStatLine"><span class="heroStatIcon">❤️</span><span class="heroStatLabel">체력</span><span class="heroStatValue main hp">${hero.baseHp}</span><span class="heroStatValue growth">+${growth.hp}</span></div>
+      <div class="heroStatLine"><span class="heroStatIcon">⚔️</span><span class="heroStatLabel">공격력</span><span class="heroStatValue main attack">${
+        hero.baseAtk + growth.atk + equipAtk
+      }</span><span class="heroStatValue growth">기본 ${hero.baseAtk} + 성장 ${growth.atk} + 장비 ${equipAtk}</span></div>
+      <div class="heroStatLine"><span class="heroStatIcon">❤️</span><span class="heroStatLabel">체력</span><span class="heroStatValue main hp">${
+        hero.baseHp + growth.hp + equipHp
+      }</span><span class="heroStatValue growth">기본 ${hero.baseHp} + 성장 ${growth.hp} + 장비 ${equipHp}</span></div>
       <div class="heroStatLine"><span class="heroStatIcon">🛠️</span><span class="heroStatLabel">장비 보정</span><span class="heroStatValue main target">${equipmentEffectsText(
         equipEffects
       )}</span></div>
@@ -1468,45 +1473,10 @@
     actions.appendChild(levelBtn);
     heroDetail.appendChild(actions);
 
-    const equipTitle = document.createElement("div");
-    equipTitle.className = "heroDetailSubTitle";
-    equipTitle.textContent = "🛠 장비 슬롯 (무기/투구/갑옷/장신구)";
-    heroDetail.appendChild(equipTitle);
-
-    const equipList = document.createElement("div");
-    equipList.className = "heroEquipList";
-    equippedItems.forEach(({ slot, item }) => {
-      const row = document.createElement("div");
-      row.className = "heroEquipItem";
-      const currentText = item
-        ? `${item.icon} [${rarityLabel(item.rarity)}] ${item.name} · ${equipmentEffectsText(item.effects)}`
-        : "미장착";
-      row.innerHTML = `<div class="heroEquipName">${slot.icon} ${slot.name}</div><div class="heroEquipDesc">${currentText}</div>`;
-      const rowActions = document.createElement("div");
-      rowActions.className = "heroEquipActions";
-      const replaceBtn = document.createElement("button");
-      replaceBtn.className = "btn tiny ghost";
-      replaceBtn.type = "button";
-      replaceBtn.textContent = item ? "교체" : "장착";
-      replaceBtn.addEventListener("click", () => showEquipmentSelectModal(hero.id, slot.id));
-      rowActions.appendChild(replaceBtn);
-      if (item) {
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "btn tiny ghost";
-        removeBtn.type = "button";
-        removeBtn.textContent = "해제";
-        removeBtn.addEventListener("click", () => {
-          const result = tryEquipHeroItem(hero.id, slot.id, null);
-          if (!result.ok) return;
-          log(`${hero.name} ${slot.name} 해제`, true);
-          renderLobby();
-        });
-        rowActions.appendChild(removeBtn);
-      }
-      row.appendChild(rowActions);
-      equipList.appendChild(row);
-    });
-    heroDetail.appendChild(equipList);
+    const equipHint = document.createElement("div");
+    equipHint.className = "heroDetailSubTitle";
+    equipHint.textContent = "🛠 장비는 가운데 아이콘을 터치해 상세/교체";
+    heroDetail.appendChild(equipHint);
 
     const passiveTitle = document.createElement("div");
     passiveTitle.className = "heroDetailSubTitle";
@@ -1525,6 +1495,39 @@
       passiveList.appendChild(item);
     });
     heroDetail.appendChild(passiveList);
+
+    const showcaseStage = document.createElement("div");
+    showcaseStage.className = "heroShowcaseStage";
+    const portrait = document.createElement("div");
+    portrait.className = "heroShowcasePortrait";
+    portrait.innerHTML = heroArt
+      ? `<img class="heroShowcaseImage" src="${heroArt}" alt="${hero.name}" loading="lazy" />`
+      : `<span class="heroShowcaseIcon">${hero.icon}</span>`;
+    const portraitBadge = document.createElement("span");
+    portraitBadge.className = "heroShowcaseBadge";
+    portraitBadge.textContent = `${hero.icon} ${hero.name}`;
+    portrait.appendChild(portraitBadge);
+    showcaseStage.appendChild(portrait);
+
+    equippedItems.forEach(({ slot, item }) => {
+      const slotBtn = document.createElement("button");
+      const rarityToneClass = item ? `rarity-${rarityClass(item.rarity)}` : "";
+      slotBtn.className = `showEquipSlot ${slot.id}${item ? " equipped" : ""} ${rarityToneClass}`.trim();
+      slotBtn.type = "button";
+      slotBtn.setAttribute("aria-label", `${slot.name} 장비 ${item ? "상세/교체" : "장착"}`);
+      slotBtn.title = item
+        ? `${slot.icon} ${slot.name}\n${item.icon} [${rarityLabel(item.rarity)}] ${item.name}\n${equipmentEffectsText(item.effects)}`
+        : `${slot.icon} ${slot.name} 미장착`;
+      slotBtn.innerHTML = `<span class="showEquipSlotGlyph">${item ? item.icon : slot.icon}</span><span class="showEquipSlotName">${slot.name}</span>`;
+      slotBtn.addEventListener("click", () => showEquipmentSelectModal(hero.id, slot.id));
+      showcaseStage.appendChild(slotBtn);
+    });
+
+    const showcaseHint = document.createElement("div");
+    showcaseHint.className = "heroShowcaseHint";
+    showcaseHint.textContent = "아이콘 터치: 장비 상세/교체";
+    showcaseStage.appendChild(showcaseHint);
+    heroShowcase.appendChild(showcaseStage);
   }
 
   function renderHeroRoster() {
