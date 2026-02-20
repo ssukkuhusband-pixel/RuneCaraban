@@ -14,6 +14,10 @@
   --glow-cyan: rgba(78, 205, 196, 0.32);
   --glow-violet: rgba(124, 92, 255, 0.3);
   --glow-gold: rgba(247, 201, 72, 0.28);
+  --hud-bg: rgba(15, 17, 30, 0.72);
+  --hud-bg-strong: rgba(19, 21, 36, 0.82);
+  --hud-line: rgba(124, 132, 190, 0.34);
+  --hud-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
 }
 
 * {
@@ -73,9 +77,9 @@ body {
   width: 844px;
   height: 390px;
   border-radius: 20px;
-  border: 1px solid rgba(92, 95, 144, 0.54);
+  border: 1px solid rgba(102, 107, 162, 0.58);
   background: linear-gradient(180deg, rgba(18, 18, 30, 0.98), rgba(13, 13, 22, 0.98));
-  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 0 0 1px rgba(20, 23, 43, 0.92);
   overflow: hidden;
   position: relative;
   transform-origin: center center;
@@ -187,6 +191,12 @@ body {
 
 .chapterUiBox {
   width: 33.3333%;
+  border: 1px solid rgba(123, 128, 188, 0.36);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(18, 20, 35, 0.7), rgba(14, 16, 28, 0.6));
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  padding: 7px;
+  backdrop-filter: blur(3px);
 }
 
 .chapterPanel.panel {
@@ -247,6 +257,11 @@ body {
 .lobbyActions {
   display: flex;
   gap: 8px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(107, 112, 166, 0.28);
+  background: linear-gradient(180deg, rgba(13, 15, 28, 0.58), rgba(12, 13, 24, 0.44));
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
 }
 
 .lobbyActions .btn {
@@ -767,18 +782,20 @@ body {
 
 .topBar {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
+  top: 6px;
+  left: 6px;
+  right: 6px;
   z-index: 12;
-  padding: 5px 8px;
+  padding: 5px 6px;
   display: grid;
-  gap: 4px;
-  grid-template-columns: 138px minmax(0, 1fr) 138px;
+  gap: 5px;
+  grid-template-columns: 150px minmax(0, 1fr) 150px;
   align-items: center;
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(16, 17, 30, 0.52), rgba(14, 15, 25, 0.42));
-  backdrop-filter: blur(3px);
+  border-radius: 14px;
+  border: 1px solid var(--hud-line);
+  background: linear-gradient(180deg, rgba(11, 12, 21, 0.68), rgba(10, 11, 19, 0.54));
+  backdrop-filter: blur(4px);
+  box-shadow: var(--hud-shadow);
 }
 
 .brand {
@@ -786,6 +803,11 @@ body {
   align-items: center;
   gap: 6px;
   min-width: 0;
+  min-height: 32px;
+  border: 1px solid rgba(111, 118, 179, 0.28);
+  border-radius: 11px;
+  padding: 4px 6px;
+  background: linear-gradient(180deg, rgba(27, 29, 49, 0.74), rgba(17, 18, 31, 0.62));
 }
 
 .brandText {
@@ -826,51 +848,56 @@ body {
 }
 
 .statusRow {
-  display: flex;
-  justify-content: center;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 4px;
   min-width: 0;
-  overflow: hidden;
+  min-height: 32px;
+  border: 1px solid rgba(111, 118, 179, 0.28);
+  border-radius: 11px;
+  padding: 4px;
+  background: linear-gradient(180deg, rgba(25, 27, 46, 0.72), rgba(16, 17, 30, 0.62));
+  overflow: clip;
 }
 
 .pill {
   border: 1px solid var(--line);
-  padding: 3px 6px;
+  padding: 3px 5px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(27, 28, 48, 0.96), rgba(20, 21, 35, 0.96));
-  font-size: 8px;
+  background: linear-gradient(180deg, rgba(31, 33, 54, 0.96), rgba(21, 22, 38, 0.96));
+  font-size: 7px;
   line-height: 1.15;
   font-weight: 800;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  text-align: center;
 }
 
 #nodePill {
-  max-width: 100px;
-  color: #ffe39f;
+  max-width: none;
+  color: #ffe7a7;
   border-color: rgba(247, 201, 72, 0.44);
 }
 
 #partyPill {
-  max-width: 108px;
+  max-width: none;
   color: #ffd6dd;
   border-color: rgba(233, 124, 162, 0.42);
 }
 
 #comboPill {
-  max-width: 134px;
+  max-width: none;
 }
 
 #turnPill {
-  max-width: 118px;
+  max-width: none;
 }
 
 #rulePill {
-  max-width: 148px;
+  max-width: none;
   color: #ccefff;
   border-color: rgba(96, 160, 193, 0.42);
 }
@@ -892,11 +919,16 @@ body {
   justify-self: end;
   display: flex;
   gap: 4px;
+  min-height: 32px;
+  border: 1px solid rgba(111, 118, 179, 0.28);
+  border-radius: 11px;
+  padding: 4px;
+  background: linear-gradient(180deg, rgba(25, 27, 46, 0.72), rgba(16, 17, 30, 0.62));
 }
 
 .actions .btn {
-  padding: 5px 8px;
-  font-size: 10px;
+  padding: 5px 7px;
+  font-size: 9px;
 }
 
 .btn {
@@ -905,13 +937,13 @@ body {
   border: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(38, 39, 64, 0.98), rgba(25, 26, 44, 0.98));
   color: var(--ink);
-  border-radius: 10px;
+  border-radius: 11px;
   padding: 7px 11px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   cursor: pointer;
   transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
-  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.28);
 }
 
 .btn::after {
@@ -995,30 +1027,51 @@ body {
   image-rendering: pixelated;
 }
 
+.battlefield::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(7, 9, 16, 0.38) 0%,
+    rgba(7, 9, 16, 0.04) 26%,
+    rgba(7, 9, 16, 0.02) 66%,
+    rgba(7, 9, 16, 0.42) 100%
+  );
+  z-index: 0;
+}
+
 .battlefield.ultimate-mode {
   filter: saturate(1.18) brightness(0.82);
 }
 
 .runOverlay {
   position: absolute;
-  top: 56px;
+  top: 52px;
   left: 8px;
   z-index: 8;
-  width: 190px;
-  display: grid;
-  gap: 5px;
-}
-
-.runOverlayRow {
-  padding: 0;
+  width: 206px;
   display: grid;
   gap: 4px;
 }
 
+.runOverlayRow {
+  padding: 3px 6px;
+  border: 1px solid rgba(110, 117, 178, 0.32);
+  border-radius: 11px;
+  background: linear-gradient(180deg, rgba(19, 20, 34, 0.72), rgba(13, 14, 26, 0.62));
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+  display: grid;
+  gap: 3px;
+  backdrop-filter: blur(4px);
+}
+
 .runOverlayTitle {
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 800;
-  color: #e7e6f6;
+  color: #d4d6f0;
+  letter-spacing: 0.25px;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.48);
 }
 
@@ -1410,8 +1463,8 @@ body {
 .logHead {
   position: absolute;
   left: 10px;
-  right: 10px;
-  bottom: 86px;
+  right: 286px;
+  bottom: 66px;
   z-index: 9;
   display: flex;
   justify-content: space-between;
@@ -1424,14 +1477,14 @@ body {
 .battleLog {
   position: absolute;
   left: 10px;
-  right: 10px;
-  bottom: 4px;
+  right: 286px;
+  bottom: 6px;
   z-index: 9;
-  height: 78px;
-  min-height: 78px;
+  height: 56px;
+  min-height: 56px;
   padding: 0 2px;
   overflow: auto;
-  font-size: 8px;
+  font-size: 7px;
   line-height: 1.25;
   mask-image: linear-gradient(180deg, transparent 0, #000 8px, #000 calc(100% - 8px), transparent 100%);
 }
@@ -1472,15 +1525,15 @@ body {
 .iconRack {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  min-height: 28px;
+  gap: 3px;
+  min-height: 24px;
 }
 
 .iconToken {
   position: relative;
-  width: 26px;
-  height: 26px;
-  border-radius: 9px;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
   border: 1px solid rgba(92, 95, 142, 0.4);
   background: linear-gradient(180deg, rgba(38, 39, 64, 0.92), rgba(27, 28, 46, 0.92));
   display: grid;
@@ -1511,7 +1564,7 @@ body {
 }
 
 .iconGlyph {
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1;
 }
 
@@ -1547,25 +1600,30 @@ body {
   transform: translateX(-50%);
   z-index: 12;
   width: auto;
-  padding: 0;
+  padding: 6px 9px;
+  border: 1px solid rgba(116, 122, 186, 0.34);
+  border-radius: 15px;
+  background: linear-gradient(180deg, rgba(18, 20, 34, 0.8), rgba(12, 14, 24, 0.68));
+  box-shadow: var(--hud-shadow);
+  backdrop-filter: blur(4px);
 }
 
 .slotRow {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 9px;
 }
 
 .reels {
   display: flex;
-  gap: 6px;
+  gap: 7px;
   justify-content: center;
 }
 
 .reel {
-  width: 52px;
-  height: 40px;
+  width: 54px;
+  height: 42px;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: linear-gradient(180deg, rgba(37, 38, 61, 0.95), rgba(24, 25, 40, 0.95));
@@ -1692,7 +1750,10 @@ body {
 }
 
 .spinBtn {
-  min-width: 110px;
+  min-width: 120px;
+  min-height: 42px;
+  font-size: 12px;
+  letter-spacing: 0.2px;
 }
 
 .fxLayer,
