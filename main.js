@@ -307,10 +307,10 @@
       id: "perk_spin_morph",
       group: "slot",
       icon: "🧬",
-      title: "슬롯 스킬 · 전술 변환",
-      desc: "스핀마다 35% 확률로 전술 심볼 1개가 생존 영웅 심볼로 변환됩니다.",
+      title: "슬롯 스킬 · 꽝 정화",
+      desc: "스핀마다 35% 확률로 꽝 심볼 1개가 생존 영웅 심볼로 정화됩니다.",
       effect: { type: "spinMorph", value: 0.35 },
-      perkTag: { icon: "🧬", name: "전술 변환 +35%" },
+      perkTag: { icon: "🧬", name: "꽝 정화 +35%" },
     },
     {
       id: "perk_spin_link",
@@ -331,13 +331,13 @@
       perkTag: { icon: "2️⃣", name: "2번 슬롯 강화 +28%" },
     },
     {
-      id: "perk_rune_hero",
+      id: "perk_dead_fade",
       group: "slot",
-      icon: "🎲",
-      title: "슬롯 스킬 · 영웅 편중",
-      desc: "영웅 룬 확률 상승, 전술 룬 확률 감소.",
-      effect: { type: "heroWeightBias", value: 1 },
-      perkTag: { icon: "🎲", name: "영웅 룬 편향" },
+      icon: "🪦",
+      title: "슬롯 스킬 · 추모 정렬",
+      desc: "전투불능 영웅 심볼 등장 확률을 크게 낮춥니다.",
+      effect: { type: "deadRunePenaltyReduce", value: 0.2 },
+      perkTag: { icon: "🪦", name: "사망 심볼 감소" },
     },
   ];
 
@@ -681,9 +681,8 @@
     H4: 18,
     H5: 14,
     H6: 16,
-    T_ASSIST: 8,
-    T_BRACE: 8,
   };
+  const ROCK_RUNE_BASE_CHANCE = 0.16;
 
   const ENEMY_INTENTS = [
     { id: "STRIKE", icon: "⚔", name: "강타", target: "single", mult: 1 },
@@ -1250,6 +1249,7 @@
       spinLinkChance: 0,
       spinSlot2PulseChance: 0,
       spinHeroSigilChance: 0,
+      deadRunePenaltyReduce: 0,
       runeWeightDelta: {},
     },
   };
@@ -3055,6 +3055,7 @@
   }
 
   function runeHitCount(rune) {
+    if (rune?.kind === "hazard") return 1;
     if (!rune?.effects?.double) return 1;
     if (rune.kind === "hero" && rune.id === "H6") {
       const hero = state.activeHeroes.find((entry) => entry.id === "H6");
@@ -3344,39 +3345,32 @@
   function applyRuneSynergy(runes) {
     resetTurnBuff();
     if (!runes || runes.length !== 3) return;
-
-    const counts = {};
-    let allTactic = true;
-    const heroIdSet = new Set();
-
-    runes.forEach((rune) => {
-      counts[rune.id] = (counts[rune.id] || 0) + 1;
-      allTactic = allTactic && rune.kind === "tactic";
-      if (rune.kind === "hero") heroIdSet.add(rune.id);
-    });
-
-    const maxCount = Math.max(...Object.values(counts));
-
-    if (allTactic) {
+    if (runes.some((rune) => rune.kind === "hazard")) {
       state.turnBuff = {
-        label: "전술 공명",
-        damageMult: 1.1,
+        label: "낙석 혼선",
+        damageMult: 0.94,
         critBonus: 0,
-        tacticBonus: 0.28,
+        tacticBonus: 0,
       };
-      shieldParty(3 + state.modifiers.shieldBonus, "전술 공명");
-      healParty(2 + state.modifiers.healBonus, "전술 공명");
-      log("전술 공명 발동: 방비/회복 강화");
+      log("🪨 낙석 혼선: 이번 턴 공격 위력 감소", true);
       return;
     }
 
+    const heroRunes = runes.filter((rune) => rune.kind === "hero");
+    if (heroRunes.length !== 3) return;
+    const counts = {};
+    heroRunes.forEach((rune) => {
+      counts[rune.id] = (counts[rune.id] || 0) + 1;
+    });
+    const maxCount = Math.max(...Object.values(counts));
+
     if (maxCount === 3) {
-      const matched = runes[0];
+      const matched = heroRunes[0];
       state.turnBuff = {
         label: `삼중 공명 ${matched.icon}`,
         damageMult: 1.35,
-        critBonus: matched.kind === "hero" ? 0.12 : 0.05,
-        tacticBonus: matched.kind === "tactic" ? 0.12 : 0,
+        critBonus: 0.12,
+        tacticBonus: 0,
       };
       log(`삼중 공명 발동: ${matched.name}의 힘이 증폭됩니다`);
       return;
@@ -3387,21 +3381,19 @@
         label: "쌍룬 공명",
         damageMult: 1.16,
         critBonus: 0.05,
-        tacticBonus: 0.08,
+        tacticBonus: 0,
       };
       log("쌍룬 공명 발동");
       return;
     }
 
-    if (heroIdSet.size === 3) {
-      state.turnBuff = {
-        label: "연계 진형",
-        damageMult: 1.08,
-        critBonus: 0.08,
-        tacticBonus: 0,
-      };
-      log("연계 진형 발동: 영웅 협력 강화");
-    }
+    state.turnBuff = {
+      label: "연계 진형",
+      damageMult: 1.08,
+      critBonus: 0.08,
+      tacticBonus: 0,
+    };
+    log("연계 진형 발동: 영웅 협력 강화");
   }
 
   function intentDamage(enemy) {
@@ -3416,35 +3408,25 @@
   }
 
   function computeRuneWeights() {
-    const weights = { ...BASE_WEIGHTS };
-    Object.entries(state.modifiers.runeWeightDelta).forEach(([id, delta]) => {
-      weights[id] = Math.max(1, (weights[id] || 1) + delta);
-    });
-
-    const activeIds = new Set(state.activeHeroes.map((hero) => hero.id));
-    HERO_LIBRARY.forEach((hero) => {
-      if (!activeIds.has(hero.id)) weights[hero.id] = 0;
-    });
-
-    let removed = 0;
+    const weights = {};
+    const deadWeightRate = clamp(0.42 - (state.modifiers.deadRunePenaltyReduce || 0), 0.06, 0.42);
     state.activeHeroes.forEach((hero) => {
-      if (hero.hp <= 0) {
-        removed += weights[hero.id] || 0;
-        weights[hero.id] = 0;
-      }
+      const base = Math.max(1, BASE_WEIGHTS[hero.id] || 12);
+      const rate = hero.hp > 0 ? 1 : deadWeightRate;
+      weights[hero.id] = Math.max(0.25, base * rate);
     });
-
-    if (removed > 0) {
-      weights.T_ASSIST = (weights.T_ASSIST || 0) + removed * 0.5;
-      weights.T_BRACE = (weights.T_BRACE || 0) + removed * 0.5;
-    }
-
+    Object.entries(state.modifiers.runeWeightDelta).forEach(([id, delta]) => {
+      if (!Object.prototype.hasOwnProperty.call(weights, id)) return;
+      weights[id] = Math.max(0.2, (weights[id] || 0) + delta);
+    });
     return weights;
   }
 
   function pickWeighted(weights) {
     const entries = Object.entries(weights).filter(([, value]) => value > 0);
+    if (entries.length === 0) return state.activeHeroes[0]?.id || HERO_LIBRARY[0]?.id || "H1";
     const total = entries.reduce((sum, [, value]) => sum + value, 0);
+    if (total <= 0) return entries[randInt(entries.length)][0];
     let threshold = Math.random() * total;
     for (const [id, value] of entries) {
       threshold -= value;
@@ -3456,10 +3438,20 @@
   function runeById(id) {
     const hero = HERO_LIBRARY.find((entry) => entry.id === id);
     if (hero) return { id, icon: hero.icon, name: hero.name, kind: "hero" };
-    const tactic = TACTICS.find((entry) => entry.id === id);
-    if (tactic) return { id, icon: tactic.icon, name: tactic.name, kind: "tactic" };
     if (id === "S_WILD") return { id: "S_WILD", icon: "✶", name: "와일드 룬", kind: "special" };
-    return { id: "T_ASSIST", icon: "🤝", name: "협공", kind: "tactic" };
+    if (id === "S_ROCK") return { id: "S_ROCK", icon: "🪨", name: "꽝 룬", kind: "hazard" };
+    const fallback = HERO_LIBRARY.find((entry) => entry.id === state.activeHeroes[0]?.id) || HERO_LIBRARY[0];
+    return { id: fallback.id, icon: fallback.icon, name: fallback.name, kind: "hero" };
+  }
+
+  function rockRuneChance() {
+    return clamp(ROCK_RUNE_BASE_CHANCE, 0, 0.55);
+  }
+
+  function pickRuneSymbol(weights, { rockChanceScale = 1 } = {}) {
+    const chance = clamp(rockRuneChance() * rockChanceScale, 0, 0.6);
+    if (Math.random() < chance) return runeById("S_ROCK");
+    return runeById(pickWeighted(weights));
   }
 
   function decorateRunesWithSpinEffects(runes) {
@@ -3470,18 +3462,26 @@
     const echoChance = clamp(state.modifiers.spinEchoChance || 0, 0, 0.5);
     const forgeChance = clamp(state.modifiers.spinForgeChance || 0, 0, 0.75);
     const sigilChance = clamp(state.modifiers.spinHeroSigilChance || 0, 0, 0.7);
-    const result = runes.map((rune) => ({
-      ...rune,
-      effects: {
-        ...(rune.effects || {}),
-        double: Math.random() < x2Chance,
-        reroll: Math.random() < rerollChance,
-        charge:
-          Math.random() <
-          clamp(chargeChance + (rune.id === "H3" && hasHeroPotential("H3", "H3_OVERHEAT") ? 0.45 : 0), 0, 0.92),
-        echo: Math.random() < echoChance,
-      },
-    }));
+    const result = runes.map((rune) => {
+      if (rune.kind === "hazard") {
+        return {
+          ...rune,
+          effects: { ...(rune.effects || {}) },
+        };
+      }
+      return {
+        ...rune,
+        effects: {
+          ...(rune.effects || {}),
+          double: Math.random() < x2Chance,
+          reroll: Math.random() < rerollChance,
+          charge:
+            Math.random() <
+            clamp(chargeChance + (rune.id === "H3" && hasHeroPotential("H3", "H3_OVERHEAT") ? 0.45 : 0), 0, 0.92),
+          echo: Math.random() < echoChance,
+        },
+      };
+    });
 
     result.forEach((rune, index) => {
       if (rune.kind !== "hero") return;
@@ -3497,7 +3497,12 @@
     });
 
     if (Math.random() < forgeChance && result.length > 0) {
-      const forgeIndex = randInt(result.length);
+      const forgeIndices = result
+        .map((rune, index) => ({ rune, index }))
+        .filter((entry) => entry.rune.kind !== "hazard")
+        .map((entry) => entry.index);
+      if (forgeIndices.length === 0) return result;
+      const forgeIndex = forgeIndices[randInt(forgeIndices.length)];
       result[forgeIndex] = {
         ...result[forgeIndex],
         effects: {
@@ -3554,12 +3559,12 @@
     const aliveIds = aliveHeroes().map((hero) => hero.id);
 
     if (Math.random() < morphChance && aliveIds.length > 0) {
-      const tacticIndices = runes
+      const hazardIndices = runes
         .map((rune, index) => ({ rune, index }))
-        .filter((entry) => entry.rune.kind === "tactic")
+        .filter((entry) => entry.rune.kind === "hazard")
         .map((entry) => entry.index);
-      if (tacticIndices.length > 0) {
-        const targetIndex = tacticIndices[randInt(tacticIndices.length)];
+      if (hazardIndices.length > 0) {
+        const targetIndex = hazardIndices[randInt(hazardIndices.length)];
         const heroId = aliveIds[randInt(aliveIds.length)];
         runes[targetIndex] = {
           ...runeById(heroId),
@@ -3569,10 +3574,12 @@
     }
 
     if (Math.random() < cloneChance && runes.length >= 3) {
-      runes[2] = {
-        ...runeById(runes[0].id),
-        effects: { ...(runes[2]?.effects || {}), clone: true },
-      };
+      if (runes[0].kind === "hero") {
+        runes[2] = {
+          ...runeById(runes[0].id),
+          effects: { ...(runes[2]?.effects || {}), clone: true },
+        };
+      }
     }
 
     if (Math.random() < linkChance && runes.length >= 2) {
@@ -3604,11 +3611,11 @@
   function rollRunes() {
     const weights = computeRuneWeights();
     const result = [];
-    for (let idx = 0; idx < 3; idx += 1) result.push(runeById(pickWeighted(weights)));
+    for (let idx = 0; idx < 3; idx += 1) result.push(pickRuneSymbol(weights));
     applySpinTransformEffects(result);
-    const primaryRunes = ensurePlayableHeroRunes(decorateRunesWithSpinEffects(result));
+    const primaryRunes = decorateRunesWithSpinEffects(result);
     const slot2PulseChance = clamp(state.modifiers.spinSlot2PulseChance || 0, 0, 0.9);
-    if (primaryRunes[1] && Math.random() < slot2PulseChance) {
+    if (primaryRunes[1] && primaryRunes[1].kind !== "hazard" && Math.random() < slot2PulseChance) {
       primaryRunes[1] = {
         ...primaryRunes[1],
         effects: {
@@ -3621,7 +3628,7 @@
     const extraRunes = [];
     const bonusReelChance = clamp(state.modifiers.spinBonusReelChance || 0, 0, 0.95);
     if (Math.random() < bonusReelChance) {
-      const extraBase = runeById(pickWeighted(weights));
+      const extraBase = pickRuneSymbol(weights, { rockChanceScale: 0.8 });
       const extraDecorated = decorateRunesWithSpinEffects([extraBase])[0];
       extraDecorated.effects = {
         ...(extraDecorated.effects || {}),
@@ -3757,6 +3764,7 @@
     if (state.modifiers.spinLinkChance > 0) spinMarks.push("⇉");
     if (state.modifiers.spinSlot2PulseChance > 0) spinMarks.push("Ⅱ");
     if (state.modifiers.spinHeroSigilChance > 0) spinMarks.push("◆");
+    if (state.modifiers.deadRunePenaltyReduce > 0) spinMarks.push("🪦↓");
     const markLabel = spinMarks.length > 0 ? ` · 표식 ${spinMarks.join("/")}` : "";
     rulePill.textContent =
       state.teamGuardTurns > 0
@@ -4213,6 +4221,28 @@
     state.modifiers.skillDamageMult = prev;
   }
 
+  async function runRockRuneAction(rune, options = {}) {
+    if (!rune || rune.id !== "S_ROCK") return;
+    const target = randomAliveHero();
+    if (!target) {
+      log("🪨 꽝 룬이 떨어졌지만 맞을 아군이 없습니다.", true);
+      return;
+    }
+    const powerMult = clamp(Number.isFinite(options.powerMult) ? options.powerMult : 1, 0.35, 2.2);
+    const damage = Math.max(3, Math.floor((7 + state.nodeIndex * 0.8) * powerMult));
+    const targetNode = nodeByHero(target.id);
+    if (targetNode) {
+      targetNode.classList.add("targeted");
+      await wait(110);
+      targetNode.classList.remove("targeted");
+      targetNode.classList.add("hit-heavy");
+      spawnHitBurst(targetNode, { impactScale: 1.2 });
+      setTimeout(() => targetNode.classList.remove("hit-heavy"), 190);
+    }
+    damageHero(target, damage, "🪨");
+    log(`🪨 꽝! 낙석이 ${target.name}에게 떨어져 ${damage} 피해`, true);
+  }
+
   async function resolveRune(rune, options = {}) {
     if (aliveEnemies().length === 0) return;
     const allowEcho = options.allowEcho !== false;
@@ -4238,12 +4268,8 @@
       }
       return;
     }
-    if (rune.kind === "tactic") {
-      await runTacticAction(rune.id, { powerMult });
-      if (allowEcho && rune?.effects?.echo && aliveEnemies().length > 0) {
-        log(`∞ 메아리 표식: ${rune.name} 보조 발동`, true);
-        await runTacticAction(rune.id, { powerMult: powerMult * 0.6 });
-      }
+    if (rune.kind === "hazard") {
+      await runRockRuneAction(rune, { powerMult });
       return;
     }
 
@@ -4372,6 +4398,7 @@
     if (effect.type === "spinLink") state.modifiers.spinLinkChance += effect.value;
     if (effect.type === "spinSlot2Pulse") state.modifiers.spinSlot2PulseChance += effect.value;
     if (effect.type === "spinHeroSigil") state.modifiers.spinHeroSigilChance += effect.value;
+    if (effect.type === "deadRunePenaltyReduce") state.modifiers.deadRunePenaltyReduce += effect.value;
     if (effect.type === "weight") {
       state.modifiers.runeWeightDelta[effect.id] = (state.modifiers.runeWeightDelta[effect.id] || 0) + effect.value;
     }
@@ -4586,16 +4613,6 @@
     }
 
     const normalizeSkill = (entry) => {
-      if (entry.effect?.type === "heroWeightBias") {
-        return {
-          ...entry,
-          apply: () => {
-            ["H1", "H2", "H3", "H4", "H5", "H6"].forEach((id) => applyPerk({ type: "weight", id, value: 1 }));
-            applyPerk({ type: "weight", id: "T_ASSIST", value: -3 });
-            applyPerk({ type: "weight", id: "T_BRACE", value: -3 });
-          },
-        };
-      }
       return {
         ...entry,
         apply: () => applyPerk(entry.effect),
@@ -5122,7 +5139,7 @@
     setPhase("spinning");
     resetTurnBuff();
     const reelSeed = state.activeHeroes.slice(0, 3).map((hero) => runeById(hero.id));
-    while (reelSeed.length < 3) reelSeed.push(runeById("T_ASSIST"));
+    while (reelSeed.length < 3) reelSeed.push(runeById(state.activeHeroes[0]?.id || "H1"));
     setReels(reelSeed, true);
     log("회전 시작", true);
     maybeSpeak(randomAliveHero(), "hero", "spin_start", {}, { chance: 0.28, priority: 1 });
@@ -5132,8 +5149,9 @@
     const tick = () => {
       const elapsed = performance.now() - start;
       if (elapsed < duration) {
+        const previewWeights = computeRuneWeights();
         setReels(
-          [runeById(pickWeighted(BASE_WEIGHTS)), runeById(pickWeighted(BASE_WEIGHTS)), runeById(pickWeighted(BASE_WEIGHTS))],
+          [pickRuneSymbol(previewWeights), pickRuneSymbol(previewWeights), pickRuneSymbol(previewWeights)],
           true
         );
         requestAnimationFrame(tick);
@@ -5218,6 +5236,7 @@
       spinLinkChance: 0,
       spinSlot2PulseChance: 0,
       spinHeroSigilChance: 0,
+      deadRunePenaltyReduce: 0,
       runeWeightDelta: {},
     };
     applyEquipmentRunModifiers();
