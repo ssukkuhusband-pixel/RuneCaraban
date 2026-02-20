@@ -3153,7 +3153,7 @@
       clearLobbyTalkBubbles();
       return;
     }
-    const delay = 4500 + randInt(4501);
+    const delay = 3000 + randInt(2001);
     lobbyTalkTimer = setTimeout(() => {
       lobbyTalkTimer = 0;
       if (!canLobbyTalkNow()) return;
