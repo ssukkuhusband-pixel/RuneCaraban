@@ -325,12 +325,14 @@ body {
   font-size: 15px;
   border: 1px solid rgba(111, 114, 166, 0.4);
   overflow: hidden;
+  image-rendering: pixelated;
 }
 
 .heroChipIcon img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  image-rendering: pixelated;
 }
 
 .heroChipName {
@@ -423,6 +425,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  image-rendering: pixelated;
 }
 
 .heroDetailTitle {
@@ -989,6 +992,7 @@ body {
   border: 0;
   background: linear-gradient(180deg, rgba(16, 18, 33, 0.9), rgba(12, 13, 24, 0.94));
   overflow: hidden;
+  image-rendering: pixelated;
 }
 
 .battlefield.ultimate-mode {
@@ -1372,6 +1376,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  image-rendering: pixelated;
 }
 
 .unitPortraitIcon {
@@ -1846,6 +1851,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  image-rendering: pixelated;
 }
 
 .skillCuePortraitIcon {

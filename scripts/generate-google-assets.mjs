@@ -12,6 +12,8 @@ if (!apiKey) {
 
 const rootDir = process.cwd();
 const generatedDir = path.join(rootDir, "assets", "generated");
+const PIXEL_STYLE_GUIDE =
+  "공통 스타일: 동일한 세계관의 다크 고딕 픽셀 아트. 16-bit 픽셀 RPG 감성, 두꺼운 외곽선, 제한된 팔레트(먹색/보라/청록/불꽃 주황), 높은 명암 대비, 픽셀 계단 느낌 유지, 노이즈 최소화, 텍스트/로고/워터마크/글자 금지.";
 
 const imageSpecs = [
   {
@@ -19,91 +21,91 @@ const imageSpecs = [
     key: "H1",
     file: "heroes/H1.png",
     prompt:
-      "모바일 판타지 턴제 RPG 영웅 초상화 아이콘, 기사형 근접 딜러, 은빛 갑옷과 검, 정면 상반신, 진한 배경 대비, 게임 UI용, 텍스트 없음, 워터마크 없음, 투명 배경 느낌",
+      "같은 픽셀 아트 세계관의 영웅 초상화 아이콘. 기사형 근접 딜러, 은빛 갑옷과 장검, 정면 상반신, 위엄 있는 표정, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "hero",
     key: "H2",
     file: "heroes/H2.png",
     prompt:
-      "모바일 판타지 턴제 RPG 영웅 초상화 아이콘, 쌍검/암살자 느낌의 결투가, 보라색 포인트, 정면 상반신, 게임 UI용, 텍스트 없음, 워터마크 없음, 투명 배경 느낌",
+      "같은 픽셀 아트 세계관의 영웅 초상화 아이콘. 쌍검 결투가/암살자, 보라색 강조, 정면 상반신, 날카로운 눈빛, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "hero",
     key: "H3",
     file: "heroes/H3.png",
     prompt:
-      "모바일 판타지 턴제 RPG 영웅 초상화 아이콘, 마도사, 푸른 마력구와 후드 망토, 정면 상반신, 게임 UI용, 텍스트 없음, 워터마크 없음, 투명 배경 느낌",
+      "같은 픽셀 아트 세계관의 영웅 초상화 아이콘. 마도사, 후드 망토와 푸른 마력구, 정면 상반신, 신비로운 분위기, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "hero",
     key: "H4",
     file: "heroes/H4.png",
     prompt:
-      "모바일 판타지 턴제 RPG 영웅 초상화 아이콘, 방패를 든 수호자 탱커, 묵직한 갑옷, 정면 상반신, 게임 UI용, 텍스트 없음, 워터마크 없음, 투명 배경 느낌",
+      "같은 픽셀 아트 세계관의 영웅 초상화 아이콘. 방패를 든 수호자 탱커, 두꺼운 갑옷, 정면 상반신, 단단한 인상, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "hero",
     key: "H5",
     file: "heroes/H5.png",
     prompt:
-      "모바일 판타지 턴제 RPG 영웅 초상화 아이콘, 치유사, 빛나는 지팡이와 따뜻한 색조, 정면 상반신, 게임 UI용, 텍스트 없음, 워터마크 없음, 투명 배경 느낌",
+      "같은 픽셀 아트 세계관의 영웅 초상화 아이콘. 치유사, 빛나는 지팡이와 청록빛 오라, 정면 상반신, 차분한 표정, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "hero",
     key: "H6",
     file: "heroes/H6.png",
     prompt:
-      "모바일 판타지 턴제 RPG 영웅 초상화 아이콘, 궁수, 장궁과 날렵한 실루엣, 정면 상반신, 게임 UI용, 텍스트 없음, 워터마크 없음, 투명 배경 느낌",
+      "같은 픽셀 아트 세계관의 영웅 초상화 아이콘. 궁수, 장궁과 날렵한 실루엣, 정면 상반신, 사냥꾼 분위기, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "enemy",
     key: "desert_scorpion",
     file: "enemies/desert_scorpion.png",
     prompt:
-      "모바일 판타지 RPG 적 유닛 아이콘, 사막 전갈 몬스터, 붉은 갈색 갑각, 위협적인 포즈, 정면, 게임 UI용, 텍스트 없음, 워터마크 없음",
+      "같은 픽셀 아트 세계관의 몬스터 초상화 아이콘. 사막 전갈, 붉은 갈색 갑각, 위협적인 정면 포즈, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "enemy",
     key: "shell_beetle",
     file: "enemies/shell_beetle.png",
     prompt:
-      "모바일 판타지 RPG 적 유닛 아이콘, 갑각 벌레 몬스터, 푸른 껍질과 단단한 인상, 정면, 게임 UI용, 텍스트 없음, 워터마크 없음",
+      "같은 픽셀 아트 세계관의 몬스터 초상화 아이콘. 갑각 벌레, 푸른 껍질과 단단한 인상, 정면 포즈, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "enemy",
     key: "raider_wolf",
     file: "enemies/raider_wolf.png",
     prompt:
-      "모바일 판타지 RPG 적 유닛 아이콘, 약탈 늑대 몬스터, 날카로운 눈빛, 정면, 게임 UI용, 텍스트 없음, 워터마크 없음",
+      "같은 픽셀 아트 세계관의 몬스터 초상화 아이콘. 약탈 늑대, 날카로운 눈빛과 송곳니, 정면 포즈, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "enemy",
     key: "bone_beast",
     file: "enemies/bone_beast.png",
     prompt:
-      "모바일 판타지 RPG 적 유닛 아이콘, 뼈 야수 몬스터, 해골 갑주 느낌, 정면, 게임 UI용, 텍스트 없음, 워터마크 없음",
+      "같은 픽셀 아트 세계관의 몬스터 초상화 아이콘. 뼈 야수, 해골 갑주 느낌, 정면 포즈, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "enemy",
     key: "boss_tyrant",
     file: "enemies/boss_tyrant.png",
     prompt:
-      "모바일 판타지 RPG 보스 아이콘, 재의 폭군, 거대한 악마 군주 느낌, 어두운 불꽃 오라, 정면, 게임 UI용, 텍스트 없음, 워터마크 없음",
+      "같은 픽셀 아트 세계관의 보스 초상화 아이콘. 재의 폭군, 거대한 악마 군주, 암흑 불꽃 오라, 정면 포즈, 아이콘 중심 구도, 배경은 어두운 단색.",
   },
   {
     bucket: "background",
     key: "battlefield",
     file: "backgrounds/battlefield.png",
     prompt:
-      "모바일 횡스크롤 전투 배경, 판타지 황혼 전장, 좌우 대치가 잘 보이는 넓은 공간, 다크 네온 톤, 캐릭터를 가리지 않는 단순한 디테일, 텍스트 없음",
+      "동일 세계관의 픽셀 아트 전투 배경. 가로형(16:9) 다크 고딕 전장, 폐허/황혼 하늘/먼 안개, 좌우 유닛 대치가 잘 보이도록 중앙 공간을 비우고 디테일은 가장자리 위주로 배치.",
   },
   {
     bucket: "background",
     key: "lobby_campfire",
     file: "backgrounds/lobby_campfire.png",
     prompt:
-      "모바일 RPG 메인 로비 배경 일러스트, 전경에는 모닥불을 중심으로 영웅들이 둘러앉아 있고, 후경에는 거대한 던전 입구가 보이는 구도, 게임 UI 뒤 배경용, 텍스트 없음",
+      "동일 세계관의 픽셀 아트 메인 로비 배경. 가로형(16:9), 전경에 모닥불 야영지와 실루엣 영웅들, 후경에 거대한 던전 입구, 중앙 UI가 잘 보이도록 중간 명도 대비 확보.",
   },
 ];
 
@@ -118,7 +120,7 @@ async function generateOne(spec) {
         role: "user",
         parts: [
           {
-            text: `${spec.prompt}\n\n공통 스타일: high quality game art, clean silhouette, no logo, no letters, no watermark.`,
+            text: `${spec.prompt}\n\n${PIXEL_STYLE_GUIDE}`,
           },
         ],
       },
