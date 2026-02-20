@@ -3992,6 +3992,21 @@
     return dot;
   }
 
+  function makeShieldGauge(shieldValue, maxHpValue) {
+    const gauge = document.createElement("div");
+    const shield = Math.max(0, Math.floor(shieldValue || 0));
+    const maxHp = Math.max(1, Math.floor(maxHpValue || 1));
+    gauge.className = `shieldBar${shield > 0 ? "" : " empty"}`;
+    gauge.title = `보호막 ${shield}`;
+    gauge.setAttribute("aria-label", `보호막 ${shield}`);
+
+    const fill = document.createElement("div");
+    fill.className = "shieldFill";
+    fill.style.width = `${clamp(shield / maxHp, 0, 1) * 100}%`;
+    gauge.appendChild(fill);
+    return gauge;
+  }
+
   function renderHeroes() {
     heroLane.innerHTML = "";
     state.activeHeroes.forEach((hero, index) => {
@@ -4009,10 +4024,11 @@
       hpFill.style.width = `${ratio * 100}%`;
       if (ratio < 0.3) hpFill.classList.add("low");
       hpBar.appendChild(hpFill);
+      const shieldBar = makeShieldGauge(hero.shield || 0, hero.maxHp);
 
       const portrait = document.createElement("div");
       portrait.className = "unitPortrait";
-      portrait.title = `${hero.name} ${Math.max(0, hero.hp)}/${hero.maxHp}`;
+      portrait.title = `${hero.name} ${Math.max(0, hero.hp)}/${hero.maxHp} · 보호막 ${Math.max(0, Math.floor(hero.shield || 0))}`;
       portrait.innerHTML = heroArt
         ? `<img class="unitPortraitImage" src="${heroArt}" alt="${hero.name}" loading="lazy" />`
         : `<span class="unitPortraitIcon">${hero.icon}</span>`;
@@ -4030,7 +4046,6 @@
       const potential = heroPotentialState(hero);
       if ((hero.focus || 0) > 0) statusRow.appendChild(makeStatusDot("🎯", `집중 ${hero.focus}`));
       if ((hero.regenTurns || 0) > 0) statusRow.appendChild(makeStatusDot("💧", `재생 ${hero.regenTurns}턴`));
-      if ((hero.shield || 0) > 0) statusRow.appendChild(makeStatusDot("🛡", `보호막 ${hero.shield}`));
       if ((hero.sigilTurns || 0) > 0) {
         const profile = heroSigilProfile(hero);
         const icon = profile?.icon || "◆";
@@ -4050,6 +4065,7 @@
       ultBar.appendChild(ultFill);
 
       card.appendChild(hpBar);
+      card.appendChild(shieldBar);
       card.appendChild(portrait);
       card.appendChild(statusRow);
       card.appendChild(ultBar);
@@ -4075,10 +4091,14 @@
       hpFill.style.width = `${ratio * 100}%`;
       if (ratio < 0.3) hpFill.classList.add("low");
       hpBar.appendChild(hpFill);
+      const shieldBar = makeShieldGauge(enemy.shield || 0, enemy.maxHp);
 
       const portrait = document.createElement("div");
       portrait.className = "unitPortrait";
-      portrait.title = `${enemy.name} ${Math.max(0, enemy.hp)}/${enemy.maxHp}`;
+      portrait.title = `${enemy.name} ${Math.max(0, enemy.hp)}/${enemy.maxHp} · 보호막 ${Math.max(
+        0,
+        Math.floor(enemy.shield || 0)
+      )}`;
       portrait.innerHTML = enemyArt
         ? `<img class="unitPortraitImage" src="${enemyArt}" alt="${enemy.name}" loading="lazy" />`
         : `<span class="unitPortraitIcon">${enemy.icon}</span>`;
@@ -4097,6 +4117,7 @@
       line3.setAttribute("aria-label", line3.title);
 
       card.appendChild(hpBar);
+      card.appendChild(shieldBar);
       card.appendChild(portrait);
       card.appendChild(statusRow);
       card.appendChild(line3);
