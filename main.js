@@ -571,31 +571,31 @@
     H2: {
       tone: "angry",
       lines: {
-        battle_start: ["또 목숨 걸고 일하네… 참 나.", "우리 언제까지 이런 위험한 일 해야 해?"],
-        spin_start: ["하… 오늘도 살벌하군.", "좋아, 끝내고 빨리 쉬자."],
-        idle_wait: ["다 끝나면 진짜 눕는다…", "솔직히 무섭긴 한데, 티 내긴 싫네."],
-        lobby_idle: ["오늘은 좀 덜 위험한 곳으로 가자고.", "이 불 꺼지기 전에 끝내고 돌아오자.", "다들 손 떨리면 숨부터 고르자."],
-        attack: ["이쪽 위험해! 눈 똑바로 떠!", "붙어 있어, 혼자 튀지 마."],
-        crit: ["봐, 이렇게 끝내는 거야.", "이번엔 진짜 아찔했네."],
-        ultimate: ["한 번에 정리하고 끝낸다!", "이 판 끝나면 나도 좀 쉬자."],
-        kill: ["이 정도는 껌이지 ㅋㅋ", "살았네. 진짜 간발의 차였어."],
-        low_hp: ["젠장… 아직 쓰러질 순 없지.", "아프긴 한데, 아직 안 끝났어."],
-        hurt: ["윽… 진짜 짜증 나게 아프네."],
+        battle_start: ["또 목숨 걸고 일하네… 열받네.", "좋아, 다 쓸어버리고 끝내자."],
+        spin_start: ["하… 빨리 돌려. 답답해 죽겠네.", "좋은 거 뜨면 바로 찢어버린다."],
+        idle_wait: ["왜 이렇게 질질 끌어? 성질 난다.", "조용히 해. 집중 깨지면 더 빡친다."],
+        lobby_idle: ["오늘도 피 냄새 나겠네. 짜증 난다.", "늦게 출발할수록 더 화난다. 바로 가자.", "눈치 보지 마. 열받으면 내가 먼저 친다."],
+        attack: ["비켜! 내가 끝낸다!", "붙어 있어, 혼자 튀면 내가 더 화낸다."],
+        crit: ["좋아, 그대로 찢긴다!", "봤지? 화난 놈이 제일 무섭다."],
+        ultimate: ["다 꿇어! 지금부터 내가 쓸어버린다!", "분노 게이지 끝까지 채웠다. 전부 박살낸다!"],
+        kill: ["끝났다. 다음 놈 데려와.", "하, 아직도 화가 안 풀리네."],
+        low_hp: ["피 좀 났다고 멈출 줄 알아?", "더 세게 와. 안 쓰러진다."],
+        hurt: ["윽… 더 열받게 하네."],
       },
     },
     H3: {
       tone: "comic",
       lines: {
-        battle_start: ["위험하면 바로 말해! 내가 분위기 바꿔줄게!", "다들 너무 굳지 마~ 같이 버텨보자!"],
-        spin_start: ["제발 좋은 거 떠라… 나 지금 꽤 떨려.", "웃으면서 가자! 울면 더 무섭거든!"],
-        idle_wait: ["우리 잠깐 쉬어도 돼…? 심장 아직 쿵쾅거려.", "다들 손 떨리면 말해! 나도 떨려!"],
-        lobby_idle: ["이 모닥불 너무 좋다… 집 같아.", "다들 표정 너무 굳었어! 한 번 웃자!", "우리 오늘도 다 같이 돌아오자, 약속!"],
-        attack: ["앗, 위험해! 내가 커버할게!", "다친 사람 없어?? 바로 봐줄게!"],
-        crit: ["오… 살았다! 이건 운이 좋았어!", "헉, 방금 진짜 심장 떨어질 뻔!"],
-        ultimate: ["우리 다 같이 살아남자!", "괜찮아! 끝까지 같이 간다!"],
-        kill: ["휴… 겨우 넘겼다.", "이 정도는 껌이지 ㅋㅋ"],
-        low_hp: ["나 지금 좀 위험한데…? 그래도 해볼게!", "힐러어어! 나 아직 살아있지?!"],
-        hurt: ["아야! 진짜 아프다구!"],
+        battle_start: ["좋아~ 오늘도 신나게 이겨보자!", "다들 미소 장착! 우리가 분위기 담당이야!"],
+        spin_start: ["행운아 들어와라~ 레츠고!", "웃고 돌리면 대박 뜬다! 진짜로!"],
+        idle_wait: ["좋아, 리듬 타면서 준비 완료!", "다들 괜찮아? 난 아직 신나!"],
+        lobby_idle: ["모닥불 최고다! 여기 있으면 용기 충전 완료!", "표정 풀자~ 우리 팀은 웃을 때 더 강해!", "오늘도 전원 생환 + 전원 하이파이브 각!"],
+        attack: ["짜잔! 커버 들어갑니다!", "괜찮아 괜찮아~ 내가 받쳐줄게!"],
+        crit: ["와아! 깔끔하게 들어갔다!", "봤지? 신나게 하면 잘 맞는다니까!"],
+        ultimate: ["축제 타임이다! 한 번에 끝내자!", "우리 팀 버프 ON! 다 같이 밀어버려!"],
+        kill: ["나이스! 아주 좋았어!", "이야~ 템포 좋다, 계속 가자!"],
+        low_hp: ["조금 아프지만 괜찮아! 아직 웃을 수 있어!", "체력은 낮아도 텐션은 최고야!"],
+        hurt: ["앗 따! 그래도 난 안 꺾여~"],
       },
     },
     H4: {
@@ -631,17 +631,102 @@
     H6: {
       tone: "angry",
       lines: {
-        battle_start: ["오늘도 목숨값 벌러 왔네…", "끝나면 진짜 쉬고 싶다."],
-        spin_start: ["좋은 거 좀 떠라… 손 떨린다.", "하, 이번에도 위험수당은 없겠지."],
-        idle_wait: ["잠깐만… 우리 이 일 언제 끝나냐.", "무섭다고 말하면 비웃을까? 하…"],
-        lobby_idle: ["오늘은 제발 사고 없이 끝나자.", "돈도 좋지만 살아서 받아야지…", "다들 준비됐냐? 나만 믿지는 마."],
-        attack: ["위험해! 내가 시선 끌게!", "붙어! 혼자 나가면 죽는다!"],
-        crit: ["살았다… 이건 진짜 큰 한 방이네.", "좋아, 한숨 돌렸다."],
-        ultimate: ["한 번에 길 뚫고 끝내자!", "이걸로 못 끝내면 우리 다 위험해!"],
-        kill: ["이 정도는 껌이지 ㅋㅋ", "휴… 겨우 살아남았네."],
-        low_hp: ["하… 아직은 안 죽어.", "무섭지만, 여기서 물러나긴 싫다."],
-        hurt: ["윽… 야, 나 좀 위험해!"],
+        battle_start: ["또 시작이냐. 빨리 끝내자.", "한 놈도 남기지 말고 정리한다."],
+        spin_start: ["가자. 좋은 거 안 떠도 내가 강제로 만든다.", "돌려. 시간 끌수록 더 짜증 난다."],
+        idle_wait: ["가만히 있으면 성질만 오른다.", "다음 턴 바로 쏜다. 말 걸지 마."],
+        lobby_idle: ["준비 끝나면 바로 출발한다. 기다리는 거 싫다.", "오늘도 부숴놓고 돌아온다.", "겁먹지 마. 화난 건 내가 담당한다."],
+        attack: ["머리 숙여! 내가 길 뚫는다!", "붙어! 떨어지면 내가 더 화낸다!"],
+        crit: ["좋아, 뚫렸다. 계속 밀어!", "보였지? 이렇게 쏴야 속이 풀린다."],
+        ultimate: ["전원 귀 막아! 지금부터 폭격이다!", "분노 사격 개시! 끝까지 간다!"],
+        kill: ["하나 정리. 다음.", "좋아, 이제 좀 시원하네."],
+        low_hp: ["이 정도로는 안 꺾여.", "피는 나도 손은 안 떤다."],
+        hurt: ["윽… 더 세게 쏴서 갚아준다."],
       },
+    },
+  };
+
+  const HERO_DIALOG_EVENT_FALLBACK = {
+    battle_start: ["조심해서 가자. 전원 생환이 목표다.", "침착하게 시작하자. 아직 기회는 많다."],
+    spin_start: ["집중해. 이번 결과가 흐름을 바꾼다.", "좋아, 다음 한 수만 제대로 맞추자."],
+    idle_wait: ["호흡 맞추자. 서두르지 말고.", "서로 상태 확인하고 다음 턴 준비."],
+    lobby_idle: ["모닥불 앞에서 장비 점검부터 하자.", "오늘도 전원 무사 복귀가 우선이다."],
+    attack: ["타겟 확인, 지금 들어간다!", "빈틈 보였다. 바로 친다!"],
+    crit: ["좋아, 제대로 들어갔다!", "방금 타격감 좋았다. 계속 밀자!"],
+    ultimate: ["지금이 타이밍이다. 전력 개방!", "한 번에 흐름을 가져온다!"],
+    kill: ["좋아, 위협 하나 제거!", "정리 완료. 다음 타겟 본다."],
+    low_hp: ["아직 버틸 수 있다. 포기하지 마.", "조금만 더 버티면 뒤집는다."],
+    hurt: ["피격 확인, 하지만 계속 간다.", "아프지만 아직 괜찮다."],
+  };
+
+  const HERO_DIALOG_TONE_EXTRAS = {
+    serious: {
+      battle_start: ["규율 유지. 감정보다 생존이 먼저다.", "목표는 단순하다. 모두 살아서 돌아간다."],
+      spin_start: ["판단 실수는 곧 피해다. 집중해.", "무리한 선택은 금물이다. 안정적으로 간다."],
+      idle_wait: ["지금은 관찰 시간이다. 패턴을 읽어.", "대열 유지. 급하게 움직이지 마."],
+      lobby_idle: ["점검표대로 확인하자. 사소한 누락이 치명적이다.", "출발 전 1분, 마음부터 정돈한다."],
+      attack: ["전열 고정. 내가 먼저 진입한다.", "위험 구역 차단. 지금 타격."],
+      crit: ["좋다. 승산이 커졌다.", "유효타 확인. 압박 유지."],
+      ultimate: ["전원 보호 우선. 지금 끝낸다.", "이 스킬로 흐름을 고정한다."],
+      kill: ["제거 확인. 다음 위협 탐지.", "호흡 유지. 끝날 때까지 방심 금지."],
+      low_hp: ["버틴다. 아직 임무는 끝나지 않았다.", "고통은 무시한다. 전열 유지."],
+      hurt: ["피해 확인. 전투 지속 가능.", "충격은 크지만 전투는 계속된다."],
+    },
+    angry: {
+      battle_start: ["좋아, 오늘도 화풀이할 대상이 많군.", "다 터뜨리고 끝낸다. 참는 건 끝났다."],
+      spin_start: ["빨리 돌려. 성질 더 나기 전에.", "이번에도 꽝이면 내가 판을 엎는다."],
+      idle_wait: ["가만히 있으면 더 빡친다.", "다음 턴에 바로 쏟아붓는다."],
+      lobby_idle: ["준비 끝났으면 당장 출발한다.", "느려지면 더 화난다. 템포 올려."],
+      attack: ["비켜! 내가 갈아버린다!", "지금부터 난폭 모드다."],
+      crit: ["좋아! 더 세게 간다!", "봤냐? 이게 분노 딜이다!"],
+      ultimate: ["전원 숙여! 분노 폭발 간다!", "한 번에 터뜨린다. 전부 날아간다!"],
+      kill: ["하나 끝. 아직 부족하다.", "다음 놈 어디냐. 화가 덜 풀렸다."],
+      low_hp: ["피가 빠져도 화는 안 빠진다.", "쓰러지기 전에 먼저 찢는다."],
+      hurt: ["좋아, 더 열받게 했겠다.", "아프지. 그래서 더 세게 친다."],
+    },
+    comic: {
+      battle_start: ["좋아~ 분위기 업! 우리 팀 입장!", "웃는 팀이 오래 산다! 시작하자!"],
+      spin_start: ["행운아 부탁해~ 이번엔 대박 각!", "좋은 거 오면 내가 리액션 크게 간다!"],
+      idle_wait: ["괜찮아, 템포 좋다! 우리 할 수 있어!", "표정 체크! 웃음 유지!"],
+      lobby_idle: ["분위기 좋다~ 오늘 느낌 완전 승리각!", "서로 하이파이브 한 번 하고 출발하자!"],
+      attack: ["간다~ 화끈하게 한 방!", "어이쿠 위험! 내가 막아줄게!"],
+      crit: ["와! 이거 완전 명장면!", "좋아! 박수 나올 타격감!"],
+      ultimate: ["축제 피날레 간다! 다 같이 환호!", "에너지 만땅! 시원하게 쏟아붓자!"],
+      kill: ["클리어! 텐션 유지하고 다음!", "좋았어! 팀워크 미쳤다!"],
+      low_hp: ["HP 낮아도 멘탈은 높다!", "괜찮아~ 아직 웃을 힘 남았다!"],
+      hurt: ["앗 따! 그래도 미소는 유지!", "어우 아팠다! 근데 버틴다!"],
+    },
+    calm: {
+      battle_start: ["서두르지 말고, 서로 호흡부터 맞춰요.", "괜찮아요. 차근차근 풀어가면 돼요."],
+      spin_start: ["천천히 해요. 급하면 판단이 흐려져요.", "좋아요, 이번 결과를 침착하게 보죠."],
+      idle_wait: ["불안하면 제게 말해요. 같이 정리해요.", "호흡을 길게. 아직 여유 있어요."],
+      lobby_idle: ["마음이 안정되면 전투도 쉬워져요.", "준비는 충분해요. 자신 있게 가요."],
+      attack: ["위험해요, 제가 먼저 막을게요.", "괜찮아요. 지금 타이밍에 들어가요."],
+      crit: ["좋아요, 흐름이 우리 쪽이에요.", "잘했어요. 조금만 더 가요."],
+      ultimate: ["모두 침착하게, 지금 제가 지킬게요.", "괜찮아요. 이걸로 버틸 수 있어요."],
+      kill: ["좋아요, 한숨 돌려요.", "위협 정리됐어요. 상태 확인해요."],
+      low_hp: ["저는 아직 괜찮아요. 걱정 말아요.", "천천히… 끝까지 버텨볼게요."],
+      hurt: ["괜찮아요, 전투는 계속 가능해요.", "저는 버틸게요. 다른 분부터 챙겨요."],
+    },
+  };
+
+  const HERO_DIALOG_PERSONA_EXTRAS = {
+    H2: {
+      battle_start: ["짜증 제대로 난다. 전부 끝낸다."],
+      lobby_idle: ["싸움만 시작해 봐. 오늘은 내가 폭발한다."],
+      attack: ["거슬리면 전부 베어버린다!"],
+      low_hp: ["죽기 전까지 화내면서 버틴다."],
+    },
+    H3: {
+      battle_start: ["좋아! 오늘도 해피엔딩으로 간다!"],
+      lobby_idle: ["웃음 장착 완료! 이제 출발만 남았다!"],
+      attack: ["위험해도 괜찮아~ 내가 웃으면서 커버할게!"],
+      low_hp: ["체력은 낮아도 희망은 높아!"],
+    },
+    H6: {
+      battle_start: ["오늘은 진짜 다 박살낸다."],
+      lobby_idle: ["빨리 가자. 손이 근질근질하다."],
+      attack: ["막지 마. 전부 관통한다!"],
+      low_hp: ["끝까지 쏜다. 쓰러져도 앞으로다."],
     },
   };
 
@@ -2869,6 +2954,32 @@
     return clamp(value, 0, 1);
   }
 
+  function mergedDialogLines(team, unit, profile, event) {
+    const base = Array.isArray(profile?.lines?.[event]) ? profile.lines[event] : [];
+    if (team !== "hero") return base;
+
+    const tone = typeof profile?.tone === "string" ? profile.tone : "";
+    const toneExtra = Array.isArray(HERO_DIALOG_TONE_EXTRAS?.[tone]?.[event]) ? HERO_DIALOG_TONE_EXTRAS[tone][event] : [];
+    const fallback = Array.isArray(HERO_DIALOG_EVENT_FALLBACK?.[event]) ? HERO_DIALOG_EVENT_FALLBACK[event] : [];
+    const heroExtra = Array.isArray(HERO_DIALOG_PERSONA_EXTRAS?.[unit?.id]?.[event])
+      ? HERO_DIALOG_PERSONA_EXTRAS[unit.id][event]
+      : [];
+
+    const merged = [...base, ...heroExtra, ...toneExtra, ...fallback].filter((line) => typeof line === "string" && line);
+    const unique = Array.from(new Set(merged));
+    const targetCount = Math.max(base.length * 2, base.length > 0 ? 2 : 0);
+
+    if (targetCount === 0 || unique.length >= targetCount) return unique;
+
+    const supply = [...heroExtra, ...toneExtra, ...fallback, ...base].filter((line) => typeof line === "string" && line);
+    let cursor = 0;
+    while (unique.length < targetCount && supply.length > 0) {
+      unique.push(supply[cursor % supply.length]);
+      cursor += 1;
+    }
+    return unique;
+  }
+
   function formatDialogLine(template, context = {}) {
     if (typeof template !== "string") return "";
     return template
@@ -2944,7 +3055,7 @@
     if (!unit) return;
     const profile = dialogProfile(team, unit);
     if (!profile) return;
-    const lines = profile.lines?.[event];
+    const lines = mergedDialogLines(team, unit, profile, event);
     if (!Array.isArray(lines) || lines.length === 0) return;
 
     const force = Boolean(options.force);
@@ -3005,15 +3116,15 @@
     const profile = HERO_DIALOG_PROFILE[hero.id];
     if (!profile?.lines) return "";
     const eventPool = [];
-    if (Array.isArray(profile.lines.lobby_idle) && profile.lines.lobby_idle.length > 0) {
+    if (mergedDialogLines("hero", hero, profile, "lobby_idle").length > 0) {
       eventPool.push("lobby_idle", "lobby_idle");
     }
     ["idle_wait", "spin_start", "battle_start"].forEach((event) => {
-      if (Array.isArray(profile.lines[event]) && profile.lines[event].length > 0) eventPool.push(event);
+      if (mergedDialogLines("hero", hero, profile, event).length > 0) eventPool.push(event);
     });
     if (eventPool.length === 0) return "";
     const event = eventPool[randInt(eventPool.length)];
-    const line = pickDialogLine(profile.lines[event], `lobby:${hero.id}:${event}`);
+    const line = pickDialogLine(mergedDialogLines("hero", hero, profile, event), `lobby:${hero.id}:${event}`);
     return formatDialogLine(line, { self: hero.name || "" });
   }
 
