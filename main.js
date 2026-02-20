@@ -1746,6 +1746,11 @@
 
   function appendLobbyHeroPortrait(container, hero) {
     if (!container || !hero) return;
+    const heroArt = heroVisual(hero.id);
+    if (heroArt) {
+      container.innerHTML = `<img src="${heroArt}" alt="${hero.name}" loading="lazy" />`;
+      return;
+    }
     const symbol = document.createElement("span");
     symbol.className = "lobbyLoadoutSlotSymbol";
     symbol.textContent = hero.icon;

@@ -276,6 +276,13 @@ body {
   text-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
+.lobbyLoadoutSlot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .lobbyLoadoutSlot.empty {
   border-style: dashed;
   border-color: rgba(126, 130, 173, 0.38);
