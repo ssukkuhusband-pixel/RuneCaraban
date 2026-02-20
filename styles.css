@@ -242,6 +242,180 @@ body {
   width: 100%;
 }
 
+.lobbyLoadoutPanel {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(107, 112, 166, 0.26);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(14, 16, 30, 0.72), rgba(11, 12, 24, 0.64));
+  padding: 6px;
+  display: grid;
+  gap: 5px;
+}
+
+.lobbyLoadoutHead,
+.lobbyBenchHead {
+  font-size: 10px;
+  font-weight: 900;
+  color: #ece8ff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+.lobbyBenchHead {
+  margin-top: 2px;
+}
+
+.lobbyLoadoutList,
+.lobbyBenchList {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.lobbyLoadoutCard,
+.lobbyBenchCard {
+  min-width: 120px;
+  border: 1px solid rgba(101, 106, 162, 0.36);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(34, 36, 58, 0.9), rgba(24, 26, 43, 0.9));
+  padding: 5px;
+  display: grid;
+  gap: 4px;
+}
+
+.lobbyLoadoutCard {
+  position: relative;
+}
+
+.lobbyLoadoutTop,
+.lobbyBenchTop {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.lobbyLoadoutPortrait {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(130, 136, 214, 0.5);
+  background: rgba(17, 18, 30, 0.9);
+  overflow: hidden;
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.lobbyLoadoutPortrait.small {
+  width: 26px;
+  height: 26px;
+}
+
+.lobbyLoadoutPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lobbyLoadoutPortrait .icon {
+  font-size: 16px;
+}
+
+.lobbyLoadoutPortrait .symbol {
+  position: absolute;
+  right: -3px;
+  bottom: -4px;
+  font-size: 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: rgba(8, 10, 19, 0.9);
+  min-width: 14px;
+  height: 14px;
+  display: grid;
+  place-items: center;
+}
+
+.lobbyLoadoutInfo {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.lobbyLoadoutName {
+  font-size: 10px;
+  font-weight: 900;
+  color: #f3f0ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lobbyLoadoutMeta {
+  font-size: 9px;
+  color: #bfc4ea;
+}
+
+.lobbyLoadoutControls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.lobbyLoadoutControls .btn {
+  min-height: 24px;
+  padding: 0 4px;
+  font-size: 10px;
+}
+
+.lobbyBenchCard .btn {
+  min-height: 24px;
+  padding: 0 4px;
+  font-size: 10px;
+}
+
+.lobbyTalkBubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 4px);
+  transform: translate(-50%, 8px);
+  min-width: 98px;
+  max-width: 160px;
+  padding: 5px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 216, 146, 0.68);
+  background: linear-gradient(180deg, rgba(64, 40, 21, 0.96), rgba(37, 23, 13, 0.96));
+  color: #ffe9c7;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.34);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  z-index: 4;
+}
+
+.lobbyTalkBubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid rgba(64, 40, 21, 0.96);
+}
+
+.lobbyTalkBubble.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 .lobbyActions {
   display: flex;
   gap: 8px;

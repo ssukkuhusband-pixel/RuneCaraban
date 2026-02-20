@@ -56,6 +56,8 @@
   const lobbyShard = byId("lobbyShard");
   const lobbyOwned = byId("lobbyOwned");
   const lobbyEquipped = byId("lobbyEquipped");
+  const lobbyLoadoutList = byId("lobbyLoadoutList");
+  const lobbyBenchList = byId("lobbyBenchList");
   const chapterName = byId("chapterName");
   const chapterHint = byId("chapterHint");
   const btnLobbyHeroes = byId("btnLobbyHeroes");
@@ -1348,6 +1350,7 @@
   };
 
   let idleTalkTimer = 0;
+  let lobbyTalkTimer = 0;
   let bgmAudio = null;
   let bgmUnlocked = false;
 
@@ -1675,7 +1678,12 @@
     if (!lobbyLayer) return;
     lobbyLayer.classList.toggle("open", visible);
     lobbyLayer.classList.toggle("hidden", !visible);
+    if (!visible) {
+      clearLobbyTalkTimer();
+      clearLobbyTalkBubbles();
+    }
     scheduleIdleTalk();
+    scheduleLobbyTalk();
   }
 
   function openLobbyScreen(screen) {
@@ -1687,13 +1695,19 @@
     };
     [lobbyMain, lobbyHeroes, lobbySummon].forEach((node) => node && node.classList.remove("active"));
     if (map[screen]) map[screen].classList.add("active");
+    if (screen !== "main") {
+      clearLobbyTalkTimer();
+      clearLobbyTalkBubbles();
+    }
     renderLobby();
+    scheduleLobbyTalk();
   }
 
   function renderLobbyMain() {
     if (lobbyShard) lobbyShard.textContent = `${state.meta.shards}`;
     if (lobbyOwned) lobbyOwned.textContent = `${heroOwnedCount()}/${HERO_LIBRARY.length}`;
     if (lobbyEquipped) lobbyEquipped.textContent = `${currentLoadout().length}/${MAX_ACTIVE}`;
+    renderLobbyLoadoutPanel();
     const ids = chapterIds();
     if (ids.length === 0) return;
     const minId = ids[0];
@@ -1708,6 +1722,7 @@
       )}`;
     if (btnChapterPrev) btnChapterPrev.disabled = selected <= minId;
     if (btnChapterNext) btnChapterNext.disabled = selected >= maxId;
+    scheduleLobbyTalk();
   }
 
   function shiftLobbyChapter(delta) {
@@ -1718,6 +1733,157 @@
     const nextIndex = clamp(index + delta, 0, ids.length - 1);
     state.ui.selectedChapter = ids[nextIndex];
     renderLobbyMain();
+  }
+
+  function nodeByLobbyHero(heroId) {
+    if (!lobbyLoadoutList || !heroId) return null;
+    return lobbyLoadoutList.querySelector(`[data-lobby-hero-id="${heroId}"]`);
+  }
+
+  function clearLobbyTalkBubbles() {
+    if (!lobbyLoadoutList) return;
+    lobbyLoadoutList.querySelectorAll(".lobbyTalkBubble").forEach((node) => node.remove());
+  }
+
+  function makeLobbyHeroPortrait(hero, heroArt, small = false) {
+    const portrait = document.createElement("div");
+    portrait.className = "lobbyLoadoutPortrait";
+    if (small) portrait.classList.add("small");
+    if (heroArt) {
+      portrait.innerHTML = `<img src="${heroArt}" alt="${hero.name}" loading="lazy" />`;
+      const symbol = document.createElement("span");
+      symbol.className = "symbol";
+      symbol.textContent = hero.icon;
+      portrait.appendChild(symbol);
+    } else {
+      const icon = document.createElement("span");
+      icon.className = "icon";
+      icon.textContent = hero.icon;
+      portrait.appendChild(icon);
+    }
+    return portrait;
+  }
+
+  function renderLobbyLoadoutPanel() {
+    if (!lobbyLoadoutList || !lobbyBenchList) return;
+    lobbyLoadoutList.innerHTML = "";
+    lobbyBenchList.innerHTML = "";
+
+    const loadout = currentLoadout();
+    const equippedSet = new Set(loadout);
+    const ownedHeroes = HERO_LIBRARY.filter((hero) => heroProgress(hero.id).owned);
+
+    if (loadout.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "iconEmpty";
+      empty.textContent = "출전 영웅이 없습니다.";
+      lobbyLoadoutList.appendChild(empty);
+    } else {
+      loadout.forEach((heroId, index) => {
+        const hero = heroById(heroId);
+        if (!hero) return;
+        const progress = heroProgress(hero.id);
+        const heroArt = heroVisual(hero.id);
+        const card = document.createElement("div");
+        card.className = "lobbyLoadoutCard";
+        card.dataset.lobbyHeroId = hero.id;
+
+        const top = document.createElement("div");
+        top.className = "lobbyLoadoutTop";
+        top.appendChild(makeLobbyHeroPortrait(hero, heroArt));
+        const info = document.createElement("div");
+        info.className = "lobbyLoadoutInfo";
+        info.innerHTML = `<div class="lobbyLoadoutName">${index + 1}. ${hero.name}</div><div class="lobbyLoadoutMeta">Lv.${
+          progress.level
+        } · 진화 ${progress.evolution || 0}단계</div>`;
+        top.appendChild(info);
+        card.appendChild(top);
+
+        const controls = document.createElement("div");
+        controls.className = "lobbyLoadoutControls";
+
+        const moveBack = document.createElement("button");
+        moveBack.className = "btn tiny ghost";
+        moveBack.type = "button";
+        moveBack.textContent = "◀";
+        moveBack.disabled = index <= 0;
+        moveBack.title = "뒤쪽으로 이동";
+        moveBack.addEventListener("click", () => {
+          const result = tryShiftLoadout(hero.id, -1);
+          if (!result.ok) return;
+          renderLobbyMain();
+        });
+
+        const moveFront = document.createElement("button");
+        moveFront.className = "btn tiny ghost";
+        moveFront.type = "button";
+        moveFront.textContent = "▶";
+        moveFront.disabled = index >= loadout.length - 1;
+        moveFront.title = "앞쪽으로 이동";
+        moveFront.addEventListener("click", () => {
+          const result = tryShiftLoadout(hero.id, 1);
+          if (!result.ok) return;
+          renderLobbyMain();
+        });
+
+        const unequip = document.createElement("button");
+        unequip.className = "btn tiny";
+        unequip.type = "button";
+        unequip.textContent = "해제";
+        unequip.disabled = loadout.length <= 1;
+        unequip.title = "출전 해제";
+        unequip.addEventListener("click", () => {
+          const result = tryToggleLoadout(hero.id);
+          if (!result.ok) return;
+          renderLobbyMain();
+        });
+
+        controls.appendChild(moveBack);
+        controls.appendChild(moveFront);
+        controls.appendChild(unequip);
+        card.appendChild(controls);
+        lobbyLoadoutList.appendChild(card);
+      });
+    }
+
+    const benchHeroes = ownedHeroes.filter((hero) => !equippedSet.has(hero.id));
+    if (benchHeroes.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "iconEmpty";
+      empty.textContent = "대기 영웅이 없습니다.";
+      lobbyBenchList.appendChild(empty);
+    } else {
+      benchHeroes.forEach((hero) => {
+        const progress = heroProgress(hero.id);
+        const heroArt = heroVisual(hero.id);
+        const card = document.createElement("div");
+        card.className = "lobbyBenchCard";
+
+        const top = document.createElement("div");
+        top.className = "lobbyBenchTop";
+        top.appendChild(makeLobbyHeroPortrait(hero, heroArt, true));
+        const info = document.createElement("div");
+        info.className = "lobbyLoadoutInfo";
+        info.innerHTML = `<div class="lobbyLoadoutName">${hero.name}</div><div class="lobbyLoadoutMeta">Lv.${
+          progress.level
+        } · 진화 ${progress.evolution || 0}단계</div>`;
+        top.appendChild(info);
+        card.appendChild(top);
+
+        const equipBtn = document.createElement("button");
+        equipBtn.className = "btn tiny primary";
+        equipBtn.type = "button";
+        equipBtn.textContent = "⚔ 장착";
+        equipBtn.disabled = loadout.length >= MAX_ACTIVE;
+        equipBtn.addEventListener("click", () => {
+          const result = tryToggleLoadout(hero.id);
+          if (!result.ok) return;
+          renderLobbyMain();
+        });
+        card.appendChild(equipBtn);
+        lobbyBenchList.appendChild(card);
+      });
+    }
   }
 
   function showEquipmentSelectModal(heroId, slotId) {
@@ -2807,6 +2973,71 @@
     if (!idleTalkTimer) return;
     clearTimeout(idleTalkTimer);
     idleTalkTimer = 0;
+  }
+
+  function clearLobbyTalkTimer() {
+    if (!lobbyTalkTimer) return;
+    clearTimeout(lobbyTalkTimer);
+    lobbyTalkTimer = 0;
+  }
+
+  function canLobbyTalkNow() {
+    if (document.hidden) return false;
+    if (!lobbyLayer?.classList.contains("open")) return false;
+    if (state.ui.screen !== "main") return false;
+    if (modalLayer?.classList.contains("open")) return false;
+    return currentLoadout().length > 0;
+  }
+
+  function pickLobbyTalkLine(hero) {
+    if (!hero) return "";
+    const profile = HERO_DIALOG_PROFILE[hero.id];
+    if (!profile?.lines) return "";
+    const eventPool = ["idle_wait", "spin_start", "battle_start"].filter(
+      (event) => Array.isArray(profile.lines[event]) && profile.lines[event].length > 0
+    );
+    if (eventPool.length === 0) return "";
+    const event = eventPool[randInt(eventPool.length)];
+    const line = pickDialogLine(profile.lines[event], `lobby:${hero.id}:${event}`);
+    return formatDialogLine(line, { self: hero.name || "" });
+  }
+
+  function showLobbyHeroTalk(hero, text) {
+    if (!hero || !text) return;
+    const card = nodeByLobbyHero(hero.id);
+    if (!card) return;
+    const prev = card.querySelector(".lobbyTalkBubble");
+    if (prev) prev.remove();
+    const bubble = document.createElement("div");
+    bubble.className = "lobbyTalkBubble";
+    bubble.textContent = text;
+    card.appendChild(bubble);
+    requestAnimationFrame(() => bubble.classList.add("show"));
+    setTimeout(() => {
+      bubble.classList.remove("show");
+      setTimeout(() => {
+        if (bubble.parentElement) bubble.remove();
+      }, 180);
+    }, 1700);
+  }
+
+  function scheduleLobbyTalk() {
+    clearLobbyTalkTimer();
+    if (!canLobbyTalkNow()) {
+      clearLobbyTalkBubbles();
+      return;
+    }
+    const delay = 4000 + randInt(4001);
+    lobbyTalkTimer = setTimeout(() => {
+      lobbyTalkTimer = 0;
+      if (!canLobbyTalkNow()) return;
+      const loadout = currentLoadout();
+      if (loadout.length === 0) return;
+      const hero = heroById(loadout[randInt(loadout.length)]);
+      const line = pickLobbyTalkLine(hero);
+      if (line) showLobbyHeroTalk(hero, line);
+      scheduleLobbyTalk();
+    }, delay);
   }
 
   function canIdleTalkNow() {
