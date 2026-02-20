@@ -67,9 +67,12 @@
   const heroDetail = byId("heroDetail");
   const summonShard = byId("summonShard");
   const summonRateInfo = byId("summonRateInfo");
+  const summonEquipRateInfo = byId("summonEquipRateInfo");
   const summonResultList = byId("summonResultList");
   const btnSummon1 = byId("btnSummon1");
   const btnSummon10 = byId("btnSummon10");
+  const btnEquipSummon1 = byId("btnEquipSummon1");
+  const btnEquipSummon10 = byId("btnEquipSummon10");
 
   const HERO_LIBRARY = [
     {
@@ -261,6 +264,42 @@
   const STARTER_HERO_IDS = ["H1", "H3"];
   const HERO_PULL_COST = 24;
   const MAX_HERO_LEVEL = 10;
+  const EQUIP_PULL_COST = 18;
+  const EQUIP_SLOTS = [
+    { id: "weapon", icon: "🗡️", name: "무기" },
+    { id: "helmet", icon: "⛑️", name: "투구" },
+    { id: "armor", icon: "🥋", name: "갑옷" },
+    { id: "accessory", icon: "💍", name: "장신구" },
+  ];
+  const EQUIP_LIBRARY = {
+    weapon: [
+      { id: "W_RUST", icon: "🪓", rarity: "R", name: "녹슨 도끼", effects: { atkFlat: 2 }, weight: 26 },
+      { id: "W_EDGE", icon: "⚔️", rarity: "SR", name: "날선 단검", effects: { atkFlat: 4, critBonus: 0.04 }, weight: 14 },
+      { id: "W_RUNE", icon: "🜂", rarity: "SSR", name: "룬 블레이드", effects: { atkFlat: 6, spinDoubleChance: 0.05 }, weight: 6 },
+    ],
+    helmet: [
+      { id: "H_HIDE", icon: "🧢", rarity: "R", name: "가죽 모자", effects: { hpFlat: 8 }, weight: 26 },
+      { id: "H_GUARD", icon: "🪖", rarity: "SR", name: "수호 투구", effects: { hpFlat: 12, guardRateBonus: 0.04 }, weight: 14 },
+      { id: "H_CROWN", icon: "👑", rarity: "SSR", name: "지휘 왕관", effects: { hpFlat: 16, spinChargeChance: 0.05 }, weight: 6 },
+    ],
+    armor: [
+      { id: "A_CHAIN", icon: "🧥", rarity: "R", name: "사슬 갑옷", effects: { hpFlat: 10 }, weight: 26 },
+      { id: "A_PLATE", icon: "🛡️", rarity: "SR", name: "철갑 흉갑", effects: { hpFlat: 14, shieldBonus: 1 }, weight: 14 },
+      { id: "A_ABYSS", icon: "🜨", rarity: "SSR", name: "심연 중갑", effects: { hpFlat: 20, guardRateBonus: 0.07 }, weight: 6 },
+    ],
+    accessory: [
+      { id: "X_RING", icon: "💠", rarity: "R", name: "예리한 반지", effects: { critBonus: 0.03 }, weight: 26 },
+      { id: "X_CHARM", icon: "📿", rarity: "SR", name: "문양 부적", effects: { spinHeroSigilChance: 0.06 }, weight: 14 },
+      {
+        id: "X_CLOCK",
+        icon: "⏱️",
+        rarity: "SSR",
+        name: "시공 펜던트",
+        effects: { spinLinkChance: 0.06, spinSlot2PulseChance: 0.06 },
+        weight: 6,
+      },
+    ],
+  };
   const CHAPTER_CONFIG = {
     1: { label: "잿빛 입구", enemyHpMult: 1, enemyAtkMult: 1, shardMult: 1 },
     2: { label: "심연 회랑", enemyHpMult: 1.16, enemyAtkMult: 1.12, shardMult: 1.25 },
@@ -494,6 +533,90 @@
     return filtered.slice(0, MAX_ACTIVE);
   }
 
+  function equipmentSlotMeta(slotId) {
+    return EQUIP_SLOTS.find((slot) => slot.id === slotId) || null;
+  }
+
+  function emptyEquipmentLoadout() {
+    return {
+      weapon: null,
+      helmet: null,
+      armor: null,
+      accessory: null,
+    };
+  }
+
+  function defaultEquipmentLoadout(roster = null) {
+    const loadout = {};
+    HERO_LIBRARY.forEach((hero) => {
+      if (roster && !roster?.[hero.id]?.owned) return;
+      loadout[hero.id] = emptyEquipmentLoadout();
+    });
+    return loadout;
+  }
+
+  function sanitizeEquipmentItem(rawItem) {
+    if (!rawItem || typeof rawItem !== "object") return null;
+    const slotId = typeof rawItem.slot === "string" ? rawItem.slot : "";
+    if (!equipmentSlotMeta(slotId)) return null;
+    const uid = Number.isFinite(rawItem.uid) ? Math.max(1, Math.floor(rawItem.uid)) : 0;
+    if (!uid) return null;
+    const name = typeof rawItem.name === "string" ? rawItem.name : "이름 없는 장비";
+    const icon = typeof rawItem.icon === "string" ? rawItem.icon : "🧩";
+    const rarity = rawItem.rarity === "SSR" || rawItem.rarity === "SR" ? rawItem.rarity : "R";
+    const effects = {};
+    if (rawItem.effects && typeof rawItem.effects === "object") {
+      Object.entries(rawItem.effects).forEach(([key, value]) => {
+        if (!Number.isFinite(value)) return;
+        effects[key] = value;
+      });
+    }
+    return {
+      uid,
+      baseId: typeof rawItem.baseId === "string" ? rawItem.baseId : `${slotId}_${uid}`,
+      slot: slotId,
+      name,
+      icon,
+      rarity,
+      effects,
+      createdAt: Number.isFinite(rawItem.createdAt) ? rawItem.createdAt : Date.now(),
+    };
+  }
+
+  function ensureMetaEquipment(rawEquipment = null) {
+    const fallback = { nextUid: 1, items: [] };
+    if (!rawEquipment || typeof rawEquipment !== "object") return fallback;
+    const items = Array.isArray(rawEquipment.items)
+      ? rawEquipment.items.map((item) => sanitizeEquipmentItem(item)).filter(Boolean)
+      : [];
+    const maxUid = items.reduce((max, item) => Math.max(max, item.uid), 0);
+    const nextUid = Number.isFinite(rawEquipment.nextUid) ? Math.max(maxUid + 1, Math.floor(rawEquipment.nextUid)) : maxUid + 1;
+    return { nextUid, items };
+  }
+
+  function ensureMetaEquipmentLoadout(rawLoadout = null, roster = null, equipment = null) {
+    const ownedIds = new Set(HERO_LIBRARY.filter((hero) => roster?.[hero.id]?.owned).map((hero) => hero.id));
+    const ownedEquipmentIds = new Set((equipment?.items || []).map((item) => item.uid));
+    const result = defaultEquipmentLoadout(roster);
+    if (!rawLoadout || typeof rawLoadout !== "object") return result;
+
+    Object.entries(rawLoadout).forEach(([heroId, slots]) => {
+      if (!ownedIds.has(heroId) || !slots || typeof slots !== "object") return;
+      const next = emptyEquipmentLoadout();
+      EQUIP_SLOTS.forEach((slot) => {
+        const value = slots[slot.id];
+        if (!Number.isFinite(value)) return;
+        const uid = Math.floor(value);
+        if (!ownedEquipmentIds.has(uid)) return;
+        const equip = (equipment?.items || []).find((item) => item.uid === uid);
+        if (!equip || equip.slot !== slot.id) return;
+        next[slot.id] = uid;
+      });
+      result[heroId] = next;
+    });
+    return result;
+  }
+
   function sanitizeSummon(rawSummon) {
     if (!rawSummon || typeof rawSummon !== "object") return null;
     const heroId = typeof rawSummon.heroId === "string" ? rawSummon.heroId : "";
@@ -508,11 +631,14 @@
 
   function loadMeta() {
     const fallbackRoster = defaultRoster();
+    const fallbackEquipment = ensureMetaEquipment(null);
     const fallback = {
       shards: 0,
       upgrades: { atk: 0, hp: 0, tactic: 0 },
       roster: fallbackRoster,
       loadout: defaultLoadout(fallbackRoster),
+      equipment: fallbackEquipment,
+      equipmentLoadout: defaultEquipmentLoadout(fallbackRoster),
       summonPity: 0,
       lastSummon: null,
     };
@@ -521,6 +647,7 @@
       if (!raw) return fallback;
       const parsed = JSON.parse(raw);
       const roster = ensureMetaRoster(parsed?.roster || null);
+      const equipment = ensureMetaEquipment(parsed?.equipment || null);
       return {
         shards: Number.isFinite(parsed?.shards) ? Math.max(0, parsed.shards) : 0,
         upgrades: {
@@ -530,6 +657,8 @@
         },
         roster,
         loadout: ensureMetaLoadout(parsed?.loadout || null, roster),
+        equipment,
+        equipmentLoadout: ensureMetaEquipmentLoadout(parsed?.equipmentLoadout || null, roster, equipment),
         summonPity: Number.isFinite(parsed?.summonPity) ? clamp(parsed.summonPity, 0, 99) : 0,
         lastSummon: sanitizeSummon(parsed?.lastSummon),
       };
@@ -725,6 +854,74 @@
     return state.meta?.roster?.[heroId] || { owned: false, level: 1, fragments: 0, pulls: 0 };
   }
 
+  function allEquipmentItems() {
+    return Array.isArray(state.meta?.equipment?.items) ? state.meta.equipment.items : [];
+  }
+
+  function equipmentByUid(uid) {
+    if (!Number.isFinite(uid)) return null;
+    return allEquipmentItems().find((item) => item.uid === uid) || null;
+  }
+
+  function heroEquipmentLoadout(heroId) {
+    if (!heroId) return emptyEquipmentLoadout();
+    const raw = state.meta?.equipmentLoadout?.[heroId];
+    if (!raw || typeof raw !== "object") return emptyEquipmentLoadout();
+    const next = emptyEquipmentLoadout();
+    EQUIP_SLOTS.forEach((slot) => {
+      if (!Number.isFinite(raw[slot.id])) return;
+      next[slot.id] = Math.floor(raw[slot.id]);
+    });
+    return next;
+  }
+
+  function heroEquippedItems(heroId) {
+    const loadout = heroEquipmentLoadout(heroId);
+    return EQUIP_SLOTS.map((slot) => {
+      const uid = loadout[slot.id];
+      const item = equipmentByUid(uid);
+      return { slot, uid, item: item && item.slot === slot.id ? item : null };
+    });
+  }
+
+  function heroEquipmentEffects(heroId) {
+    const effects = {};
+    heroEquippedItems(heroId).forEach(({ item }) => {
+      if (!item || !item.effects) return;
+      Object.entries(item.effects).forEach(([key, value]) => {
+        if (!Number.isFinite(value)) return;
+        effects[key] = (effects[key] || 0) + value;
+      });
+    });
+    return effects;
+  }
+
+  function equipmentEffectsText(effects) {
+    if (!effects || typeof effects !== "object") return "효과 없음";
+    const labels = [];
+    const pushFlat = (key, label) => {
+      const value = effects[key];
+      if (!Number.isFinite(value) || value === 0) return;
+      labels.push(`${label} ${value > 0 ? "+" : ""}${Math.floor(value)}`);
+    };
+    const pushPercent = (key, label) => {
+      const value = effects[key];
+      if (!Number.isFinite(value) || value === 0) return;
+      labels.push(`${label} ${value > 0 ? "+" : ""}${(value * 100).toFixed(0)}%`);
+    };
+    pushFlat("atkFlat", "공격");
+    pushFlat("hpFlat", "체력");
+    pushFlat("shieldBonus", "보호막");
+    pushPercent("critBonus", "치명");
+    pushPercent("guardRateBonus", "가드");
+    pushPercent("spinDoubleChance", "x2");
+    pushPercent("spinChargeChance", "▲");
+    pushPercent("spinHeroSigilChance", "◆");
+    pushPercent("spinLinkChance", "⇉");
+    pushPercent("spinSlot2PulseChance", "Ⅱ");
+    return labels.length > 0 ? labels.join(" · ") : "효과 없음";
+  }
+
   function heroOwnedCount() {
     return HERO_LIBRARY.filter((hero) => heroProgress(hero.id).owned).length;
   }
@@ -833,6 +1030,64 @@
     renderLobbyMain();
   }
 
+  function showEquipmentSelectModal(heroId, slotId) {
+    const hero = heroById(heroId);
+    const slot = equipmentSlotMeta(slotId);
+    if (!hero || !slot) return;
+
+    const body = document.createElement("div");
+    body.className = "rewardGrid";
+    const currentUid = heroEquipmentLoadout(heroId)[slotId];
+    const candidates = allEquipmentItems().filter((item) => item.slot === slotId);
+
+    if (candidates.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "iconEmpty";
+      empty.textContent = `${slot.icon} ${slot.name} 장비가 없습니다. 장비 뽑기에서 획득하세요.`;
+      body.appendChild(empty);
+    } else {
+      candidates
+        .sort((left, right) => {
+          const rarityOrder = { SSR: 3, SR: 2, R: 1 };
+          const rarityGap = (rarityOrder[right.rarity] || 0) - (rarityOrder[left.rarity] || 0);
+          if (rarityGap !== 0) return rarityGap;
+          return right.uid - left.uid;
+        })
+        .forEach((item, index) => {
+          const card = document.createElement("div");
+          card.className = "rewardCard";
+          card.style.setProperty("--entry-delay", `${index * 40}ms`);
+          if (item.uid === currentUid) card.classList.add("selected");
+          card.innerHTML = `<div class="rewardTitle">${item.icon} [${rarityLabel(item.rarity)}] ${item.name}</div><div class="rewardDesc">${equipmentEffectsText(
+            item.effects
+          )}</div>`;
+          card.addEventListener("click", () => {
+            const result = tryEquipHeroItem(heroId, slotId, item.uid);
+            if (!result.ok) return;
+            closeModal();
+            log(`${hero.name} ${slot.name} 장착: ${item.icon} ${item.name}`, true);
+            renderLobby();
+          });
+          body.appendChild(card);
+        });
+    }
+
+    const footer = document.createElement("div");
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "btn ghost";
+    closeBtn.type = "button";
+    closeBtn.textContent = "닫기";
+    closeBtn.addEventListener("click", () => closeModal());
+    footer.appendChild(closeBtn);
+
+    openModal({
+      title: `${hero.name} · ${slot.icon} ${slot.name} 장착`,
+      bodyNode: body,
+      footerNode: footer,
+      closable: true,
+    });
+  }
+
   function renderHeroDetail(heroId) {
     if (!heroDetail) return;
     const hero = heroById(heroId);
@@ -847,6 +1102,8 @@
     const needShards = progress.level >= MAX_HERO_LEVEL ? 0 : heroLevelCostShards(progress.level);
     const heroArt = heroVisual(hero.id);
     const equippedPos = loadoutPosition(hero.id);
+    const equippedItems = heroEquippedItems(hero.id);
+    const equipEffects = heroEquipmentEffects(hero.id);
 
     heroDetail.innerHTML = "";
 
@@ -866,6 +1123,9 @@
     stat.innerHTML = `<div class="heroDetailStatGrid">
       <div class="heroStatLine"><span class="heroStatIcon">⚔️</span><span class="heroStatLabel">공격력</span><span class="heroStatValue main attack">${hero.baseAtk}</span><span class="heroStatValue growth">+${growth.atk}</span></div>
       <div class="heroStatLine"><span class="heroStatIcon">❤️</span><span class="heroStatLabel">체력</span><span class="heroStatValue main hp">${hero.baseHp}</span><span class="heroStatValue growth">+${growth.hp}</span></div>
+      <div class="heroStatLine"><span class="heroStatIcon">🛠️</span><span class="heroStatLabel">장비 보정</span><span class="heroStatValue main target">${equipmentEffectsText(
+        equipEffects
+      )}</span></div>
       <div class="heroStatLine"><span class="heroStatIcon">🧩</span><span class="heroStatLabel">조각</span><span class="heroStatValue main resource">${progress.fragments}${
       progress.level >= MAX_HERO_LEVEL ? "" : ` / ${needFragments}`
     }</span></div>
@@ -953,6 +1213,46 @@
     actions.appendChild(levelBtn);
     heroDetail.appendChild(actions);
 
+    const equipTitle = document.createElement("div");
+    equipTitle.className = "heroDetailSubTitle";
+    equipTitle.textContent = "🛠 장비 슬롯 (무기/투구/갑옷/장신구)";
+    heroDetail.appendChild(equipTitle);
+
+    const equipList = document.createElement("div");
+    equipList.className = "heroEquipList";
+    equippedItems.forEach(({ slot, item }) => {
+      const row = document.createElement("div");
+      row.className = "heroEquipItem";
+      const currentText = item
+        ? `${item.icon} [${rarityLabel(item.rarity)}] ${item.name} · ${equipmentEffectsText(item.effects)}`
+        : "미장착";
+      row.innerHTML = `<div class="heroEquipName">${slot.icon} ${slot.name}</div><div class="heroEquipDesc">${currentText}</div>`;
+      const rowActions = document.createElement("div");
+      rowActions.className = "heroEquipActions";
+      const replaceBtn = document.createElement("button");
+      replaceBtn.className = "btn tiny ghost";
+      replaceBtn.type = "button";
+      replaceBtn.textContent = item ? "교체" : "장착";
+      replaceBtn.addEventListener("click", () => showEquipmentSelectModal(hero.id, slot.id));
+      rowActions.appendChild(replaceBtn);
+      if (item) {
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn tiny ghost";
+        removeBtn.type = "button";
+        removeBtn.textContent = "해제";
+        removeBtn.addEventListener("click", () => {
+          const result = tryEquipHeroItem(hero.id, slot.id, null);
+          if (!result.ok) return;
+          log(`${hero.name} ${slot.name} 해제`, true);
+          renderLobby();
+        });
+        rowActions.appendChild(removeBtn);
+      }
+      row.appendChild(rowActions);
+      equipList.appendChild(row);
+    });
+    heroDetail.appendChild(equipList);
+
     const passiveTitle = document.createElement("div");
     passiveTitle.className = "heroDetailSubTitle";
     passiveTitle.textContent = "✨ 패시브 스킬";
@@ -1016,8 +1316,11 @@
       const remain = Math.max(1, 10 - pity);
       summonRateInfo.textContent = `${summonRateSummary()} · SR+ 보장까지 ${remain}회`;
     }
+    if (summonEquipRateInfo) summonEquipRateInfo.textContent = `${equipmentRateSummary()} · 1회 ${EQUIP_PULL_COST} 결정`;
     if (btnSummon1) btnSummon1.disabled = state.meta.shards < HERO_PULL_COST;
     if (btnSummon10) btnSummon10.disabled = state.meta.shards < HERO_PULL_COST * 10;
+    if (btnEquipSummon1) btnEquipSummon1.disabled = state.meta.shards < EQUIP_PULL_COST;
+    if (btnEquipSummon10) btnEquipSummon10.disabled = state.meta.shards < EQUIP_PULL_COST * 10;
     if (!summonResultList) return;
     summonResultList.innerHTML = "";
     if (state.ui.summonResults.length === 0) {
@@ -1027,9 +1330,13 @@
     state.ui.summonResults.slice(0, 20).forEach((entry) => {
       const line = document.createElement("div");
       line.className = "summonLine";
-      line.textContent = `${entry.icon} ${entry.name} [${entry.rarity}] ${entry.duplicate ? "중복" : "신규"} · 조각 +${
-        entry.fragments
-      }`;
+      if (entry.kind === "equip") {
+        line.textContent = `🛠 ${entry.icon} ${entry.name} [${entry.rarity}] · ${entry.desc}`;
+      } else {
+        line.textContent = `${entry.icon} ${entry.name} [${entry.rarity}] ${entry.duplicate ? "중복" : "신규"} · 조각 +${
+          entry.fragments
+        }`;
+      }
       summonResultList.appendChild(line);
     });
   }
@@ -1055,6 +1362,7 @@
       if (!result.ok) break;
       if (result.guaranteeSrPlus) log("소환 보장 발동: 이번 뽑기에서 SR 이상이 확정됩니다.", true);
       results.push({
+        kind: "hero",
         icon: result.hero.icon,
         name: result.hero.name,
         rarity: rarityLabel(result.hero.rarity),
@@ -1067,6 +1375,27 @@
         }`,
         true
       );
+    }
+    if (results.length > 0) {
+      state.ui.summonResults = [...results.reverse(), ...state.ui.summonResults].slice(0, 40);
+    }
+    renderLobby();
+  }
+
+  function runEquipmentSummon(times) {
+    const count = clamp(times, 1, 10);
+    const results = [];
+    for (let index = 0; index < count; index += 1) {
+      const result = tryEquipmentSummon();
+      if (!result.ok) break;
+      results.push({
+        kind: "equip",
+        icon: result.item.icon,
+        name: result.item.name,
+        rarity: rarityLabel(result.item.rarity),
+        desc: equipmentEffectsText(result.item.effects),
+      });
+      log(`장비 획득: ${result.item.icon} ${result.item.name} [${rarityLabel(result.item.rarity)}]`, true);
     }
     if (results.length > 0) {
       state.ui.summonResults = [...results.reverse(), ...state.ui.summonResults].slice(0, 40);
@@ -1099,11 +1428,12 @@
     const growth = heroLevelGrowth(base, level);
     const passiveEffects = passiveEffectsByLevel(base, level);
     const passiveUnlockedIds = unlockedPassiveList(base, level).map((passive) => passive.id);
+    const equipEffects = heroEquipmentEffects(heroId);
     const hpBonus = (state.meta?.upgrades?.hp || 0) * 4;
     const atkBonus = state.meta?.upgrades?.atk || 0;
-    const maxHpRaw = base.baseHp + hpBonus + growth.hp + (passiveEffects.hpFlat || 0);
+    const maxHpRaw = base.baseHp + hpBonus + growth.hp + (passiveEffects.hpFlat || 0) + (equipEffects.hpFlat || 0);
     const maxHp = Math.max(1, Math.floor(maxHpRaw * (1 + (passiveEffects.hpMult || 0))));
-    const atkRaw = base.baseAtk + atkBonus + growth.atk + (passiveEffects.atkFlat || 0);
+    const atkRaw = base.baseAtk + atkBonus + growth.atk + (passiveEffects.atkFlat || 0) + (equipEffects.atkFlat || 0);
     return {
       ...base,
       metaLevel: level,
@@ -1122,6 +1452,7 @@
       traitEffects: trait?.effects || {},
       passiveEffects,
       passiveUnlockedIds,
+      equipmentEffects: equipEffects,
     };
   }
 
@@ -3104,6 +3435,7 @@
     progress.fragments = clamp((progress.fragments || 0) + gainFragments, 0, 999);
     progress.pulls = clamp((progress.pulls || 0) + 1, 0, 9999);
     state.meta.roster[hero.id] = progress;
+    if (!state.meta.equipmentLoadout[hero.id]) state.meta.equipmentLoadout[hero.id] = emptyEquipmentLoadout();
     state.meta.summonPity = hero.rarity === "R" ? clamp(pity + 1, 0, 99) : 0;
     state.meta.lastSummon = {
       heroId: hero.id,
@@ -3120,6 +3452,85 @@
       gainFragments,
       guaranteeSrPlus,
     };
+  }
+
+  function equipmentRateSummary() {
+    const entries = EQUIP_SLOTS.flatMap((slot) => EQUIP_LIBRARY[slot.id] || []);
+    const totals = { R: 0, SR: 0, SSR: 0 };
+    let sum = 0;
+    entries.forEach((entry) => {
+      const weight = entry.weight || 1;
+      sum += weight;
+      totals[rarityLabel(entry.rarity)] += weight;
+    });
+    if (sum <= 0) return "장비 확률 정보 없음";
+    const percent = (value) => `${((value / sum) * 100).toFixed(1)}%`;
+    return `장비 확률: R ${percent(totals.R)} · SR ${percent(totals.SR)} · SSR ${percent(totals.SSR)}`;
+  }
+
+  function pullEquipment() {
+    const flatPool = EQUIP_SLOTS.flatMap((slot) => {
+      return (EQUIP_LIBRARY[slot.id] || []).map((entry) => ({ ...entry, slot: slot.id }));
+    });
+    const total = flatPool.reduce((sum, entry) => sum + (entry.weight || 1), 0);
+    let threshold = Math.random() * total;
+    for (const entry of flatPool) {
+      threshold -= entry.weight || 1;
+      if (threshold <= 0) return entry;
+    }
+    return flatPool[flatPool.length - 1];
+  }
+
+  function tryEquipmentSummon() {
+    if (state.meta.shards < EQUIP_PULL_COST) return { ok: false, reason: "결정 부족" };
+    const picked = pullEquipment();
+    if (!picked) return { ok: false, reason: "장비 풀 없음" };
+
+    const uid = Math.max(1, Math.floor(state.meta?.equipment?.nextUid || 1));
+    const instance = {
+      uid,
+      baseId: picked.id,
+      slot: picked.slot,
+      name: picked.name,
+      icon: picked.icon,
+      rarity: picked.rarity,
+      effects: { ...(picked.effects || {}) },
+      createdAt: Date.now(),
+    };
+
+    state.meta.shards -= EQUIP_PULL_COST;
+    state.meta.equipment.items.push(instance);
+    state.meta.equipment.nextUid = uid + 1;
+    saveMeta(state.meta);
+
+    return { ok: true, item: instance };
+  }
+
+  function tryEquipHeroItem(heroId, slotId, uid) {
+    const hero = heroById(heroId);
+    if (!hero || !heroProgress(heroId).owned) return { ok: false, reason: "미보유 영웅" };
+    if (!equipmentSlotMeta(slotId)) return { ok: false, reason: "잘못된 슬롯" };
+    if (!state.meta.equipmentLoadout[heroId]) state.meta.equipmentLoadout[heroId] = emptyEquipmentLoadout();
+
+    if (!uid) {
+      state.meta.equipmentLoadout[heroId][slotId] = null;
+      saveMeta(state.meta);
+      return { ok: true, equipped: null };
+    }
+
+    const item = equipmentByUid(uid);
+    if (!item || item.slot !== slotId) return { ok: false, reason: "장착 불가" };
+
+    HERO_LIBRARY.forEach((entry) => {
+      if (!state.meta.equipmentLoadout[entry.id]) state.meta.equipmentLoadout[entry.id] = emptyEquipmentLoadout();
+      if (state.meta.equipmentLoadout[entry.id][slotId] === uid) {
+        state.meta.equipmentLoadout[entry.id][slotId] = null;
+      }
+    });
+
+    state.meta.equipmentLoadout[heroId][slotId] = uid;
+    saveMeta(state.meta);
+    return { ok: true, equipped: item };
   }
 
   function tryHeroLevelUp(heroId) {
@@ -3529,7 +3940,7 @@
   function showResetDataModal() {
     const body = document.createElement("div");
     body.innerHTML =
-      '<div class="rewardDesc">저장된 메타 데이터(결정/영웅/레벨/편성/소환기록)를 모두 삭제하고 초기 상태로 되돌립니다.</div>';
+      '<div class="rewardDesc">저장된 메타 데이터(결정/영웅/레벨/편성/장비/소환기록)를 모두 삭제하고 초기 상태로 되돌립니다.</div>';
     const footer = document.createElement("div");
     const cancel = document.createElement("button");
     cancel.className = "btn ghost";
@@ -3605,6 +4016,26 @@
       footerNode: footer,
       closable: false,
     });
+  }
+
+  function applyEquipmentRunModifiers() {
+    const equippedEffects = {};
+    state.activeHeroes.forEach((hero) => {
+      const effects = hero.equipmentEffects || {};
+      Object.entries(effects).forEach(([key, value]) => {
+        if (!Number.isFinite(value)) return;
+        equippedEffects[key] = (equippedEffects[key] || 0) + value;
+      });
+    });
+
+    state.modifiers.critBonus += equippedEffects.critBonus || 0;
+    state.modifiers.shieldBonus += Math.floor(equippedEffects.shieldBonus || 0);
+    state.modifiers.guardRateBonus += equippedEffects.guardRateBonus || 0;
+    state.modifiers.spinDoubleChance += equippedEffects.spinDoubleChance || 0;
+    state.modifiers.spinChargeChance += equippedEffects.spinChargeChance || 0;
+    state.modifiers.spinHeroSigilChance += equippedEffects.spinHeroSigilChance || 0;
+    state.modifiers.spinLinkChance += equippedEffects.spinLinkChance || 0;
+    state.modifiers.spinSlot2PulseChance += equippedEffects.spinSlot2PulseChance || 0;
   }
 
   function applyBattleStartEffects() {
@@ -3976,6 +4407,7 @@
       spinHeroSigilChance: 0,
       runeWeightDelta: {},
     };
+    applyEquipmentRunModifiers();
 
     setReels([null, null, null], false);
     setResolvingReel(-1);
@@ -4022,6 +4454,8 @@
 
   btnSummon1.addEventListener("click", () => runSummon(1));
   btnSummon10.addEventListener("click", () => runSummon(10));
+  if (btnEquipSummon1) btnEquipSummon1.addEventListener("click", () => runEquipmentSummon(1));
+  if (btnEquipSummon10) btnEquipSummon10.addEventListener("click", () => runEquipmentSummon(10));
 
   syncLogVisibility();
   resetRun({ startBattle: false, chapter: 1 });

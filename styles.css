@@ -538,6 +538,10 @@ body {
 
 .heroStatValue.target {
   color: #c3b8ff;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .heroDetailActions {
@@ -639,10 +643,49 @@ body {
   color: #c1bed5;
 }
 
+.heroEquipList {
+  border: 1px solid rgba(89, 92, 136, 0.34);
+  border-radius: 10px;
+  background: rgba(20, 21, 36, 0.9);
+  padding: 7px;
+  display: grid;
+  gap: 6px;
+}
+
+.heroEquipItem {
+  border: 1px solid rgba(108, 112, 164, 0.28);
+  border-radius: 8px;
+  background: rgba(35, 36, 58, 0.82);
+  padding: 6px;
+  display: grid;
+  gap: 5px;
+}
+
+.heroEquipName {
+  font-size: 10px;
+  font-weight: 800;
+  color: #e9e4ff;
+}
+
+.heroEquipDesc {
+  font-size: 9px;
+  color: #bbc2de;
+  line-height: 1.35;
+}
+
+.heroEquipActions {
+  display: flex;
+  gap: 6px;
+}
+
+.heroEquipActions .btn {
+  flex: 1;
+}
+
 .summonBody {
   min-height: 0;
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
   gap: 8px;
 }
 
