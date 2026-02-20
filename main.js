@@ -2045,7 +2045,6 @@
     const needLevelShards = progress.level >= MAX_HERO_LEVEL ? 0 : heroLevelCostShards(progress.level);
     const needEvolutionFragments = evolution >= MAX_HERO_EVOLUTION ? 0 : heroEvolutionCost(evolution);
     const heroArt = heroVisual(hero.id);
-    const equippedPos = loadoutPosition(hero.id);
     const equippedItems = heroEquippedItems(hero.id);
     const equipEffects = heroEquipmentEffects(hero.id);
     const equipAtk = Math.floor(equipEffects.atkFlat || 0);
@@ -2091,41 +2090,6 @@
       traitBox.innerHTML = `<div class="heroTraitName">${trait.icon} 특성 · ${trait.name}</div><div class="heroTraitDesc">${trait.desc}</div>`;
       heroDetail.appendChild(traitBox);
     }
-
-    const positionBox = document.createElement("div");
-    positionBox.className = "heroPositionBox";
-    const positionText = document.createElement("div");
-    positionText.className = "heroPositionText";
-    positionText.textContent = equippedPos ? `📍 출전 위치 ${formationLabel(equippedPos.index, equippedPos.total)}` : "🪑 현재 대기중";
-    positionBox.appendChild(positionText);
-    if (equippedPos) {
-      const positionActions = document.createElement("div");
-      positionActions.className = "heroPositionActions";
-      const moveBack = document.createElement("button");
-      moveBack.className = "btn tiny ghost";
-      moveBack.type = "button";
-      moveBack.textContent = "◀ 뒤로";
-      moveBack.disabled = equippedPos.index <= 0;
-      moveBack.addEventListener("click", () => {
-        const result = tryShiftLoadout(hero.id, -1);
-        if (!result.ok) return;
-        renderLobby();
-      });
-      const moveFront = document.createElement("button");
-      moveFront.className = "btn tiny ghost";
-      moveFront.type = "button";
-      moveFront.textContent = "앞으로 ▶";
-      moveFront.disabled = equippedPos.index >= equippedPos.total - 1;
-      moveFront.addEventListener("click", () => {
-        const result = tryShiftLoadout(hero.id, 1);
-        if (!result.ok) return;
-        renderLobby();
-      });
-      positionActions.appendChild(moveBack);
-      positionActions.appendChild(moveFront);
-      positionBox.appendChild(positionActions);
-    }
-    heroDetail.appendChild(positionBox);
 
     const actions = document.createElement("div");
     actions.className = "heroDetailActions";

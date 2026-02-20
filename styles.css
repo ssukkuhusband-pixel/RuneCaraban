@@ -821,15 +821,6 @@ body {
   flex: 1;
 }
 
-.heroPositionBox {
-  border: 1px solid rgba(89, 92, 136, 0.34);
-  border-radius: 10px;
-  background: rgba(28, 30, 49, 0.9);
-  padding: 7px;
-  display: grid;
-  gap: 6px;
-}
-
 .heroTraitBox {
   border: 1px solid rgba(89, 126, 168, 0.36);
   border-radius: 10px;
@@ -848,20 +839,6 @@ body {
 .heroTraitDesc {
   font-size: 9px;
   color: #bfd1e9;
-}
-
-.heroPositionText {
-  font-size: 10px;
-  color: #cbc9de;
-}
-
-.heroPositionActions {
-  display: flex;
-  gap: 6px;
-}
-
-.heroPositionActions .btn {
-  flex: 1;
 }
 
 .heroDetailSubTitle {
