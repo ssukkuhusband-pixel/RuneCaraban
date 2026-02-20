@@ -241,6 +241,7 @@
       lines: {
         battle_start: ["다들 긴장해. 오늘은 느낌이 안 좋아.", "무리하지 마. 살아서 돌아가는 게 우선이다."],
         spin_start: ["괜찮아, 아직 해볼 만해.", "숨 고르고… 천천히 가자."],
+        idle_wait: ["잠깐 숨 돌리자. 조급하면 다친다.", "괜찮아… 우리가 버티면 길이 열린다."],
         attack: ["위험해! 내 뒤로!", "조심해, 내가 막을게."],
         crit: ["지금이다… 끝내자.", "후… 큰일 날 뻔했군."],
         ultimate: ["이번엔 반드시 지킨다!", "아무도 다치지 않게 끝내자!"],
@@ -254,6 +255,7 @@
       lines: {
         battle_start: ["또 목숨 걸고 일하네… 참 나.", "우리 언제까지 이런 위험한 일 해야 해?"],
         spin_start: ["하… 오늘도 살벌하군.", "좋아, 끝내고 빨리 쉬자."],
+        idle_wait: ["다 끝나면 진짜 눕는다…", "솔직히 무섭긴 한데, 티 내긴 싫네."],
         attack: ["이쪽 위험해! 눈 똑바로 떠!", "붙어 있어, 혼자 튀지 마."],
         crit: ["봐, 이렇게 끝내는 거야.", "이번엔 진짜 아찔했네."],
         ultimate: ["한 번에 정리하고 끝낸다!", "이 판 끝나면 나도 좀 쉬자."],
@@ -267,6 +269,7 @@
       lines: {
         battle_start: ["위험하면 바로 말해! 내가 분위기 바꿔줄게!", "다들 너무 굳지 마~ 같이 버텨보자!"],
         spin_start: ["제발 좋은 거 떠라… 나 지금 꽤 떨려.", "웃으면서 가자! 울면 더 무섭거든!"],
+        idle_wait: ["우리 잠깐 쉬어도 돼…? 심장 아직 쿵쾅거려.", "다들 손 떨리면 말해! 나도 떨려!"],
         attack: ["앗, 위험해! 내가 커버할게!", "다친 사람 없어?? 바로 봐줄게!"],
         crit: ["오… 살았다! 이건 운이 좋았어!", "헉, 방금 진짜 심장 떨어질 뻔!"],
         ultimate: ["우리 다 같이 살아남자!", "괜찮아! 끝까지 같이 간다!"],
@@ -280,6 +283,7 @@
       lines: {
         battle_start: ["내가 앞에 설 테니, 다들 너무 무리하지 마.", "불안하면 내 뒤로 붙어."],
         spin_start: ["천천히. 살아남는 선택부터 하자.", "괜찮다. 아직 진형은 유지된다."],
+        idle_wait: ["상태 점검해. 다친 곳 있으면 바로 말해.", "지금은 숨 고르고 다음 위험에 대비한다."],
         attack: ["위험하다! 내가 받는다!", "뒤쪽, 다친 사람 없는지 확인해!"],
         crit: ["좋아, 숨통이 트였다.", "지금은 밀어낼 수 있다."],
         ultimate: ["모두 내 뒤로! 지금은 생존이 먼저다!", "한 명도 안 잃는다!"],
@@ -293,6 +297,7 @@
       lines: {
         battle_start: ["다들 괜찮죠? 무서우면 바로 말해요.", "살아남는 데 집중해요. 제가 곁에 있을게요."],
         spin_start: ["천천히 가요. 급할수록 다쳐요.", "괜찮아요, 아직 기회는 있어요."],
+        idle_wait: ["심호흡해요. 지금은 버티는 시간이 필요해요.", "우리… 오늘 꼭 무사히 돌아가요."],
         attack: ["위험해요! 이쪽으로!", "다친 사람 없어?? 제가 볼게요."],
         crit: ["다행이에요… 큰 피해는 막았어요.", "좋아요, 조금만 더 버텨봐요."],
         ultimate: ["모두 눈 감고 숨 쉬어요. 지금 회복할게요.", "아무도 포기하지 말아요. 제가 지켜요."],
@@ -306,6 +311,7 @@
       lines: {
         battle_start: ["오늘도 목숨값 벌러 왔네…", "끝나면 진짜 쉬고 싶다."],
         spin_start: ["좋은 거 좀 떠라… 손 떨린다.", "하, 이번에도 위험수당은 없겠지."],
+        idle_wait: ["잠깐만… 우리 이 일 언제 끝나냐.", "무섭다고 말하면 비웃을까? 하…"],
         attack: ["위험해! 내가 시선 끌게!", "붙어! 혼자 나가면 죽는다!"],
         crit: ["살았다… 이건 진짜 큰 한 방이네.", "좋아, 한숨 돌렸다."],
         ultimate: ["한 번에 길 뚫고 끝내자!", "이걸로 못 끝내면 우리 다 위험해!"],
@@ -369,6 +375,7 @@
     hero: {
       battle_start: 0.62,
       spin_start: 0.24,
+      idle_wait: 1,
       attack: 0.22,
       crit: 0.72,
       ultimate: 1,
@@ -934,6 +941,7 @@
     lastBySpeaker: new Map(),
   };
 
+  let idleTalkTimer = 0;
   let bgmAudio = null;
   let bgmUnlocked = false;
 
@@ -1242,6 +1250,7 @@
     if (!lobbyLayer) return;
     lobbyLayer.classList.toggle("open", visible);
     lobbyLayer.classList.toggle("hidden", !visible);
+    scheduleIdleTalk();
   }
 
   function openLobbyScreen(screen) {
@@ -1817,11 +1826,13 @@
     btnModalClose.hidden = !closable;
     modalLayer.classList.add("open");
     modalLayer.setAttribute("aria-hidden", "false");
+    scheduleIdleTalk();
   }
 
   function closeModal() {
     modalLayer.classList.remove("open");
     modalLayer.setAttribute("aria-hidden", "true");
+    scheduleIdleTalk();
   }
 
   btnModalClose.addEventListener("click", () => {
@@ -2179,6 +2190,32 @@
     const priority = Number.isFinite(options.priority) ? options.priority : 0;
     const coolGap = force ? 360 : clamp(860 - priority * 180, 420, 1100);
     dialogState.cooldownUntil = nowTs + coolGap;
+  }
+
+  function clearIdleTalkTimer() {
+    if (!idleTalkTimer) return;
+    clearTimeout(idleTalkTimer);
+    idleTalkTimer = 0;
+  }
+
+  function canIdleTalkNow() {
+    if (state.phase !== "spin_ready") return false;
+    if (document.hidden) return false;
+    if (modalLayer?.classList.contains("open")) return false;
+    if (lobbyLayer?.classList.contains("open")) return false;
+    return aliveHeroes().length > 0;
+  }
+
+  function scheduleIdleTalk() {
+    clearIdleTalkTimer();
+    if (!canIdleTalkNow()) return;
+    const delay = 4000 + randInt(4001);
+    idleTalkTimer = setTimeout(() => {
+      idleTalkTimer = 0;
+      if (!canIdleTalkNow()) return;
+      maybeSpeak(randomAliveHero(), "hero", "idle_wait", {}, { chance: 1, priority: 1, duration: 1500 });
+      scheduleIdleTalk();
+    }, delay);
   }
 
   function flashBattlefield(heavy = false) {
@@ -3195,6 +3232,7 @@
     const busy = ["spinning", "resolving", "enemy", "reward", "end"].includes(phase);
     btnSpin.disabled = busy;
     btnPause.disabled = busy;
+    scheduleIdleTalk();
   }
 
   function renderTopStats() {
@@ -4777,6 +4815,7 @@
     closeModal();
     clearLog();
     clearDialogBubbles();
+    clearIdleTalkTimer();
     state.chapter = Number(chapter) || 1;
     state.ui.selectedChapter = state.chapter;
     state.nodeIndex = 0;
@@ -4902,9 +4941,11 @@
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       pauseBgm();
+      scheduleIdleTalk();
       return;
     }
     void playBgmIfPossible(false);
+    scheduleIdleTalk();
   });
 
   syncLogVisibility();
