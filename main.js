@@ -56,8 +56,7 @@
   const lobbyShard = byId("lobbyShard");
   const lobbyOwned = byId("lobbyOwned");
   const lobbyEquipped = byId("lobbyEquipped");
-  const lobbyLoadoutList = byId("lobbyLoadoutList");
-  const lobbyBenchList = byId("lobbyBenchList");
+  const lobbyLoadoutRow = byId("lobbyLoadoutRow");
   const chapterName = byId("chapterName");
   const chapterHint = byId("chapterHint");
   const btnLobbyHeroes = byId("btnLobbyHeroes");
@@ -1735,154 +1734,184 @@
     renderLobbyMain();
   }
 
-  function nodeByLobbyHero(heroId) {
-    if (!lobbyLoadoutList || !heroId) return null;
-    return lobbyLoadoutList.querySelector(`[data-lobby-hero-id="${heroId}"]`);
+  function nodeByLobbyHero(slotIndex) {
+    if (!lobbyLoadoutRow || !Number.isFinite(slotIndex)) return null;
+    return lobbyLoadoutRow.querySelector(`[data-lobby-slot="${slotIndex}"]`);
   }
 
   function clearLobbyTalkBubbles() {
-    if (!lobbyLoadoutList) return;
-    lobbyLoadoutList.querySelectorAll(".lobbyTalkBubble").forEach((node) => node.remove());
+    if (!lobbyLoadoutRow) return;
+    lobbyLoadoutRow.querySelectorAll(".lobbyTalkBubble").forEach((node) => node.remove());
   }
 
-  function makeLobbyHeroPortrait(hero, heroArt, small = false) {
-    const portrait = document.createElement("div");
-    portrait.className = "lobbyLoadoutPortrait";
-    if (small) portrait.classList.add("small");
+  function appendLobbyHeroPortrait(container, hero, heroArt) {
+    if (!container || !hero) return;
     if (heroArt) {
-      portrait.innerHTML = `<img src="${heroArt}" alt="${hero.name}" loading="lazy" />`;
+      container.innerHTML = `<img src="${heroArt}" alt="${hero.name}" loading="lazy" />`;
       const symbol = document.createElement("span");
-      symbol.className = "symbol";
+      symbol.className = "lobbyLoadoutSlotSymbol";
       symbol.textContent = hero.icon;
-      portrait.appendChild(symbol);
+      container.appendChild(symbol);
     } else {
-      const icon = document.createElement("span");
-      icon.className = "icon";
-      icon.textContent = hero.icon;
-      portrait.appendChild(icon);
+      container.textContent = hero.icon;
     }
-    return portrait;
+  }
+
+  function tryAssignLoadoutSlot(slotIndex, heroId = null) {
+    const index = clamp(Math.floor(slotIndex || 0), 0, MAX_ACTIVE - 1);
+    const loadout = currentLoadout();
+    if (!Array.isArray(loadout) || loadout.length === 0) return { ok: false, reason: "편성 없음" };
+
+    if (!heroId) {
+      if (index >= loadout.length) return { ok: false, reason: "이미 빈 칸" };
+      if (loadout.length <= 1) return { ok: false, reason: "최소 1명 필요" };
+      loadout.splice(index, 1);
+      state.meta.loadout = loadout;
+      saveMeta(state.meta);
+      return { ok: true, mode: "clear", index };
+    }
+
+    const hero = heroById(heroId);
+    const progress = heroProgress(heroId);
+    if (!hero || !progress.owned) return { ok: false, reason: "미보유 영웅" };
+    const existingIndex = loadout.indexOf(heroId);
+    if (existingIndex === index) return { ok: true, mode: "same", hero, index };
+
+    if (existingIndex >= 0) {
+      if (index >= loadout.length) {
+        loadout.splice(existingIndex, 1);
+        loadout.push(heroId);
+      } else {
+        const swapped = loadout[index];
+        loadout[index] = heroId;
+        loadout[existingIndex] = swapped;
+      }
+      state.meta.loadout = loadout;
+      saveMeta(state.meta);
+      return { ok: true, mode: "swap", hero, index };
+    }
+
+    if (index >= loadout.length) {
+      if (loadout.length >= MAX_ACTIVE) return { ok: false, reason: `최대 ${MAX_ACTIVE}명` };
+      loadout.push(heroId);
+    } else {
+      loadout[index] = heroId;
+    }
+
+    const normalized = [];
+    loadout.forEach((id) => {
+      if (typeof id !== "string") return;
+      if (normalized.includes(id)) return;
+      if (!heroProgress(id).owned) return;
+      normalized.push(id);
+    });
+    if (normalized.length <= 0) return { ok: false, reason: "편성 오류" };
+    state.meta.loadout = normalized.slice(0, MAX_ACTIVE);
+    saveMeta(state.meta);
+    return { ok: true, mode: "set", hero, index };
+  }
+
+  function showLobbyLoadoutModal(slotIndex) {
+    const index = clamp(Math.floor(slotIndex || 0), 0, MAX_ACTIVE - 1);
+    const loadout = currentLoadout();
+    const ownedHeroes = HERO_LIBRARY.filter((hero) => heroProgress(hero.id).owned);
+    const currentHeroId = loadout[index] || null;
+    const canClear = currentHeroId && loadout.length > 1;
+
+    const body = document.createElement("div");
+    body.className = "rewardGrid";
+
+    const clearCard = document.createElement("button");
+    clearCard.type = "button";
+    clearCard.className = `rewardCard${currentHeroId ? "" : " selected"}${canClear ? "" : " disabled"}`;
+    clearCard.innerHTML = `<div class="rewardTitle"><span>⬜</span><span>빈 칸</span></div><div class="rewardDesc">${
+      canClear ? "현재 슬롯을 비웁니다." : "편성 최소 1명을 유지해야 합니다."
+    }</div>`;
+    if (canClear) {
+      clearCard.addEventListener("click", () => {
+        const result = tryAssignLoadoutSlot(index, null);
+        if (!result.ok) return;
+        closeModal();
+        log(`출전 ${index + 1}번 슬롯 해제`, true);
+        renderLobbyMain();
+      });
+    }
+    body.appendChild(clearCard);
+
+    ownedHeroes.forEach((hero) => {
+      const heroArt = heroVisual(hero.id);
+      const equippedIndex = loadout.indexOf(hero.id);
+      const isSelected = hero.id === currentHeroId;
+      const selectBlocked = index >= loadout.length && equippedIndex >= 0;
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = `rewardCard${isSelected ? " selected" : ""}${selectBlocked ? " disabled" : ""}`;
+      const title = document.createElement("div");
+      title.className = "rewardTitle";
+      const icon = document.createElement("span");
+      icon.className = "lobbyPickHeroIcon";
+      if (heroArt) {
+        icon.innerHTML = `<img src="${heroArt}" alt="${hero.name}" loading="lazy" />`;
+      } else {
+        icon.textContent = hero.icon;
+      }
+      title.appendChild(icon);
+      const text = document.createElement("span");
+      text.textContent = hero.name;
+      title.appendChild(text);
+      const desc = document.createElement("div");
+      desc.className = "rewardDesc";
+      desc.textContent = equippedIndex >= 0 ? `현재 출전 ${equippedIndex + 1}번` : "대기중";
+      card.appendChild(title);
+      card.appendChild(desc);
+      if (!selectBlocked) {
+        card.addEventListener("click", () => {
+          const result = tryAssignLoadoutSlot(index, hero.id);
+          if (!result.ok) {
+            log(`편성 변경 실패: ${result.reason || "오류"}`, true);
+            return;
+          }
+          closeModal();
+          log(`출전 ${index + 1}번 슬롯: ${hero.name} 장착`, true);
+          renderLobbyMain();
+        });
+      }
+      body.appendChild(card);
+    });
+
+    const footer = document.createElement("div");
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "btn ghost";
+    closeBtn.type = "button";
+    closeBtn.textContent = "닫기";
+    closeBtn.addEventListener("click", () => closeModal());
+    footer.appendChild(closeBtn);
+
+    openModal({
+      title: `출전 ${index + 1}번 슬롯 장착`,
+      bodyNode: body,
+      footerNode: footer,
+      closable: true,
+    });
   }
 
   function renderLobbyLoadoutPanel() {
-    if (!lobbyLoadoutList || !lobbyBenchList) return;
-    lobbyLoadoutList.innerHTML = "";
-    lobbyBenchList.innerHTML = "";
-
+    if (!lobbyLoadoutRow) return;
+    lobbyLoadoutRow.innerHTML = "";
     const loadout = currentLoadout();
-    const equippedSet = new Set(loadout);
-    const ownedHeroes = HERO_LIBRARY.filter((hero) => heroProgress(hero.id).owned);
 
-    if (loadout.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "iconEmpty";
-      empty.textContent = "출전 영웅이 없습니다.";
-      lobbyLoadoutList.appendChild(empty);
-    } else {
-      loadout.forEach((heroId, index) => {
-        const hero = heroById(heroId);
-        if (!hero) return;
-        const progress = heroProgress(hero.id);
-        const heroArt = heroVisual(hero.id);
-        const card = document.createElement("div");
-        card.className = "lobbyLoadoutCard";
-        card.dataset.lobbyHeroId = hero.id;
-
-        const top = document.createElement("div");
-        top.className = "lobbyLoadoutTop";
-        top.appendChild(makeLobbyHeroPortrait(hero, heroArt));
-        const info = document.createElement("div");
-        info.className = "lobbyLoadoutInfo";
-        info.innerHTML = `<div class="lobbyLoadoutName">${index + 1}. ${hero.name}</div><div class="lobbyLoadoutMeta">Lv.${
-          progress.level
-        } · 진화 ${progress.evolution || 0}단계</div>`;
-        top.appendChild(info);
-        card.appendChild(top);
-
-        const controls = document.createElement("div");
-        controls.className = "lobbyLoadoutControls";
-
-        const moveBack = document.createElement("button");
-        moveBack.className = "btn tiny ghost";
-        moveBack.type = "button";
-        moveBack.textContent = "◀";
-        moveBack.disabled = index <= 0;
-        moveBack.title = "뒤쪽으로 이동";
-        moveBack.addEventListener("click", () => {
-          const result = tryShiftLoadout(hero.id, -1);
-          if (!result.ok) return;
-          renderLobbyMain();
-        });
-
-        const moveFront = document.createElement("button");
-        moveFront.className = "btn tiny ghost";
-        moveFront.type = "button";
-        moveFront.textContent = "▶";
-        moveFront.disabled = index >= loadout.length - 1;
-        moveFront.title = "앞쪽으로 이동";
-        moveFront.addEventListener("click", () => {
-          const result = tryShiftLoadout(hero.id, 1);
-          if (!result.ok) return;
-          renderLobbyMain();
-        });
-
-        const unequip = document.createElement("button");
-        unequip.className = "btn tiny";
-        unequip.type = "button";
-        unequip.textContent = "해제";
-        unequip.disabled = loadout.length <= 1;
-        unequip.title = "출전 해제";
-        unequip.addEventListener("click", () => {
-          const result = tryToggleLoadout(hero.id);
-          if (!result.ok) return;
-          renderLobbyMain();
-        });
-
-        controls.appendChild(moveBack);
-        controls.appendChild(moveFront);
-        controls.appendChild(unequip);
-        card.appendChild(controls);
-        lobbyLoadoutList.appendChild(card);
-      });
-    }
-
-    const benchHeroes = ownedHeroes.filter((hero) => !equippedSet.has(hero.id));
-    if (benchHeroes.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "iconEmpty";
-      empty.textContent = "대기 영웅이 없습니다.";
-      lobbyBenchList.appendChild(empty);
-    } else {
-      benchHeroes.forEach((hero) => {
-        const progress = heroProgress(hero.id);
-        const heroArt = heroVisual(hero.id);
-        const card = document.createElement("div");
-        card.className = "lobbyBenchCard";
-
-        const top = document.createElement("div");
-        top.className = "lobbyBenchTop";
-        top.appendChild(makeLobbyHeroPortrait(hero, heroArt, true));
-        const info = document.createElement("div");
-        info.className = "lobbyLoadoutInfo";
-        info.innerHTML = `<div class="lobbyLoadoutName">${hero.name}</div><div class="lobbyLoadoutMeta">Lv.${
-          progress.level
-        } · 진화 ${progress.evolution || 0}단계</div>`;
-        top.appendChild(info);
-        card.appendChild(top);
-
-        const equipBtn = document.createElement("button");
-        equipBtn.className = "btn tiny primary";
-        equipBtn.type = "button";
-        equipBtn.textContent = "⚔ 장착";
-        equipBtn.disabled = loadout.length >= MAX_ACTIVE;
-        equipBtn.addEventListener("click", () => {
-          const result = tryToggleLoadout(hero.id);
-          if (!result.ok) return;
-          renderLobbyMain();
-        });
-        card.appendChild(equipBtn);
-        lobbyBenchList.appendChild(card);
-      });
+    for (let slotIndex = 0; slotIndex < MAX_ACTIVE; slotIndex += 1) {
+      const heroId = loadout[slotIndex] || "";
+      const hero = heroId ? heroById(heroId) : null;
+      const heroArt = hero ? heroVisual(hero.id) : "";
+      const slot = document.createElement("button");
+      slot.type = "button";
+      slot.className = `lobbyLoadoutSlot${hero ? "" : " empty"}`;
+      slot.dataset.lobbySlot = `${slotIndex}`;
+      slot.title = hero ? `출전 ${slotIndex + 1}번 · ${hero.name}` : `출전 ${slotIndex + 1}번 비어 있음`;
+      if (hero) appendLobbyHeroPortrait(slot, hero, heroArt);
+      slot.addEventListener("click", () => showLobbyLoadoutModal(slotIndex));
+      lobbyLoadoutRow.appendChild(slot);
     }
   }
 
@@ -2979,9 +3008,9 @@
     return formatDialogLine(line, { self: hero.name || "" });
   }
 
-  function showLobbyHeroTalk(hero, text) {
-    if (!hero || !text) return;
-    const card = nodeByLobbyHero(hero.id);
+  function showLobbyHeroTalk(slotIndex, text) {
+    if (!Number.isFinite(slotIndex) || !text) return;
+    const card = nodeByLobbyHero(slotIndex);
     if (!card) return;
     const prev = card.querySelector(".lobbyTalkBubble");
     if (prev) prev.remove();
@@ -3010,9 +3039,10 @@
       if (!canLobbyTalkNow()) return;
       const loadout = currentLoadout();
       if (loadout.length === 0) return;
-      const hero = heroById(loadout[randInt(loadout.length)]);
+      const pickedIndex = randInt(loadout.length);
+      const hero = heroById(loadout[pickedIndex]);
       const line = pickLobbyTalkLine(hero);
-      if (line) showLobbyHeroTalk(hero, line);
+      if (line) showLobbyHeroTalk(pickedIndex, line);
       scheduleLobbyTalk();
     }, delay);
   }
