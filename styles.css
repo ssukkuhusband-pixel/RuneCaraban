@@ -1804,8 +1804,101 @@ body {
   z-index: 4;
 }
 
+.dialogLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
 .floatLayer {
   z-index: 5;
+}
+
+.speechBubble {
+  position: absolute;
+  max-width: 136px;
+  min-height: 18px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(126, 132, 194, 0.5);
+  background: linear-gradient(180deg, rgba(32, 34, 56, 0.96), rgba(22, 24, 39, 0.96));
+  color: #f4f2ff;
+  font-size: 9px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: 0.1px;
+  text-align: center;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.36);
+  transform: translate(-50%, -100%) translateY(-4px) scale(0.94);
+  transform-origin: center bottom;
+  opacity: 0;
+  transition: opacity 140ms ease, transform 170ms ease;
+}
+
+.speechBubble.show {
+  opacity: 1;
+  transform: translate(-50%, -100%) translateY(0) scale(1);
+}
+
+.speechBubble.down {
+  transform: translate(-50%, 0) translateY(4px) scale(0.94);
+  transform-origin: center top;
+}
+
+.speechBubble.down.show {
+  transform: translate(-50%, 0) translateY(0) scale(1);
+}
+
+.speechBubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 10px;
+  height: 10px;
+  border-right: 1px solid rgba(126, 132, 194, 0.5);
+  border-bottom: 1px solid rgba(126, 132, 194, 0.5);
+  background: rgba(24, 26, 42, 0.95);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.speechBubble.down::after {
+  top: -6px;
+  bottom: auto;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 1px solid rgba(126, 132, 194, 0.5);
+  border-top: 1px solid rgba(126, 132, 194, 0.5);
+}
+
+.speechBubble.hero {
+  border-color: rgba(112, 224, 207, 0.6);
+  background: linear-gradient(180deg, rgba(25, 53, 62, 0.96), rgba(18, 35, 43, 0.96));
+}
+
+.speechBubble.enemy {
+  border-color: rgba(236, 123, 147, 0.58);
+  background: linear-gradient(180deg, rgba(66, 28, 42, 0.96), rgba(45, 19, 30, 0.96));
+}
+
+.speechBubble.tone-serious {
+  color: #edf2ff;
+}
+
+.speechBubble.tone-comic {
+  color: #fff6d3;
+  border-color: rgba(247, 201, 72, 0.62);
+}
+
+.speechBubble.tone-angry {
+  color: #ffd8de;
+  border-color: rgba(236, 123, 147, 0.66);
+}
+
+.speechBubble.tone-calm {
+  color: #def7f4;
+  border-color: rgba(102, 218, 202, 0.62);
 }
 
 .sigilPulse {

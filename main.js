@@ -17,6 +17,7 @@
   const heroLane = byId("heroLane");
   const enemyLane = byId("enemyLane");
   const fxLayer = byId("fxLayer");
+  const dialogLayer = byId("dialogLayer");
   const floatLayer = byId("floatLayer");
   const activeList = byId("activeList");
   const perkList = byId("perkList");
@@ -230,6 +231,156 @@
     raider_wolf: { dashScale: 1.18, dashMs: 96, lungeMs: 88, contactMs: 80, recoverMs: 72, impactScale: 1.1, shake: 0.98 },
     bone_beast: { dashScale: 1.12, dashMs: 124, lungeMs: 116, contactMs: 94, recoverMs: 86, impactScale: 1.14, shake: 1.08 },
     boss_tyrant: { dashScale: 0.82, dashMs: 170, lungeMs: 140, contactMs: 130, recoverMs: 124, impactScale: 1.5, shake: 1.45 },
+  };
+
+  const HERO_DIALOG_PROFILE = {
+    H1: {
+      tone: "serious",
+      lines: {
+        battle_start: ["전열 고정. 밀어붙인다.", "흐트러지지 마. 내가 길을 연다."],
+        spin_start: ["룬의 흐름, 확인했다.", "침착하게 간다."],
+        attack: ["정면 돌파.", "한 번에 꿰뚫는다."],
+        crit: ["빈틈이다. 끝내!", "지금이 기회다."],
+        ultimate: ["내가 마무리한다!", "전진! 전부 베어낸다!"],
+        kill: ["하나 정리했다.", "{target}, 전투 불능."],
+        low_hp: ["아직 버틴다. 진형 유지.", "쉽게 안 무너진다."],
+        hurt: ["타격 확인. 계속 간다."],
+      },
+    },
+    H2: {
+      tone: "angry",
+      lines: {
+        battle_start: ["조용히 끝내자.", "그림자처럼 간다."],
+        spin_start: ["좋아, 감이 왔어.", "어디부터 찢어줄까."],
+        attack: ["목줄을 따주지.", "뒤는 내 구역이야."],
+        crit: ["치명상이다.", "숨도 못 쉬게 해줄게."],
+        ultimate: ["심장부터 찌른다.", "도망칠 생각은 버려."],
+        kill: ["{target} 정리 완료.", "다음 타깃은 누구지?"],
+        low_hp: ["이 정도로 끝날 줄 알아?", "피가 끓네... 더 재밌어."],
+        hurt: ["좋아, 더 날카롭게 간다."],
+      },
+    },
+    H3: {
+      tone: "comic",
+      lines: {
+        battle_start: ["오늘도 화려하게 터뜨려볼까?", "마력 충전 완료! 쇼타임!"],
+        spin_start: ["룬아 룬아, 내 편 들어줘~", "반짝이는 결과 부탁해!"],
+        attack: ["펑! 하고 끝!", "마법 배송 갑니다~"],
+        crit: ["어머, 과충전이네?", "대박! 이건 좀 아팠겠다!"],
+        ultimate: ["별빛 폭죽, 개시!", "무대 중앙 비워주세요~"],
+        kill: ["{target} 퇴장 완료!", "앗, 너무 세게 쳤나?"],
+        low_hp: ["잠깐만! 이건 아프잖아!", "힐! 힐! 누가 힐 좀!"],
+        hurt: ["으앗! 머리카락 탔다!"],
+      },
+    },
+    H4: {
+      tone: "serious",
+      lines: {
+        battle_start: ["방패선 유지. 내가 막는다.", "후열은 걱정하지 마라."],
+        spin_start: ["수비 각도 확인.", "진형 안정. 시작한다."],
+        attack: ["한 걸음도 못 넘는다.", "벽은 여기다."],
+        crit: ["방패 돌격, 관통!", "무게로 눌러버린다."],
+        ultimate: ["전원, 내 뒤로!", "철벽 진형 전개!"],
+        kill: ["{target} 제압 완료.", "위협 제거."],
+        low_hp: ["방패는 아직 안 깨졌다.", "쓰러지기엔 이르다."],
+        hurt: ["충격 확인. 버틸 수 있다."],
+      },
+    },
+    H5: {
+      tone: "calm",
+      lines: {
+        battle_start: ["호흡 맞춰요. 모두 살아서 돌아가요.", "불안해도 괜찮아요. 제가 있어요."],
+        spin_start: ["좋은 흐름이 오고 있어요.", "천천히, 정확하게."],
+        attack: ["조금 따끔할 거예요.", "빛으로 길을 열게요."],
+        crit: ["정확히 닿았어요.", "균열 지점을 맞췄어요."],
+        ultimate: ["별빛이여, 우리를 지켜줘.", "모두 숨 고르세요. 지금 회복합니다."],
+        kill: ["{target}의 기세가 꺾였어요.", "위협 제거, 계속 전진해요."],
+        low_hp: ["괜찮아요... 아직 집중할 수 있어요.", "잠시만, 회복 타이밍을 잡을게요."],
+        hurt: ["괜찮아요. 아직 할 수 있어요."],
+      },
+    },
+    H6: {
+      tone: "angry",
+      lines: {
+        battle_start: ["좋아! 다 쓸어버리자!", "정조준 완료, 바로 간다!"],
+        spin_start: ["이번엔 내가 캐리한다!", "룬만 잘 뜨면 끝이다!"],
+        attack: ["머리통 노린다!", "도망가도 소용없어!"],
+        crit: ["명중! 제대로 꽂혔다!", "좋아! 이 맛이지!"],
+        ultimate: ["전탄 난사 간다!", "피할 생각 하지 마!"],
+        kill: ["{target} 다운! 다음!", "한 놈 컷! 다음 타깃!"],
+        low_hp: ["헉... 그래도 더 쏠 수 있어!", "아직 화살 남았다!"],
+        hurt: ["으윽... 더 세게 돌려준다!"],
+      },
+    },
+  };
+
+  const ENEMY_DIALOG_PROFILE = {
+    desert_scorpion: {
+      tone: "angry",
+      lines: {
+        battle_start: ["치익... 독침을 맛봐라!"],
+        attack: ["찌른다!", "{target}, 독으로 잠들어라!"],
+        low_hp: ["치익... 아직 안 끝났다!"],
+        kill: ["약한 먹잇감이었군."],
+      },
+    },
+    shell_beetle: {
+      tone: "serious",
+      lines: {
+        battle_start: ["딱딱한 껍질은 안 깨진다."],
+        attack: ["눌러 으깬다.", "받아내 봐라!"],
+        low_hp: ["껍질에 금이... 갔나."],
+        kill: ["또 하나 부쉈다."],
+      },
+    },
+    raider_wolf: {
+      tone: "comic",
+      lines: {
+        battle_start: ["아우우! 오늘 사냥감은 너희다!"],
+        attack: ["물어뜯는다!", "{target}, 등 뒤가 비었다!"],
+        low_hp: ["컹... 이빨이 흔들리잖아!"],
+        kill: ["아우! 사냥 성공!"],
+      },
+    },
+    bone_beast: {
+      tone: "serious",
+      lines: {
+        battle_start: ["덜그럭... 생기를 내놔라."],
+        attack: ["뼈를 부순다.", "갈려나가라!"],
+        low_hp: ["덜그럭... 뼈가..."],
+        kill: ["생명, 회수 완료."],
+      },
+    },
+    boss_tyrant: {
+      tone: "angry",
+      lines: {
+        battle_start: ["무릎 꿇어라. 이곳의 왕이 왔다.", "재의 폭군 앞에선 모두 무력하다."],
+        attack: ["짓밟아주마!", "{target}, 재가 되어라!"],
+        enraged: ["겁도 없이 날 상처 입혀? 전부 불태운다!", "분노를 깨웠군. 이제 끝이다!"],
+        low_hp: ["감히... 나를 몰아붙여?"],
+        kill: ["약자다운 최후다."],
+      },
+    },
+  };
+
+  const DIALOG_EVENT_CHANCE = {
+    hero: {
+      battle_start: 0.62,
+      spin_start: 0.24,
+      attack: 0.22,
+      crit: 0.72,
+      ultimate: 1,
+      kill: 0.74,
+      low_hp: 0.68,
+      hurt: 0.16,
+    },
+    enemy: {
+      battle_start: 0.34,
+      attack: 0.24,
+      enraged: 1,
+      kill: 0.64,
+      low_hp: 0.48,
+    },
   };
 
   const BASE_WEIGHTS = {
@@ -757,6 +908,12 @@
     },
   };
 
+  const dialogState = {
+    cooldownUntil: 0,
+    activeBySpeaker: new Map(),
+    lastBySpeaker: new Map(),
+  };
+
   let scaleRaf = 0;
 
   function viewportSize() {
@@ -999,6 +1156,7 @@
       if (!node) return;
       node.classList.toggle("hidden", !visible);
     });
+    if (!visible) clearDialogBubbles();
   }
 
   function syncHudExpanded() {
@@ -1821,6 +1979,137 @@
     };
   }
 
+  function dialogSpeakerKey(team, unit) {
+    if (!unit) return "";
+    if (team === "hero") return `hero:${unit.id}`;
+    return `enemy:${unit.id || unit.artKey || "unknown"}`;
+  }
+
+  function dialogProfile(team, unit) {
+    if (!unit) return null;
+    if (team === "hero") return HERO_DIALOG_PROFILE[unit.id] || null;
+    if (unit.id?.startsWith?.("BOSS_")) return ENEMY_DIALOG_PROFILE.boss_tyrant || null;
+    return ENEMY_DIALOG_PROFILE[unit.artKey] || ENEMY_DIALOG_PROFILE.bone_beast || null;
+  }
+
+  function dialogChance(team, event) {
+    const table = team === "hero" ? DIALOG_EVENT_CHANCE.hero : DIALOG_EVENT_CHANCE.enemy;
+    const value = table?.[event];
+    if (!Number.isFinite(value)) return 0;
+    return clamp(value, 0, 1);
+  }
+
+  function formatDialogLine(template, context = {}) {
+    if (typeof template !== "string") return "";
+    return template
+      .replaceAll("{self}", context.self || "")
+      .replaceAll("{target}", context.target || "상대")
+      .replaceAll("{intent}", context.intent || "공격")
+      .replaceAll("{rune}", context.rune || "룬");
+  }
+
+  function pickDialogLine(lines, speakerKey) {
+    if (!Array.isArray(lines) || lines.length === 0) return "";
+    const last = dialogState.lastBySpeaker.get(speakerKey);
+    const candidates = lines.filter((line) => line !== last);
+    const pickedPool = candidates.length > 0 ? candidates : lines;
+    const picked = pickedPool[randInt(pickedPool.length)] || "";
+    dialogState.lastBySpeaker.set(speakerKey, picked);
+    return picked;
+  }
+
+  function clearDialogBubbles() {
+    if (!dialogLayer) return;
+    dialogLayer.innerHTML = "";
+    dialogLayer.setAttribute("aria-hidden", "true");
+    dialogState.activeBySpeaker.forEach((entry) => {
+      if (entry?.timer) clearTimeout(entry.timer);
+    });
+    dialogState.activeBySpeaker.clear();
+  }
+
+  function showDialogBubble(anchorNode, text, options = {}) {
+    if (!dialogLayer || !anchorNode || !text) return;
+    const rect = rectInStage(anchorNode);
+    if (!rect) return;
+    const team = options.team === "enemy" ? "enemy" : "hero";
+    const tone = typeof options.tone === "string" ? options.tone : "serious";
+    const speakerKey = typeof options.speakerKey === "string" ? options.speakerKey : "";
+    const duration = clamp(Number.isFinite(options.duration) ? options.duration : 1400, 900, 2400);
+
+    const bubble = document.createElement("div");
+    bubble.className = `speechBubble ${team} tone-${tone}`;
+    bubble.textContent = text;
+    const x = clamp(rect.left + rect.width * 0.5, 56, STAGE_W - 56);
+    const aboveTop = rect.top - 6;
+    const useBottom = aboveTop < 34;
+    bubble.style.left = `${x}px`;
+    bubble.style.top = `${useBottom ? rect.bottom + 4 : aboveTop}px`;
+    if (useBottom) bubble.classList.add("down");
+
+    const previous = speakerKey ? dialogState.activeBySpeaker.get(speakerKey) : null;
+    if (previous?.timer) clearTimeout(previous.timer);
+    if (previous?.node?.remove) previous.node.remove();
+
+    dialogLayer.appendChild(bubble);
+    dialogLayer.setAttribute("aria-hidden", "false");
+    requestAnimationFrame(() => bubble.classList.add("show"));
+
+    const timer = setTimeout(() => {
+      bubble.classList.remove("show");
+      setTimeout(() => {
+        if (bubble.parentElement) bubble.remove();
+        if (speakerKey) {
+          const active = dialogState.activeBySpeaker.get(speakerKey);
+          if (active?.node === bubble) dialogState.activeBySpeaker.delete(speakerKey);
+        }
+        if (dialogLayer.childElementCount === 0) dialogLayer.setAttribute("aria-hidden", "true");
+      }, 180);
+    }, duration);
+
+    if (speakerKey) dialogState.activeBySpeaker.set(speakerKey, { node: bubble, timer });
+  }
+
+  function maybeSpeak(unit, team, event, context = {}, options = {}) {
+    if (!unit) return;
+    const profile = dialogProfile(team, unit);
+    if (!profile) return;
+    const lines = profile.lines?.[event];
+    if (!Array.isArray(lines) || lines.length === 0) return;
+
+    const force = Boolean(options.force);
+    const nowTs = performance.now();
+    if (!force && nowTs < dialogState.cooldownUntil) return;
+
+    const chance = Number.isFinite(options.chance) ? clamp(options.chance, 0, 1) : dialogChance(team, event);
+    if (!force && Math.random() > chance) return;
+
+    const speakerKey = dialogSpeakerKey(team, unit);
+    const line = pickDialogLine(lines, speakerKey);
+    const formatted = formatDialogLine(line, {
+      self: unit.name || "",
+      target: context.target?.name || "",
+      intent: context.intent?.name || "",
+      rune: context.rune?.name || "",
+    });
+    if (!formatted) return;
+
+    const anchorNode =
+      options.anchorNode || (team === "hero" ? nodeByHero(unit.id) : team === "enemy" ? nodeByEnemy(unit.id) : null);
+    if (!anchorNode) return;
+
+    showDialogBubble(anchorNode, formatted, {
+      team,
+      tone: profile.tone || "serious",
+      speakerKey,
+      duration: options.duration,
+    });
+
+    const priority = Number.isFinite(options.priority) ? options.priority : 0;
+    const coolGap = force ? 360 : clamp(860 - priority * 180, 420, 1100);
+    dialogState.cooldownUntil = nowTs + coolGap;
+  }
+
   function flashBattlefield(heavy = false) {
     const field = battlefield;
     if (!field) return;
@@ -2079,6 +2368,7 @@
 
   function damageEnemy(enemy, amount, label = "") {
     const aliveBefore = enemy.hp > 0;
+    const prevHp = enemy.hp;
     const shieldAbsorb = Math.min(enemy.shield || 0, amount);
     if (shieldAbsorb > 0) enemy.shield -= shieldAbsorb;
     const finalAmount = Math.max(0, amount - shieldAbsorb);
@@ -2087,6 +2377,11 @@
     if (node) {
       floatNumber(node, `${label}${finalAmount}`, "damage");
       if (shieldAbsorb > 0) floatNumber(node, `보-${shieldAbsorb}`, "shield");
+    }
+    const prevRatio = enemy.maxHp > 0 ? prevHp / enemy.maxHp : 0;
+    const nextRatio = enemy.maxHp > 0 ? enemy.hp / enemy.maxHp : 0;
+    if (aliveBefore && enemy.hp > 0 && prevRatio > 0.34 && nextRatio <= 0.34) {
+      maybeSpeak(enemy, "enemy", "low_hp", {}, { chance: 0.56, priority: 2 });
     }
     if (aliveBefore && enemy.hp <= 0) log(`${enemy.name} 처치!`);
   }
@@ -2100,7 +2395,9 @@
     if (node) floatNumber(node, `${label}${diff}`, "heal");
   }
 
-  function damageHero(hero, amount, label = "") {
+  function damageHero(hero, amount, label = "", sourceEnemy = null) {
+    const aliveBefore = hero.hp > 0;
+    const prevHp = hero.hp;
     const guardedAmount =
       state.teamGuardTurns > 0 && state.teamGuardRate > 0 ? Math.max(1, Math.floor(amount * (1 - state.teamGuardRate))) : amount;
     const shieldAbsorb = Math.min(hero.shield, guardedAmount);
@@ -2115,6 +2412,16 @@
     if (node) {
       floatNumber(node, `${label}${finalAmount}`, "damage");
       if (shieldAbsorb > 0) floatNumber(node, `보-${shieldAbsorb}`, "shield");
+    }
+    const prevRatio = hero.maxHp > 0 ? prevHp / hero.maxHp : 0;
+    const nextRatio = hero.maxHp > 0 ? hero.hp / hero.maxHp : 0;
+    if (aliveBefore && hero.hp > 0 && prevRatio > 0.34 && nextRatio <= 0.34) {
+      maybeSpeak(hero, "hero", "low_hp", { target: sourceEnemy }, { chance: 0.72, priority: 3 });
+    } else if (aliveBefore && hero.hp > 0 && finalAmount > 0) {
+      maybeSpeak(hero, "hero", "hurt", { target: sourceEnemy }, { chance: 0.12, priority: 0 });
+    }
+    if (sourceEnemy && aliveBefore && hero.hp <= 0) {
+      maybeSpeak(sourceEnemy, "enemy", "kill", { target: hero }, { chance: 0.78, priority: 3 });
     }
   }
 
@@ -2242,6 +2549,7 @@
 
   function applyHeroKillPassive(hero, target, aliveBefore) {
     if (!hero || !target || !aliveBefore || target.hp > 0) return;
+    maybeSpeak(hero, "hero", "kill", { target }, { chance: 0.76, priority: 3 });
     const bonus = heroPassiveValue(hero, "killEnergy");
     if (bonus <= 0) return;
     gainHeroEnergy(hero, bonus);
@@ -2285,6 +2593,7 @@
 
   async function runHeroUltimate(hero, attackerNode, turnMult, combo, moraleAtk) {
     if (!hero || hero.hp <= 0 || (hero.energy || 0) < 100) return false;
+    maybeSpeak(hero, "hero", "ultimate", {}, { force: true, priority: 4, duration: 1780, anchorNode: attackerNode });
     await showUltimateCue(hero, attackerNode);
     log(`🌟 ${hero.name} 궁극기 발동!`);
     const baseRule = hero.targetRule || "front";
@@ -3014,6 +3323,7 @@
     const attackerNode = nodeByHero(hero.id);
     const target = selectEnemyTarget(hero.targetRule || "front");
     if (!target) return;
+    maybeSpeak(hero, "hero", "attack", { target }, { chance: 0.24, priority: 1, anchorNode: attackerNode });
     const targetNode = nodeByEnemy(target.id);
     const combo = comboMultiplier();
     const attackStyle = attackStyleOfHero(hero);
@@ -3121,6 +3431,7 @@
       crit = Math.random() < chance;
       const multiplier = 1.2 + state.modifiers.critMultBonus + heroPassiveValue(hero, "critMult") + (crit ? 0.4 : 0);
       damage = Math.max(1, Math.floor(damage * multiplier));
+      if (crit) maybeSpeak(hero, "hero", "crit", { target }, { chance: 0.92, priority: 3, anchorNode: attackerNode });
     }
     if (hero.id === "H6") {
       damage = Math.floor(damage * heroFocusMultiplier(hero));
@@ -3301,6 +3612,7 @@
         enemy.atk += 2;
         enemy.shield += 8;
         log(`${enemy.name}가 격노했습니다! (공격 상승 + 보호막)`);
+        maybeSpeak(enemy, "enemy", "enraged", {}, { force: true, priority: 4 });
       }
 
       const intent = enemy.intent || rollEnemyIntent(state.nodeIndex, enemy.id.startsWith("BOSS_"));
@@ -3313,6 +3625,7 @@
 
       if (intent.target === "all") {
         const targets = aliveHeroes();
+        maybeSpeak(enemy, "enemy", "attack", { intent, target: targets[0] || null }, { chance: 0.24, priority: 2 });
         for (const target of targets) {
           const targetNode = nodeByHero(target.id);
           const finisher = target.hp <= damage;
@@ -3321,13 +3634,14 @@
             attackStyle: enemyAttackStyle,
             attackFeel: enemyAttackFeel,
           });
-          damageHero(target, damage, "💢");
+          damageHero(target, damage, "💢", enemy);
           renderAll();
           await wait(70);
         }
       } else {
         const target = selectHeroTarget(enemy.targetRule || "front");
         if (!target) return;
+        maybeSpeak(enemy, "enemy", "attack", { intent, target }, { chance: 0.28, priority: 2 });
         const targetNode = nodeByHero(target.id);
         const finisher = target.hp <= damage;
         await animateHit(attackerNode, targetNode, "enemy", {
@@ -3335,7 +3649,7 @@
           attackStyle: enemyAttackStyle,
           attackFeel: enemyAttackFeel,
         });
-        damageHero(target, damage, "💢");
+        damageHero(target, damage, "💢", enemy);
       }
 
       if (intent.selfShield) {
@@ -4103,6 +4417,7 @@
   }
 
   function enterCombatNode() {
+    clearDialogBubbles();
     state.currentNodeType = nodeTypeOf(state.nodeIndex);
     state.enemies = makeEnemySet(state.nodeIndex, state.currentNodeType);
     state.teamGuardTurns = 0;
@@ -4124,6 +4439,8 @@
     setPhase("spin_ready");
     renderAll();
     log(`노드 ${state.nodeIndex + 1} (${nodeTypeLabel(state.currentNodeType)}) 전투 시작`, true);
+    maybeSpeak(randomAliveHero(), "hero", "battle_start", {}, { chance: 0.68, priority: 2 });
+    maybeSpeak(randomAliveEnemy(), "enemy", "battle_start", {}, { chance: 0.4, priority: 1 });
   }
 
   function resolveRestNode(choice) {
@@ -4345,6 +4662,7 @@
     while (reelSeed.length < 3) reelSeed.push(runeById("T_ASSIST"));
     setReels(reelSeed, true);
     log("회전 시작", true);
+    maybeSpeak(randomAliveHero(), "hero", "spin_start", {}, { chance: 0.28, priority: 1 });
 
     const duration = 700;
     const start = performance.now();
@@ -4387,6 +4705,7 @@
   function resetRun({ startBattle = true, chapter = state.chapter } = {}) {
     closeModal();
     clearLog();
+    clearDialogBubbles();
     state.chapter = Number(chapter) || 1;
     state.ui.selectedChapter = state.chapter;
     state.nodeIndex = 0;
