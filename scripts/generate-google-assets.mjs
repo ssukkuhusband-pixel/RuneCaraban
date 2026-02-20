@@ -4,6 +4,7 @@ import path from "node:path";
 
 const apiKey = process.env.GOOGLE_API_KEY || process.env.NANOBANANA_API_KEY || "";
 const model = process.env.GOOGLE_IMAGE_MODEL || "gemini-2.0-flash-exp-image-generation";
+const assetFilterRaw = process.env.ASSET_KEYS || "";
 
 if (!apiKey) {
   console.error("[오류] GOOGLE_API_KEY(또는 NANOBANANA_API_KEY)가 필요합니다.");
@@ -98,7 +99,7 @@ const imageSpecs = [
     key: "battlefield",
     file: "backgrounds/battlefield.png",
     prompt:
-      "동일 세계관의 픽셀 아트 전투 배경. 가로형(16:9) 다크 고딕 전장, 폐허/황혼 하늘/먼 안개, 좌우 유닛 대치가 잘 보이도록 중앙 공간을 비우고 디테일은 가장자리 위주로 배치.",
+      "동일 세계관의 픽셀 아트 전투 배경. 가로형(16:9) 던전 내부 전투 공간, 오래된 석조 기둥/아치형 천장/횃불 조명/먼지와 안개, 중앙은 유닛 전투를 위해 넓게 비우고 가장자리만 디테일 강조, 다키스트한 고딕 판타지 무드.",
   },
   {
     bucket: "background",
@@ -108,6 +109,18 @@ const imageSpecs = [
       "동일 세계관의 픽셀 아트 메인 로비 배경. 가로형(16:9), 전경에 모닥불 야영지와 실루엣 영웅들, 후경에 거대한 던전 입구, 중앙 UI가 잘 보이도록 중간 명도 대비 확보.",
   },
 ];
+
+const assetFilter = new Set(
+  assetFilterRaw
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+);
+
+const targetSpecs =
+  assetFilter.size === 0
+    ? imageSpecs
+    : imageSpecs.filter((spec) => assetFilter.has(spec.key) || assetFilter.has(`${spec.bucket}.${spec.key}`));
 
 function endpointFor(modelName) {
   return `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
@@ -189,7 +202,12 @@ async function main() {
     background: { ...existing.background },
   };
 
-  for (const spec of imageSpecs) {
+  if (targetSpecs.length === 0) {
+    console.error("[오류] ASSET_KEYS 필터에 해당하는 에셋이 없습니다.");
+    process.exit(1);
+  }
+
+  for (const spec of targetSpecs) {
     process.stdout.write(`[생성] ${spec.bucket}.${spec.key} ... `);
     try {
       const result = await generateOne(spec);

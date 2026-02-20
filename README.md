@@ -37,6 +37,11 @@ python3 -m http.server 5173
 GOOGLE_API_KEY=\"<YOUR_KEY>\" node ./scripts/generate-google-assets.mjs
 ```
 
+- 특정 에셋만 재생성(선택):
+```bash
+GOOGLE_API_KEY=\"<YOUR_KEY>\" ASSET_KEYS=\"background.battlefield\" node ./scripts/generate-google-assets.mjs
+```
+
 - 생성 결과:
   - 이미지 파일: `assets/generated/heroes`, `assets/generated/enemies`, `assets/generated/backgrounds`
   - 매니페스트: `assets/generated/manifest.json`
