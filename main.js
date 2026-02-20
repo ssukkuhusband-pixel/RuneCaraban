@@ -40,6 +40,7 @@
   const btnRetry = byId("btnRetry");
   const btnPause = byId("btnPause");
   const btnHudToggle = byId("btnHudToggle");
+  const btnBgmToggle = byId("btnBgmToggle");
   const modalLayer = byId("modalLayer");
   const modalTitle = byId("modalTitle");
   const modalBody = byId("modalBody");
@@ -414,6 +415,7 @@
 
   const META_STORAGE_KEY = "rune_caravan_meta_v1";
   const HUD_STORAGE_KEY = "rune_caravan_hud_v1";
+  const BGM_STORAGE_KEY = "rune_caravan_bgm_v1";
   const STARTER_HERO_IDS = ["H1", "H3"];
   const HERO_PULL_COST = 24;
   const MAX_HERO_LEVEL = 10;
@@ -844,6 +846,22 @@
     }
   }
 
+  function loadBgmEnabled() {
+    try {
+      return localStorage.getItem(BGM_STORAGE_KEY) !== "0";
+    } catch {
+      return true;
+    }
+  }
+
+  function saveBgmEnabled(enabled) {
+    try {
+      localStorage.setItem(BGM_STORAGE_KEY, enabled ? "1" : "0");
+    } catch {
+      return;
+    }
+  }
+
   const state = {
     chapter: 1,
     nodeIndex: 0,
@@ -873,6 +891,7 @@
       summonResults: [],
       selectedChapter: 1,
       hudExpanded: loadHudExpanded(),
+      bgmEnabled: loadBgmEnabled(),
     },
     modifiers: {
       atkFlat: 0,
@@ -913,6 +932,9 @@
     activeBySpeaker: new Map(),
     lastBySpeaker: new Map(),
   };
+
+  let bgmAudio = null;
+  let bgmUnlocked = false;
 
   let scaleRaf = 0;
 
@@ -1167,6 +1189,52 @@
     btnHudToggle.textContent = expanded ? "🔼 상세 닫기" : "🔽 상세";
     btnHudToggle.setAttribute("aria-pressed", expanded ? "true" : "false");
     btnHudToggle.setAttribute("aria-label", expanded ? "상세 HUD 닫기" : "상세 HUD 열기");
+  }
+
+  function ensureBgmAudio() {
+    if (bgmAudio) return bgmAudio;
+    const audio = new Audio("./assets/sound/bgm.mp3");
+    audio.loop = true;
+    audio.preload = "auto";
+    audio.volume = 0.42;
+    audio.addEventListener("error", () => {
+      log("BGM 파일을 불러오지 못했습니다.", true);
+    });
+    bgmAudio = audio;
+    return bgmAudio;
+  }
+
+  function syncBgmToggle() {
+    if (!btnBgmToggle) return;
+    const enabled = Boolean(state.ui.bgmEnabled);
+    btnBgmToggle.textContent = enabled ? "🔊 BGM" : "🔇 BGM";
+    btnBgmToggle.setAttribute("aria-pressed", enabled ? "true" : "false");
+    btnBgmToggle.setAttribute("aria-label", enabled ? "배경음 끄기" : "배경음 켜기");
+  }
+
+  async function playBgmIfPossible(force = false) {
+    if (!state.ui.bgmEnabled) return;
+    if (!force && !bgmUnlocked) return;
+    const audio = ensureBgmAudio();
+    if (!audio.paused) return;
+    try {
+      await audio.play();
+    } catch {
+      return;
+    }
+  }
+
+  function pauseBgm() {
+    if (!bgmAudio) return;
+    if (!bgmAudio.paused) bgmAudio.pause();
+  }
+
+  function unlockBgmFromUserGesture() {
+    bgmUnlocked = true;
+    void playBgmIfPossible(true);
+    window.removeEventListener("pointerdown", unlockBgmFromUserGesture);
+    window.removeEventListener("keydown", unlockBgmFromUserGesture);
+    window.removeEventListener("touchstart", unlockBgmFromUserGesture);
   }
 
   function setLobbyVisible(visible) {
@@ -4785,6 +4853,19 @@
   btnSpin.addEventListener("click", spin);
   btnRetry.addEventListener("click", () => resetRun({ startBattle: true, chapter: state.chapter }));
   btnPause.addEventListener("click", showPauseModal);
+  if (btnBgmToggle) {
+    btnBgmToggle.addEventListener("click", () => {
+      state.ui.bgmEnabled = !state.ui.bgmEnabled;
+      saveBgmEnabled(state.ui.bgmEnabled);
+      syncBgmToggle();
+      if (state.ui.bgmEnabled) {
+        bgmUnlocked = true;
+        void playBgmIfPossible(true);
+      } else {
+        pauseBgm();
+      }
+    });
+  }
   if (btnHudToggle) {
     btnHudToggle.addEventListener("click", () => {
       state.ui.hudExpanded = !state.ui.hudExpanded;
@@ -4812,7 +4893,20 @@
   if (btnEquipSummon1) btnEquipSummon1.addEventListener("click", () => runEquipmentSummon(1));
   if (btnEquipSummon10) btnEquipSummon10.addEventListener("click", () => runEquipmentSummon(10));
 
+  window.addEventListener("pointerdown", unlockBgmFromUserGesture, { passive: true });
+  window.addEventListener("touchstart", unlockBgmFromUserGesture, { passive: true });
+  window.addEventListener("keydown", unlockBgmFromUserGesture);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      pauseBgm();
+      return;
+    }
+    void playBgmIfPossible(false);
+  });
+
   syncLogVisibility();
+  syncBgmToggle();
   syncHudExpanded();
+  void playBgmIfPossible(false);
   resetRun({ startBattle: false, chapter: 1 });
 })();
