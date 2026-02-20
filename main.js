@@ -437,13 +437,13 @@
   function applyBattlefieldVisual() {
     if (!battlefield) return;
     const battlefieldImage = visualPath(ASSET_MAP.background?.battlefield || "");
-    battlefield.style.backgroundImage = battlefieldImage
-      ? `linear-gradient(180deg, rgba(16, 18, 33, 0.74), rgba(12, 13, 24, 0.82)), url("${battlefieldImage}")`
-      : "linear-gradient(180deg, rgba(16, 18, 33, 0.9), rgba(12, 13, 24, 0.94))";
+    battlefield.style.backgroundImage = battlefieldImage ? `url("${battlefieldImage}")` : "none";
     if (battlefieldImage) {
+      battlefield.style.backgroundColor = "#0f111c";
       battlefield.style.backgroundSize = "cover";
       battlefield.style.backgroundPosition = "center";
     } else {
+      battlefield.style.backgroundColor = "#0f111c";
       battlefield.style.backgroundSize = "";
       battlefield.style.backgroundPosition = "";
     }

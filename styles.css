@@ -999,31 +999,6 @@ body {
   filter: saturate(1.18) brightness(0.82);
 }
 
-.battleGlow {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: radial-gradient(500px 180px at 50% 52%, rgba(255, 255, 255, 0.06), transparent 78%),
-    radial-gradient(420px 170px at 24% 60%, var(--glow-cyan), transparent 76%),
-    radial-gradient(420px 170px at 76% 56%, rgba(231, 76, 138, 0.26), transparent 76%);
-  mix-blend-mode: screen;
-  animation: auraShift 6.4s ease-in-out infinite;
-}
-
-.battleDust {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2) 1px, transparent 1px),
-    radial-gradient(circle at 72% 46%, rgba(255, 255, 255, 0.16) 1px, transparent 1px),
-    radial-gradient(circle at 46% 76%, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-  background-size: 180px 120px, 210px 140px, 170px 110px;
-  opacity: 0.24;
-  animation: dustFlow 10s linear infinite;
-}
-
 .runOverlay {
   position: absolute;
   top: 56px;
@@ -1045,15 +1020,6 @@ body {
   font-weight: 800;
   color: #e7e6f6;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.48);
-}
-
-.parallax {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(420px 140px at 24% 50%, rgba(78, 205, 196, 0.22), transparent 70%),
-    radial-gradient(420px 140px at 76% 50%, rgba(231, 76, 138, 0.22), transparent 70%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
-  animation: fieldPulse 4.2s ease-in-out infinite;
 }
 
 .battlefield.flash {
@@ -2479,33 +2445,6 @@ body {
   color: #b6b4c7;
 }
 
-@keyframes fieldPulse {
-  0% {
-    filter: saturate(1);
-  }
-  50% {
-    filter: saturate(1.12);
-  }
-  100% {
-    filter: saturate(1);
-  }
-}
-
-@keyframes auraShift {
-  0% {
-    opacity: 0.72;
-    transform: translateX(0);
-  }
-  50% {
-    opacity: 0.94;
-    transform: translateX(2px);
-  }
-  100% {
-    opacity: 0.72;
-    transform: translateX(0);
-  }
-}
-
 @keyframes lobbyGlow {
   0%,
   100% {
@@ -2515,15 +2454,6 @@ body {
   50% {
     opacity: 0.94;
     filter: saturate(1.12);
-  }
-}
-
-@keyframes dustFlow {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-36px);
   }
 }
 
