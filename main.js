@@ -1656,7 +1656,13 @@
     const body = document.createElement("div");
     body.className = "rewardGrid";
     const currentUid = heroEquipmentLoadout(heroId)[slotId];
-    const candidates = allEquipmentItems().filter((item) => item.slot === slotId);
+    const occupiedByOtherHeroes = new Set();
+    HERO_LIBRARY.forEach((entry) => {
+      if (!entry || entry.id === heroId) return;
+      const occupiedUid = heroEquipmentLoadout(entry.id)[slotId];
+      if (Number.isFinite(occupiedUid)) occupiedByOtherHeroes.add(occupiedUid);
+    });
+    const candidates = allEquipmentItems().filter((item) => item.slot === slotId && !occupiedByOtherHeroes.has(item.uid));
 
     if (candidates.length === 0) {
       const empty = document.createElement("div");
