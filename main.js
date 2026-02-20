@@ -2747,6 +2747,7 @@
     modalLayer.classList.remove("open");
     modalLayer.setAttribute("aria-hidden", "true");
     scheduleIdleTalk();
+    scheduleLobbyTalk();
   }
 
   btnModalClose.addEventListener("click", () => {
@@ -3211,7 +3212,7 @@
       clearLobbyTalkBubbles();
       return;
     }
-    const delay = 3000 + randInt(2001);
+    const delay = 4000 + randInt(4001);
     lobbyTalkTimer = setTimeout(() => {
       lobbyTalkTimer = 0;
       if (!canLobbyTalkNow()) return;
