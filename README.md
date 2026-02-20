@@ -34,6 +34,7 @@ python3 -m http.server 5173
 - 모델 변경: `GOOGLE_IMAGE_MODEL` 환경변수 사용 (예: `gemini-3-pro-preview`)
 - 배경 레퍼런스 입력: `BACKGROUND_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/back_refer.jpeg`)
 - 영웅 레퍼런스 입력: `HERO_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/hero_refer.png`)
+- 스킬 레퍼런스 입력: `SKILL_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/skill_refer.png`)
 - 장비 레퍼런스 입력: `EQUIPMENT_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/hero_refer.png,assets/reference/back_refer.jpeg`)
 - 실행(프로토 폴더에서):
 
@@ -61,8 +62,13 @@ GOOGLE_API_KEY=\"<YOUR_KEY>\" GOOGLE_IMAGE_MODEL=\"gemini-3-pro-image-preview\" 
 GOOGLE_API_KEY=\"<YOUR_KEY>\" GOOGLE_IMAGE_MODEL=\"gemini-3-pro-image-preview\" EQUIPMENT_REFERENCE_FILES=\"assets/reference/hero_refer.png,assets/reference/back_refer.jpeg\" ASSET_KEYS=\"equipment.W_RUST,equipment.W_EDGE,equipment.W_RUNE,equipment.H_HIDE,equipment.H_GUARD,equipment.H_CROWN,equipment.A_CHAIN,equipment.A_PLATE,equipment.A_ABYSS,equipment.X_RING,equipment.X_CHARM,equipment.X_CLOCK\" node ./scripts/generate-google-assets.mjs
 ```
 
+- 스킬 레퍼런스로 인게임 스킬 아이콘 전체 재생성:
+```bash
+GOOGLE_API_KEY=\"<YOUR_KEY>\" GOOGLE_IMAGE_MODEL=\"gemini-3-pro-image-preview\" SKILL_REFERENCE_FILES=\"assets/reference/skill_refer.png\" ASSET_KEYS=\"skill\" node ./scripts/generate-google-assets.mjs
+```
+
 - 생성 결과:
-  - 이미지 파일: `assets/generated/heroes`, `assets/generated/enemies`, `assets/generated/backgrounds`
+  - 이미지 파일: `assets/generated/heroes`, `assets/generated/enemies`, `assets/generated/backgrounds`, `assets/generated/equipment`, `assets/generated/skills`
   - 매니페스트: `assets/generated/manifest.json`
   - 게임 연동 파일: `assets/generated/assets-manifest.js`
 - 실행 후 `index.html`을 새로고침하면 생성 이미지가 영웅/적/전장에 자동 반영됩니다.

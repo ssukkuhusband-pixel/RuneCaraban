@@ -848,6 +848,7 @@
     enemy: generatedAssets.enemy || {},
     background: generatedAssets.background || {},
     equipment: generatedAssets.equipment || {},
+    skill: generatedAssets.skill || {},
   };
 
   function visualPath(path) {
@@ -1002,6 +1003,11 @@
   function equipmentVisual(baseId) {
     if (!baseId) return "";
     return visualPath(ASSET_MAP.equipment?.[baseId] || "");
+  }
+
+  function skillVisual(skillId) {
+    if (!skillId) return "";
+    return visualPath(ASSET_MAP.skill?.[skillId] || "");
   }
 
   function applyBattlefieldVisual() {
@@ -1442,16 +1448,46 @@
     battleLog.innerHTML = "";
   }
 
-  function makeIconToken({ icon, label, tone = "", badge = "", dimmed = false }) {
+  function makeIconToken({
+    icon,
+    label,
+    tone = "",
+    badge = "",
+    dimmed = false,
+    iconImage = "",
+    badgeIcon = "",
+    badgeImage = "",
+  }) {
     const token = document.createElement("div");
     token.className = `iconToken${tone ? ` ${tone}` : ""}${dimmed ? " dimmed" : ""}`;
     token.title = label;
     token.setAttribute("aria-label", label);
 
-    const glyph = document.createElement("span");
-    glyph.className = "iconGlyph";
-    glyph.textContent = icon;
+    const glyph = iconImage ? document.createElement("img") : document.createElement("span");
+    glyph.className = iconImage ? "iconGlyphImage" : "iconGlyph";
+    if (iconImage) {
+      glyph.src = iconImage;
+      glyph.alt = label;
+      glyph.loading = "lazy";
+    } else {
+      glyph.textContent = icon;
+    }
     token.appendChild(glyph);
+
+    if (badgeImage || badgeIcon) {
+      const subBadge = document.createElement("span");
+      subBadge.className = "iconSubBadge";
+      if (badgeImage) {
+        const badgeImageNode = document.createElement("img");
+        badgeImageNode.src = badgeImage;
+        badgeImageNode.alt = "영웅";
+        badgeImageNode.loading = "lazy";
+        subBadge.appendChild(badgeImageNode);
+      } else {
+        subBadge.textContent = badgeIcon;
+      }
+      token.appendChild(subBadge);
+    }
 
     if (badge !== "" && badge !== null && badge !== undefined) {
       const badgeNode = document.createElement("span");
@@ -4536,7 +4572,16 @@
       } else {
         const shown = state.perks.slice(0, 8);
         shown.forEach((perk) => {
-          perkList.appendChild(makeIconToken({ icon: perk.icon, label: perk.name, tone: "perk" }));
+          perkList.appendChild(
+            makeIconToken({
+              icon: perk.icon,
+              iconImage: perk.image,
+              badgeImage: perk.heroImage,
+              badgeIcon: perk.heroIcon,
+              label: perk.name,
+              tone: "perk",
+            })
+          );
         });
         if (state.perks.length > shown.length) {
           perkList.appendChild(
@@ -5228,8 +5273,16 @@
     }
 
     const normalizeSkill = (entry) => {
+      const iconImage = skillVisual(entry.id);
+      const perkTag = {
+        ...(entry.perkTag || {}),
+        icon: entry?.perkTag?.icon || entry.icon,
+        image: iconImage || "",
+      };
       return {
         ...entry,
+        iconImage,
+        perkTag,
         apply: () => applyPerk(entry.effect),
       };
     };
@@ -5243,14 +5296,22 @@
       if (!hero) return;
       heroPotentialCatalog(heroId).forEach((entry) => {
         if (hasHeroPotential(heroId, entry.potentialId)) return;
-        const heroPotentialIcon = `${hero.icon}💠`;
+        const iconImage = skillVisual(entry.id);
+        const heroImage = heroVisual(heroId);
         heroPotentialPool.push({
           ...entry,
           group: "hero",
-          icon: heroPotentialIcon,
+          icon: entry.icon,
+          iconImage,
+          heroId,
+          heroIcon: hero.icon,
+          heroImage,
           perkTag: {
             ...(entry.perkTag || {}),
-            icon: heroPotentialIcon,
+            icon: entry?.perkTag?.icon || entry.icon,
+            image: iconImage || "",
+            heroIcon: hero.icon,
+            heroImage: heroImage || "",
           },
           apply: () => {
             if (!grantHeroPotential(heroId, entry.potentialId)) return;
@@ -5313,7 +5374,48 @@
       card.className = "rewardCard skillCard";
       if (option.premium) card.classList.add("premium");
       card.style.setProperty("--entry-delay", `${index * 70}ms`);
-      card.innerHTML = `<div class="skillCardIcon">${option.icon}</div><div class="skillCardName">${option.title}</div><div class="skillCardDesc">${option.desc}</div>`;
+
+      const iconWrap = document.createElement("div");
+      iconWrap.className = "skillCardIconWrap";
+      if (option.iconImage) {
+        const iconImage = document.createElement("img");
+        iconImage.className = "skillCardIconImage";
+        iconImage.src = option.iconImage;
+        iconImage.alt = option.title;
+        iconImage.loading = "lazy";
+        iconWrap.appendChild(iconImage);
+      } else {
+        const iconGlyph = document.createElement("div");
+        iconGlyph.className = "skillCardIcon";
+        iconGlyph.textContent = option.icon;
+        iconWrap.appendChild(iconGlyph);
+      }
+
+      if (option.group === "hero" && (option.heroImage || option.heroIcon)) {
+        const heroBadge = document.createElement("div");
+        heroBadge.className = "skillCardHeroBadge";
+        if (option.heroImage) {
+          const heroBadgeImage = document.createElement("img");
+          heroBadgeImage.src = option.heroImage;
+          heroBadgeImage.alt = "영웅";
+          heroBadgeImage.loading = "lazy";
+          heroBadge.appendChild(heroBadgeImage);
+        } else {
+          heroBadge.textContent = option.heroIcon || "💠";
+        }
+        iconWrap.appendChild(heroBadge);
+      }
+
+      const title = document.createElement("div");
+      title.className = "skillCardName";
+      title.textContent = option.title;
+      const desc = document.createElement("div");
+      desc.className = "skillCardDesc";
+      desc.textContent = option.desc;
+
+      card.appendChild(iconWrap);
+      card.appendChild(title);
+      card.appendChild(desc);
       card.addEventListener("click", async () => {
         if (card.classList.contains("selected")) return;
         body.querySelectorAll(".rewardCard").forEach((entry) => entry.classList.remove("selected"));

@@ -1893,6 +1893,36 @@ body {
   line-height: 1;
 }
 
+.iconGlyphImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  image-rendering: pixelated;
+}
+
+.iconSubBadge {
+  position: absolute;
+  left: -3px;
+  bottom: -3px;
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(18, 19, 32, 0.9);
+  background: rgba(11, 12, 22, 0.95);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-size: 8px;
+}
+
+.iconSubBadge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
 .iconBadge {
   position: absolute;
   right: -3px;
@@ -2915,11 +2945,53 @@ body {
   text-shadow: 0 0 10px rgba(247, 201, 72, 0.26);
 }
 
+.skillCardIconWrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  margin-top: 2px;
+  transition: transform 120ms ease;
+}
+
 .skillCardIcon {
   font-size: 42px;
   line-height: 1;
-  margin-top: 2px;
   text-shadow: 0 4px 12px rgba(12, 18, 26, 0.45);
+}
+
+.skillCardIconImage {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  image-rendering: pixelated;
+  box-shadow: 0 6px 14px rgba(8, 12, 20, 0.38);
+}
+
+.skillCardHeroBadge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(10, 12, 22, 0.92);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-size: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.34);
+}
+
+.skillCardHeroBadge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
 }
 
 .skillCardName {
@@ -2938,6 +3010,10 @@ body {
 
 .rewardCard.skillCard.selected .skillCardIcon {
   transform: translateY(-1px) scale(1.06);
+}
+
+.rewardCard.skillCard.selected .skillCardIconWrap {
+  transform: translateY(-1px) scale(1.05);
 }
 
 .rewardTitle {

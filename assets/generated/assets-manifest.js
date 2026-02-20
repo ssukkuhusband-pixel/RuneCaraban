@@ -1,5 +1,5 @@
 window.PROTO_ASSETS = {
-  "generatedAt": "2026-02-20T17:01:22.992Z",
+  "generatedAt": "2026-02-20T18:21:08.709Z",
   "model": "gemini-3-pro-image-preview",
   "hero": {
     "H1": "./assets/generated/heroes/H1.png",
@@ -33,5 +33,38 @@ window.PROTO_ASSETS = {
     "X_RING": "./assets/generated/equipment/X_RING.png",
     "X_CHARM": "./assets/generated/equipment/X_CHARM.png",
     "X_CLOCK": "./assets/generated/equipment/X_CLOCK.png"
+  },
+  "skill": {
+    "perk_spin_x2": "./assets/generated/skills/perk_spin_x2.png",
+    "perk_spin_reroll": "./assets/generated/skills/perk_spin_reroll.png",
+    "perk_spin_special": "./assets/generated/skills/perk_spin_special.png",
+    "perk_spin_charge": "./assets/generated/skills/perk_spin_charge.png",
+    "perk_spin_echo": "./assets/generated/skills/perk_spin_echo.png",
+    "perk_spin_forge": "./assets/generated/skills/perk_spin_forge.png",
+    "perk_spin_sigil": "./assets/generated/skills/perk_spin_sigil.png",
+    "perk_spin_bonus_reel": "./assets/generated/skills/perk_spin_bonus_reel.png",
+    "perk_spin_clone": "./assets/generated/skills/perk_spin_clone.png",
+    "perk_spin_morph": "./assets/generated/skills/perk_spin_morph.png",
+    "perk_spin_link": "./assets/generated/skills/perk_spin_link.png",
+    "perk_spin_slot2": "./assets/generated/skills/perk_spin_slot2.png",
+    "perk_dead_fade": "./assets/generated/skills/perk_dead_fade.png",
+    "perk_potential_h1_chain": "./assets/generated/skills/perk_potential_h1_chain.png",
+    "perk_potential_h1_rage": "./assets/generated/skills/perk_potential_h1_rage.png",
+    "perk_potential_h1_break": "./assets/generated/skills/perk_potential_h1_break.png",
+    "perk_potential_h2_shadow": "./assets/generated/skills/perk_potential_h2_shadow.png",
+    "perk_potential_h2_fatal": "./assets/generated/skills/perk_potential_h2_fatal.png",
+    "perk_potential_h2_exec": "./assets/generated/skills/perk_potential_h2_exec.png",
+    "perk_potential_h3_overheat": "./assets/generated/skills/perk_potential_h3_overheat.png",
+    "perk_potential_h3_flare": "./assets/generated/skills/perk_potential_h3_flare.png",
+    "perk_potential_h3_nova": "./assets/generated/skills/perk_potential_h3_nova.png",
+    "perk_potential_h4_thorns": "./assets/generated/skills/perk_potential_h4_thorns.png",
+    "perk_potential_h4_guard": "./assets/generated/skills/perk_potential_h4_guard.png",
+    "perk_potential_h4_last": "./assets/generated/skills/perk_potential_h4_last.png",
+    "perk_potential_h5_chain": "./assets/generated/skills/perk_potential_h5_chain.png",
+    "perk_potential_h5_prayer": "./assets/generated/skills/perk_potential_h5_prayer.png",
+    "perk_potential_h5_revive": "./assets/generated/skills/perk_potential_h5_revive.png",
+    "perk_potential_h6_pierce": "./assets/generated/skills/perk_potential_h6_pierce.png",
+    "perk_potential_h6_barrage": "./assets/generated/skills/perk_potential_h6_barrage.png",
+    "perk_potential_h6_hawkeye": "./assets/generated/skills/perk_potential_h6_hawkeye.png"
   }
 };

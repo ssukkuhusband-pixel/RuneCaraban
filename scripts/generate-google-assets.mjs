@@ -7,6 +7,7 @@ const model = process.env.GOOGLE_IMAGE_MODEL || "gemini-3-pro-image-preview";
 const assetFilterRaw = process.env.ASSET_KEYS || "";
 const backgroundReferenceRaw = process.env.BACKGROUND_REFERENCE_FILES || "assets/reference/back_refer.jpeg";
 const heroReferenceRaw = process.env.HERO_REFERENCE_FILES || "assets/reference/hero_refer.png";
+const skillReferenceRaw = process.env.SKILL_REFERENCE_FILES || "assets/reference/skill_refer.png";
 const equipmentReferenceRaw =
   process.env.EQUIPMENT_REFERENCE_FILES || "assets/reference/hero_refer.png,assets/reference/back_refer.jpeg";
 
@@ -184,6 +185,192 @@ const imageSpecs = [
     file: "equipment/X_CLOCK.png",
     prompt: "픽셀 아트 장비 아이콘. 시공 펜던트. 작은 시계 장치가 달린 펜던트, 시간 왜곡 느낌, 투명 배경 아이콘 느낌.",
   },
+  {
+    bucket: "skill",
+    key: "perk_spin_x2",
+    file: "skills/perk_spin_x2.png",
+    prompt: "픽셀 아트 스킬 아이콘. 두 겹의 룬 문양 위에 x2 표식, 빠른 연속 타격 느낌, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_reroll",
+    file: "skills/perk_spin_reroll.png",
+    prompt: "픽셀 아트 스킬 아이콘. 원형으로 회전하는 룬 화살표와 재해석 마법진, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_special",
+    file: "skills/perk_spin_special.png",
+    prompt: "픽셀 아트 스킬 아이콘. 와일드 룬을 상징하는 빛나는 별 문양과 마법 불꽃, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_charge",
+    file: "skills/perk_spin_charge.png",
+    prompt: "픽셀 아트 스킬 아이콘. 번개가 감긴 룬 결정, 과충전 에너지 스파크, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_echo",
+    file: "skills/perk_spin_echo.png",
+    prompt: "픽셀 아트 스킬 아이콘. 이중 파동 고리와 메아리 잔상, 청보라 색감, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_forge",
+    file: "skills/perk_spin_forge.png",
+    prompt: "픽셀 아트 스킬 아이콘. 룬이 새겨진 작은 모루와 각인 망치, 불꽃 점광, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_sigil",
+    file: "skills/perk_spin_sigil.png",
+    prompt: "픽셀 아트 스킬 아이콘. 각성 문장 마법진, 중앙 보석 문양, 신비한 오라, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_bonus_reel",
+    file: "skills/perk_spin_bonus_reel.png",
+    prompt: "픽셀 아트 스킬 아이콘. 슬롯 릴 옆에 추가 슬롯이 열리는 기계 장치, 네온 포인트, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_clone",
+    file: "skills/perk_spin_clone.png",
+    prompt: "픽셀 아트 스킬 아이콘. 거울 파편과 복제된 쌍둥이 룬 심볼, 대칭 구도, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_morph",
+    file: "skills/perk_spin_morph.png",
+    prompt: "픽셀 아트 스킬 아이콘. 돌멩이 룬이 영웅 룬으로 변환되는 마법 소용돌이, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_link",
+    file: "skills/perk_spin_link.png",
+    prompt: "픽셀 아트 스킬 아이콘. 사슬로 연결된 두 개의 룬 슬롯, 연쇄 발동 느낌, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_spin_slot2",
+    file: "skills/perk_spin_slot2.png",
+    prompt: "픽셀 아트 스킬 아이콘. 두 번째 슬롯이 강조된 룬 릴 패널, 집중 광채, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_dead_fade",
+    file: "skills/perk_dead_fade.png",
+    prompt: "픽셀 아트 스킬 아이콘. 희미한 묘비 룬과 사라지는 안개, 페널티 완화 상징, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h1_chain",
+    file: "skills/perk_potential_h1_chain.png",
+    prompt: "픽셀 아트 스킬 아이콘. 기사 창격이 연쇄로 튀는 궤적, 금속성 불꽃, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h1_rage",
+    file: "skills/perk_potential_h1_rage.png",
+    prompt: "픽셀 아트 스킬 아이콘. 붉은 분노 오라가 폭발하는 전사 문장, 강한 대비, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h1_break",
+    file: "skills/perk_potential_h1_break.png",
+    prompt: "픽셀 아트 스킬 아이콘. 갑주가 갈라지는 파쇄 타격, 금속 파편, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h2_shadow",
+    file: "skills/perk_potential_h2_shadow.png",
+    prompt: "픽셀 아트 스킬 아이콘. 그림자 단검이 후열로 파고드는 궤적, 보라 잔상, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h2_fatal",
+    file: "skills/perk_potential_h2_fatal.png",
+    prompt: "픽셀 아트 스킬 아이콘. 해골 낙인과 치명 표식이 겹친 어둠 문양, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h2_exec",
+    file: "skills/perk_potential_h2_exec.png",
+    prompt: "픽셀 아트 스킬 아이콘. 처형 조준선과 붉은 크로스헤어, 냉혹한 분위기, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h3_overheat",
+    file: "skills/perk_potential_h3_overheat.png",
+    prompt: "픽셀 아트 스킬 아이콘. 과열된 마력 코어와 상승 화염 룬, 청적 대비, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h3_flare",
+    file: "skills/perk_potential_h3_flare.png",
+    prompt: "픽셀 아트 스킬 아이콘. 잔류 폭발 파편과 불꽃 확산, 폭발 중심 구도, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h3_nova",
+    file: "skills/perk_potential_h3_nova.png",
+    prompt: "픽셀 아트 스킬 아이콘. 초신성처럼 터지는 별핵과 빛 고리, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h4_thorns",
+    file: "skills/perk_potential_h4_thorns.png",
+    prompt: "픽셀 아트 스킬 아이콘. 가시가 돋은 방패로 반사 타격하는 장면, 묵직한 질감, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h4_guard",
+    file: "skills/perk_potential_h4_guard.png",
+    prompt: "픽셀 아트 스킬 아이콘. 수호 장벽이 전개되는 방패 마법진, 청록 보호막, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h4_last",
+    file: "skills/perk_potential_h4_last.png",
+    prompt: "픽셀 아트 스킬 아이콘. 마지막 불굴을 상징하는 불타는 방패와 잔불, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h5_chain",
+    file: "skills/perk_potential_h5_chain.png",
+    prompt: "픽셀 아트 스킬 아이콘. 생명의 파동이 이어지는 치유 빛결, 에메랄드 광채, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h5_prayer",
+    file: "skills/perk_potential_h5_prayer.png",
+    prompt: "픽셀 아트 스킬 아이콘. 기도 손짓과 축복의 빛 기둥, 포근한 오라, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h5_revive",
+    file: "skills/perk_potential_h5_revive.png",
+    prompt: "픽셀 아트 스킬 아이콘. 새벽 촛불과 부활 문양, 어둠 속 희망의 빛, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h6_pierce",
+    file: "skills/perk_potential_h6_pierce.png",
+    prompt: "픽셀 아트 스킬 아이콘. 관통 화살이 적을 꿰뚫는 직선 궤적, 날카로운 인상, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h6_barrage",
+    file: "skills/perk_potential_h6_barrage.png",
+    prompt: "픽셀 아트 스킬 아이콘. 세 갈래 연속 화살 탄막, 속도감 있는 잔상, 정사각형, 텍스트 없음.",
+  },
+  {
+    bucket: "skill",
+    key: "perk_potential_h6_hawkeye",
+    file: "skills/perk_potential_h6_hawkeye.png",
+    prompt: "픽셀 아트 스킬 아이콘. 매의 눈 조준 문양과 타겟 표식, 집중감 강조, 정사각형, 텍스트 없음.",
+  },
 ];
 
 const assetFilter = new Set(
@@ -196,7 +383,10 @@ const assetFilter = new Set(
 const targetSpecs =
   assetFilter.size === 0
     ? imageSpecs
-    : imageSpecs.filter((spec) => assetFilter.has(spec.key) || assetFilter.has(`${spec.bucket}.${spec.key}`));
+    : imageSpecs.filter(
+        (spec) =>
+          assetFilter.has(spec.key) || assetFilter.has(spec.bucket) || assetFilter.has(`${spec.bucket}.${spec.key}`)
+      );
 
 function mimeTypeFromFilePath(filePath) {
   const ext = path.extname(filePath).toLowerCase();
@@ -242,9 +432,14 @@ async function generateOne(spec, referenceParts = []) {
       ? `${spec.prompt}\n\n레퍼런스 이미지의 아트 스타일(픽셀 밀도/명암/외곽선/색감/분위기)을 우선 반영하되, 캐릭터 정체성(직업/장비/실루엣)은 현재 프롬프트 기준으로 생성.\n\n${PIXEL_STYLE_GUIDE}`
       : spec.bucket === "equipment"
       ? `${spec.prompt}\n\n레퍼런스 이미지와 동일 세계관의 인벤토리 장비 아이콘으로 제작. 정사각형 구도, 배경 요소 최소화, 아이콘 자체가 선명하게 구분되도록 생성.\n\n${PIXEL_STYLE_GUIDE}`
+      : spec.bucket === "skill"
+      ? `${spec.prompt}\n\n레퍼런스 이미지와 동일한 인게임 스킬 아이콘 스타일로 제작. 단일 아이콘이 한눈에 읽히도록 중심 배치, 장식은 최소화, 텍스트/숫자/문자 금지.\n\n${PIXEL_STYLE_GUIDE}`
       : `${spec.prompt}\n\n${PIXEL_STYLE_GUIDE}`;
   const requestParts = [];
-  if ((spec.bucket === "background" || spec.bucket === "hero" || spec.bucket === "equipment") && referenceParts.length > 0) {
+  if (
+    (spec.bucket === "background" || spec.bucket === "hero" || spec.bucket === "equipment" || spec.bucket === "skill") &&
+    referenceParts.length > 0
+  ) {
     requestParts.push(...referenceParts);
   }
   requestParts.push({ text: promptText });
@@ -301,7 +496,7 @@ async function generateOne(spec, referenceParts = []) {
 
 async function main() {
   const manifestJson = path.join(generatedDir, "manifest.json");
-  const existing = { generatedAt: "", model: "", hero: {}, enemy: {}, background: {}, equipment: {} };
+  const existing = { generatedAt: "", model: "", hero: {}, enemy: {}, background: {}, equipment: {}, skill: {} };
   try {
     const raw = await readFile(manifestJson, "utf8");
     const parsed = JSON.parse(raw);
@@ -311,6 +506,7 @@ async function main() {
     existing.enemy = parsed?.enemy || {};
     existing.background = parsed?.background || {};
     existing.equipment = parsed?.equipment || {};
+    existing.skill = parsed?.skill || {};
   } catch {
     // ignore missing manifest
   }
@@ -322,6 +518,7 @@ async function main() {
     enemy: { ...existing.enemy },
     background: { ...existing.background },
     equipment: { ...existing.equipment },
+    skill: { ...existing.skill },
   };
 
   if (targetSpecs.length === 0) {
@@ -332,6 +529,7 @@ async function main() {
   const backgroundReferenceParts = await loadReferencePartsFromRaw(backgroundReferenceRaw);
   const heroReferenceParts = await loadReferencePartsFromRaw(heroReferenceRaw);
   const equipmentReferenceParts = await loadReferencePartsFromRaw(equipmentReferenceRaw);
+  const skillReferenceParts = await loadReferencePartsFromRaw(skillReferenceRaw);
   let successCount = 0;
   let failCount = 0;
 
@@ -345,6 +543,8 @@ async function main() {
           ? heroReferenceParts
           : spec.bucket === "equipment"
           ? equipmentReferenceParts
+          : spec.bucket === "skill"
+          ? skillReferenceParts
           : [];
       const result = await generateOne(spec, referenceParts);
       manifest[result.bucket][result.key] = result.relativePath;
