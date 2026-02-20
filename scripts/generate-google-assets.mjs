@@ -5,6 +5,7 @@ import path from "node:path";
 const apiKey = process.env.GOOGLE_API_KEY || process.env.NANOBANANA_API_KEY || "";
 const model = process.env.GOOGLE_IMAGE_MODEL || "gemini-2.0-flash-exp-image-generation";
 const assetFilterRaw = process.env.ASSET_KEYS || "";
+const backgroundReferenceRaw = process.env.BACKGROUND_REFERENCE_FILES || "assets/reference/back_refer.jpeg";
 
 if (!apiKey) {
   console.error("[오류] GOOGLE_API_KEY(또는 NANOBANANA_API_KEY)가 필요합니다.");
@@ -122,24 +123,62 @@ const targetSpecs =
     ? imageSpecs
     : imageSpecs.filter((spec) => assetFilter.has(spec.key) || assetFilter.has(`${spec.bucket}.${spec.key}`));
 
+function mimeTypeFromFilePath(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === ".png") return "image/png";
+  if (ext === ".jpg" || ext === ".jpeg") return "image/jpeg";
+  if (ext === ".webp") return "image/webp";
+  return "application/octet-stream";
+}
+
+async function loadReferenceParts() {
+  const refPaths = backgroundReferenceRaw
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => (path.isAbsolute(entry) ? entry : path.join(rootDir, entry)));
+
+  const parts = [];
+  for (const refPath of refPaths) {
+    try {
+      const binary = await readFile(refPath);
+      parts.push({
+        inlineData: {
+          mimeType: mimeTypeFromFilePath(refPath),
+          data: binary.toString("base64"),
+        },
+      });
+    } catch (error) {
+      console.warn(`[경고] 레퍼런스 로드 실패: ${refPath} (${error instanceof Error ? error.message : error})`);
+    }
+  }
+  return parts;
+}
+
 function endpointFor(modelName) {
   return `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 }
 
-async function generateOne(spec) {
+async function generateOne(spec, referenceParts = []) {
+  const promptText =
+    spec.bucket === "background"
+      ? `${spec.prompt}\n\n레퍼런스 이미지의 색감/광원/질감 분위기를 최대한 참고하되, 인물/캐릭터는 새로 그리지 말고 배경만 생성.\n\n${PIXEL_STYLE_GUIDE}`
+      : `${spec.prompt}\n\n${PIXEL_STYLE_GUIDE}`;
+  const requestParts = [];
+  if (spec.bucket === "background" && referenceParts.length > 0) {
+    requestParts.push(...referenceParts);
+  }
+  requestParts.push({ text: promptText });
+
   const requestBody = {
     contents: [
       {
         role: "user",
-        parts: [
-          {
-            text: `${spec.prompt}\n\n${PIXEL_STYLE_GUIDE}`,
-          },
-        ],
+        parts: requestParts,
       },
     ],
     generationConfig: {
-      responseModalities: ["TEXT", "IMAGE"],
+      responseModalities: ["IMAGE"],
     },
   };
 
@@ -163,8 +202,8 @@ async function generateOne(spec) {
     throw new Error(`API 오류(${response.status}): ${json?.error?.message || raw.slice(0, 300)}`);
   }
 
-  const parts = json?.candidates?.[0]?.content?.parts || [];
-  const inline = parts.find((part) => part?.inlineData?.data);
+  const responseParts = json?.candidates?.[0]?.content?.parts || [];
+  const inline = responseParts.find((part) => part?.inlineData?.data);
   if (!inline) {
     throw new Error(`이미지 데이터 없음: ${JSON.stringify(json).slice(0, 500)}`);
   }
@@ -183,10 +222,12 @@ async function generateOne(spec) {
 
 async function main() {
   const manifestJson = path.join(generatedDir, "manifest.json");
-  const existing = { hero: {}, enemy: {}, background: {} };
+  const existing = { generatedAt: "", model: "", hero: {}, enemy: {}, background: {} };
   try {
     const raw = await readFile(manifestJson, "utf8");
     const parsed = JSON.parse(raw);
+    existing.generatedAt = parsed?.generatedAt || "";
+    existing.model = parsed?.model || "";
     existing.hero = parsed?.hero || {};
     existing.enemy = parsed?.enemy || {};
     existing.background = parsed?.background || {};
@@ -195,8 +236,8 @@ async function main() {
   }
 
   const manifest = {
-    generatedAt: new Date().toISOString(),
-    model,
+    generatedAt: existing.generatedAt || "",
+    model: existing.model || "",
     hero: { ...existing.hero },
     enemy: { ...existing.enemy },
     background: { ...existing.background },
@@ -207,17 +248,30 @@ async function main() {
     process.exit(1);
   }
 
+  const backgroundReferenceParts = await loadReferenceParts();
+  let successCount = 0;
+  let failCount = 0;
+
   for (const spec of targetSpecs) {
     process.stdout.write(`[생성] ${spec.bucket}.${spec.key} ... `);
     try {
-      const result = await generateOne(spec);
+      const result = await generateOne(spec, backgroundReferenceParts);
       manifest[result.bucket][result.key] = result.relativePath;
+      successCount += 1;
       process.stdout.write("완료\n");
     } catch (error) {
+      failCount += 1;
       process.stdout.write(`실패\n`);
       console.error(error instanceof Error ? error.message : error);
     }
   }
+
+  if (successCount === 0) {
+    throw new Error(`[오류] 요청한 ${targetSpecs.length}개 이미지 생성이 모두 실패했습니다.`);
+  }
+
+  manifest.generatedAt = new Date().toISOString();
+  manifest.model = model;
 
   await mkdir(generatedDir, { recursive: true });
   const manifestJs = path.join(generatedDir, "assets-manifest.js");
@@ -225,6 +279,9 @@ async function main() {
   await writeFile(manifestJson, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   await writeFile(manifestJs, `window.PROTO_ASSETS = ${JSON.stringify(manifest, null, 2)};\n`, "utf8");
 
+  if (failCount > 0) {
+    console.warn(`[경고] 일부 실패: ${failCount}개 실패, ${successCount}개 성공`);
+  }
   console.log(`\n[완료] 매니페스트 저장: ${manifestJson}`);
   console.log(`[완료] 프로토 연동 파일: ${manifestJs}`);
 }

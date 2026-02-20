@@ -31,6 +31,8 @@ python3 -m http.server 5173
 ## AI 이미지 생성(반자동)
 - 생성 스크립트: `scripts/generate-google-assets.mjs`
 - 사용 모델 기본값: `gemini-2.0-flash-exp-image-generation`
+- 모델 변경: `GOOGLE_IMAGE_MODEL` 환경변수 사용 (예: `gemini-3-pro-preview`)
+- 배경 레퍼런스 입력: `BACKGROUND_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/back_refer.jpeg`)
 - 실행(프로토 폴더에서):
 
 ```bash
@@ -40,6 +42,11 @@ GOOGLE_API_KEY=\"<YOUR_KEY>\" node ./scripts/generate-google-assets.mjs
 - 특정 에셋만 재생성(선택):
 ```bash
 GOOGLE_API_KEY=\"<YOUR_KEY>\" ASSET_KEYS=\"background.battlefield\" node ./scripts/generate-google-assets.mjs
+```
+
+- `gemini-3-pro-preview` + 배경 레퍼런스로 배경만 재생성:
+```bash
+GOOGLE_API_KEY=\"<YOUR_KEY>\" GOOGLE_IMAGE_MODEL=\"gemini-3-pro-preview\" BACKGROUND_REFERENCE_FILES=\"assets/reference/back_refer.jpeg\" ASSET_KEYS=\"background.battlefield,background.lobby_campfire\" node ./scripts/generate-google-assets.mjs
 ```
 
 - 생성 결과:
