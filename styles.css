@@ -199,12 +199,6 @@ body {
   backdrop-filter: none;
 }
 
-.chapterPanel.panel {
-  border: 0;
-  box-shadow: none;
-  backdrop-filter: none;
-}
-
 .chapterSelector {
   margin-top: 0;
   display: grid;
