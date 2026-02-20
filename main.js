@@ -2853,6 +2853,29 @@
     }, Math.max(shotMs - 28, 24));
   }
 
+  function spawnVerticalStrike(targetNode, team, options = {}) {
+    const rect = rectInStage(targetNode);
+    if (!rect) return () => {};
+    const point = pointInRect(targetNode);
+    if (!point) return () => {};
+    const strike = document.createElement("div");
+    strike.className = `verticalStrike ${team}`;
+    if (options.crit) strike.classList.add("crit");
+    if (options.ultimate) strike.classList.add("ult");
+    if (options.finisher) strike.classList.add("finisher");
+    strike.style.left = `${point.x}px`;
+    strike.style.top = `${point.y}px`;
+    strike.style.setProperty("--strike-height", `${clamp(rect.height * 1.8, 88, 160)}px`);
+    fxLayer.appendChild(strike);
+    const clearPin = spawnTargetPin(targetNode, { ...options, duration: clamp((options.projectileMs || 140) + 140, 200, 460) });
+    const timer = setTimeout(() => strike.remove(), 280);
+    return () => {
+      clearTimeout(timer);
+      clearPin();
+      strike.remove();
+    };
+  }
+
   function floatNumber(node, text, tone = "damage") {
     const point = pointInRect(node);
     if (!point) return;
@@ -2908,6 +2931,7 @@
     if (!attackerNode || !targetNode) return;
     const variant = options.ultimate ? "ult" : options.crit ? "crit" : "normal";
     const attackStyle = options.attackStyle === "melee" ? "melee" : "ranged";
+    const aoeVertical = Boolean(options.aoeVertical);
     const feel = {
       dashScale: 1,
       dashMs: 120,
@@ -2937,7 +2961,14 @@
     if (options.finisher) targetNode.classList.add("finisher");
     let clearTargetPin = () => {};
     try {
-      if (attackStyle === "melee") {
+      if (aoeVertical) {
+        const projectileMs = clamp(feel.projectileLeadMs, 56, 170);
+        clearTargetPin = spawnVerticalStrike(targetNode, team, { ...options, projectileMs });
+        await wait(projectileMs);
+        spawnHitBurst(targetNode, { ...options, impactScale: Math.max(1.05, feel.impactScale) });
+        flashBattlefield(options.finisher || options.ultimate || feel.shake >= 1.2);
+        await wait(clamp(feel.impactHoldMs, 56, 170));
+      } else if (attackStyle === "melee") {
         clearTargetPin = spawnTargetPin(targetNode, {
           ...options,
           duration: clamp(feel.lungeMs + feel.contactMs + 170, 180, 520),
@@ -3375,14 +3406,16 @@
         1,
         Math.floor((hero.atk + moraleAtk) * (1.1 + state.modifiers.aoeBonus + aoePassive) * combo * turnMult)
       );
+      const strikeClearers = [];
       targets.forEach((enemy) => {
         const enemyNode = nodeByEnemy(enemy.id);
         if (enemyNode) {
           enemyNode.classList.add("targeted");
-          if (attackerNode) spawnTrail(attackerNode, enemyNode, "hero", "ult");
+          strikeClearers.push(spawnVerticalStrike(enemyNode, "hero", { ultimate: true, projectileMs: 170 }));
         }
       });
       await wait(180);
+      strikeClearers.forEach((clearFx) => clearFx());
       targets.forEach((enemy) => {
         const enemyNode = nodeByEnemy(enemy.id);
         if (enemyNode) enemyNode.classList.remove("targeted");
@@ -4148,14 +4181,16 @@
       );
       if (attackerNode) attackerNode.classList.add("acting");
       const currentTargets = aliveEnemies();
+      const strikeClearers = [];
       currentTargets.forEach((enemy) => {
         const enemyNode = nodeByEnemy(enemy.id);
         if (enemyNode) {
           enemyNode.classList.add("targeted");
-          if (attackerNode) spawnTrail(attackerNode, enemyNode, "hero");
+          strikeClearers.push(spawnVerticalStrike(enemyNode, "hero", { projectileMs: 140 }));
         }
       });
       await wait(150);
+      strikeClearers.forEach((clearFx) => clearFx());
       if (attackerNode) attackerNode.classList.remove("acting");
       currentTargets.forEach((enemy) => {
         const enemyNode = nodeByEnemy(enemy.id);
@@ -4447,6 +4482,7 @@
             finisher,
             attackStyle: enemyAttackStyle,
             attackFeel: enemyAttackFeel,
+            aoeVertical: true,
           });
           damageHero(target, damage, "💢", enemy);
           renderAll();
