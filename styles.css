@@ -791,11 +791,11 @@ body {
   gap: 5px;
   grid-template-columns: 150px minmax(0, 1fr) 150px;
   align-items: center;
-  border-radius: 14px;
-  border: 1px solid var(--hud-line);
-  background: linear-gradient(180deg, rgba(11, 12, 21, 0.68), rgba(10, 11, 19, 0.54));
-  backdrop-filter: blur(4px);
-  box-shadow: var(--hud-shadow);
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
 }
 
 .brand {
@@ -1098,14 +1098,14 @@ body {
 }
 
 .runOverlayRow {
-  padding: 3px 6px;
-  border: 1px solid rgba(110, 117, 178, 0.32);
-  border-radius: 11px;
-  background: linear-gradient(180deg, rgba(19, 20, 34, 0.72), rgba(13, 14, 26, 0.62));
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+  padding: 1px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   display: grid;
   gap: 3px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: none;
 }
 
 .runOverlayTitle {
