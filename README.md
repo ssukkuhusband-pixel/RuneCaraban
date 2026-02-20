@@ -33,6 +33,7 @@ python3 -m http.server 5173
 - 사용 모델 기본값: `gemini-2.0-flash-exp-image-generation`
 - 모델 변경: `GOOGLE_IMAGE_MODEL` 환경변수 사용 (예: `gemini-3-pro-preview`)
 - 배경 레퍼런스 입력: `BACKGROUND_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/back_refer.jpeg`)
+- 영웅 레퍼런스 입력: `HERO_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/hero_refer.png`)
 - 실행(프로토 폴더에서):
 
 ```bash
@@ -47,6 +48,11 @@ GOOGLE_API_KEY=\"<YOUR_KEY>\" ASSET_KEYS=\"background.battlefield\" node ./scrip
 - `gemini-3-pro-preview` + 배경 레퍼런스로 배경만 재생성:
 ```bash
 GOOGLE_API_KEY=\"<YOUR_KEY>\" GOOGLE_IMAGE_MODEL=\"gemini-3-pro-preview\" BACKGROUND_REFERENCE_FILES=\"assets/reference/back_refer.jpeg\" ASSET_KEYS=\"background.battlefield,background.lobby_campfire\" node ./scripts/generate-google-assets.mjs
+```
+
+- 영웅 레퍼런스로 영웅 초상 6종만 재생성:
+```bash
+GOOGLE_API_KEY=\"<YOUR_KEY>\" GOOGLE_IMAGE_MODEL=\"gemini-3-pro-image-preview\" HERO_REFERENCE_FILES=\"assets/reference/hero_refer.png\" ASSET_KEYS=\"hero.H1,hero.H2,hero.H3,hero.H4,hero.H5,hero.H6\" node ./scripts/generate-google-assets.mjs
 ```
 
 - 생성 결과:

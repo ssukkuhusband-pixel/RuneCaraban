@@ -1,5 +1,5 @@
 window.PROTO_ASSETS = {
-  "generatedAt": "2026-02-20T16:34:47.673Z",
+  "generatedAt": "2026-02-20T16:44:36.088Z",
   "model": "gemini-3-pro-image-preview",
   "hero": {
     "H1": "./assets/generated/heroes/H1.png",

@@ -6,6 +6,7 @@ const apiKey = process.env.GOOGLE_API_KEY || process.env.NANOBANANA_API_KEY || "
 const model = process.env.GOOGLE_IMAGE_MODEL || "gemini-2.0-flash-exp-image-generation";
 const assetFilterRaw = process.env.ASSET_KEYS || "";
 const backgroundReferenceRaw = process.env.BACKGROUND_REFERENCE_FILES || "assets/reference/back_refer.jpeg";
+const heroReferenceRaw = process.env.HERO_REFERENCE_FILES || "assets/reference/hero_refer.png";
 
 if (!apiKey) {
   console.error("[오류] GOOGLE_API_KEY(또는 NANOBANANA_API_KEY)가 필요합니다.");
@@ -131,8 +132,8 @@ function mimeTypeFromFilePath(filePath) {
   return "application/octet-stream";
 }
 
-async function loadReferenceParts() {
-  const refPaths = backgroundReferenceRaw
+async function loadReferencePartsFromRaw(referenceRaw) {
+  const refPaths = referenceRaw
     .split(",")
     .map((entry) => entry.trim())
     .filter(Boolean)
@@ -163,9 +164,11 @@ async function generateOne(spec, referenceParts = []) {
   const promptText =
     spec.bucket === "background"
       ? `${spec.prompt}\n\n레퍼런스 이미지의 색감/광원/질감 분위기를 최대한 참고하되, 인물/캐릭터는 새로 그리지 말고 배경만 생성.\n\n${PIXEL_STYLE_GUIDE}`
+      : spec.bucket === "hero"
+      ? `${spec.prompt}\n\n레퍼런스 이미지의 아트 스타일(픽셀 밀도/명암/외곽선/색감/분위기)을 우선 반영하되, 캐릭터 정체성(직업/장비/실루엣)은 현재 프롬프트 기준으로 생성.\n\n${PIXEL_STYLE_GUIDE}`
       : `${spec.prompt}\n\n${PIXEL_STYLE_GUIDE}`;
   const requestParts = [];
-  if (spec.bucket === "background" && referenceParts.length > 0) {
+  if ((spec.bucket === "background" || spec.bucket === "hero") && referenceParts.length > 0) {
     requestParts.push(...referenceParts);
   }
   requestParts.push({ text: promptText });
@@ -248,14 +251,17 @@ async function main() {
     process.exit(1);
   }
 
-  const backgroundReferenceParts = await loadReferenceParts();
+  const backgroundReferenceParts = await loadReferencePartsFromRaw(backgroundReferenceRaw);
+  const heroReferenceParts = await loadReferencePartsFromRaw(heroReferenceRaw);
   let successCount = 0;
   let failCount = 0;
 
   for (const spec of targetSpecs) {
     process.stdout.write(`[생성] ${spec.bucket}.${spec.key} ... `);
     try {
-      const result = await generateOne(spec, backgroundReferenceParts);
+      const referenceParts =
+        spec.bucket === "background" ? backgroundReferenceParts : spec.bucket === "hero" ? heroReferenceParts : [];
+      const result = await generateOne(spec, referenceParts);
       manifest[result.bucket][result.key] = result.relativePath;
       successCount += 1;
       process.stdout.write("완료\n");
