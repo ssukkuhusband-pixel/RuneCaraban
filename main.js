@@ -92,6 +92,10 @@
       levelAtk: 1,
       attackStyle: "melee",
       targetRule: "front",
+      normalSkillName: "선봉 참격",
+      normalSkillDesc: "전열 적 1명을 베고, 전열 대상이면 약화를 부여합니다.",
+      ultimateSkillName: "결의의 전선돌파",
+      ultimateSkillDesc: "고위력 단일 타격 후 약화를 크게 걸고 잠재에 따라 연쇄 타격합니다.",
       passives: [
         { id: "H1_P1", unlockLevel: 2, name: "선봉 돌파", desc: "전열 적 대상 피해 +15%", effect: { type: "frontDamage", value: 0.15 } },
         { id: "H1_P2", unlockLevel: 5, name: "결의", desc: "체력 50% 이하 시 피해 +20%", effect: { type: "lowHpDamage", value: 0.2 } },
@@ -111,6 +115,10 @@
       levelAtk: 1,
       attackStyle: "melee",
       targetRule: "back",
+      normalSkillName: "그림자 찌르기",
+      normalSkillDesc: "후열 우선 단일 공격을 가하며 치명타 시 표식을 강화합니다.",
+      ultimateSkillName: "처형의 낙인",
+      ultimateSkillDesc: "강한 치명 일격으로 낙인을 남기고 잠재 연계 공격을 발동합니다.",
       passives: [
         { id: "H2_P1", unlockLevel: 2, name: "암습", desc: "후열 적 대상 피해 +18%", effect: { type: "backDamage", value: 0.18 } },
         { id: "H2_P2", unlockLevel: 5, name: "예리함", desc: "치명타 확률 +10%", effect: { type: "critChance", value: 0.1 } },
@@ -130,6 +138,10 @@
       levelAtk: 2,
       attackStyle: "ranged",
       targetRule: "front",
+      normalSkillName: "비전 폭발",
+      normalSkillDesc: "적 전체를 타격하고 화상을 부여하는 광역 마법입니다.",
+      ultimateSkillName: "초신성 붕괴",
+      ultimateSkillDesc: "적 전체에 고위력 광역 피해와 화상을 주고 잠재 시 추가 연계가 발생합니다.",
       passives: [
         { id: "H3_P1", unlockLevel: 2, name: "잔류 마력", desc: "광역 효율 +15%", effect: { type: "aoePower", value: 0.15 } },
         { id: "H3_P2", unlockLevel: 5, name: "마력 순환", desc: "행동 시 에너지 추가 +8", effect: { type: "energyGainFlat", value: 8 } },
@@ -149,6 +161,10 @@
       levelAtk: 1,
       attackStyle: "melee",
       targetRule: "front",
+      normalSkillName: "방패 강타",
+      normalSkillDesc: "단일 타격 후 파티에 보호막과 가드 효과를 부여합니다.",
+      ultimateSkillName: "철벽 수호진",
+      ultimateSkillDesc: "강타 후 아군 전체에 대형 보호막과 피해 감소 효과를 전개합니다.",
       passives: [
         { id: "H4_P1", unlockLevel: 2, name: "방패 숙련", desc: "전투 시작 시 보호막 +6", effect: { type: "startShield", value: 6 } },
         { id: "H4_P2", unlockLevel: 5, name: "수호 본능", desc: "피격 시 에너지 +6", effect: { type: "onHitEnergy", value: 6 } },
@@ -168,6 +184,10 @@
       levelAtk: 1,
       attackStyle: "ranged",
       targetRule: "lowest_hp",
+      normalSkillName: "정화의 빛",
+      normalSkillDesc: "단일 타격과 함께 파티 회복 및 재생 효과를 부여합니다.",
+      ultimateSkillName: "새벽의 기도",
+      ultimateSkillDesc: "대규모 회복과 재생을 부여하며 잠재 해금 시 전투불능 아군을 부활시킵니다.",
       passives: [
         { id: "H5_P1", unlockLevel: 2, name: "치유 증폭", desc: "회복량 +4", effect: { type: "healPowerFlat", value: 4 } },
         { id: "H5_P2", unlockLevel: 5, name: "생명 순환", desc: "행동 후 가장 약한 아군 체력 +4", effect: { type: "actionHealLowest", value: 4 } },
@@ -187,6 +207,10 @@
       levelAtk: 1,
       attackStyle: "ranged",
       targetRule: "back",
+      normalSkillName: "집중 사격",
+      normalSkillDesc: "후열 우선 단일 공격을 가하고 확률적으로 추가 사격합니다.",
+      ultimateSkillName: "삼연 관통",
+      ultimateSkillDesc: "3연속 사격으로 여러 대상을 연쇄 타격하며 집중 스택을 빠르게 누적합니다.",
       passives: [
         { id: "H6_P1", unlockLevel: 2, name: "약점 저격", desc: "후열 적 대상 피해 +15%", effect: { type: "backDamage", value: 0.15 } },
         { id: "H6_P2", unlockLevel: 5, name: "속사", desc: "추가 사격 확률 +15%", effect: { type: "extraShot", value: 0.15 } },
@@ -194,6 +218,21 @@
       ],
     },
   ];
+
+  const HERO_ROLE_BASE_MOD = {
+    공격수: { atk: 0.22, hp: -0.04 },
+    결투가: { atk: 0.18, hp: -0.08 },
+    마도사: { atk: 0.24, hp: -0.12 },
+    수호자: { atk: -0.1, hp: 0.3 },
+    치유사: { atk: -0.16, hp: 0.18 },
+    궁수: { atk: 0.16, hp: -0.05 },
+  };
+
+  const HERO_RARITY_BASE_MOD = {
+    R: { atk: 0, hp: 0 },
+    SR: { atk: 0.08, hp: 0.08 },
+    SSR: { atk: 0.16, hp: 0.16 },
+  };
 
   const HERO_TRAITS = {
     H1: { icon: "🗡", name: "전선 압박", desc: "전열 대상 피해 +12%", effects: { frontBurst: 0.12 } },
@@ -1686,6 +1725,9 @@
     const equipEffects = heroEquipmentEffects(hero.id);
     const equipAtk = Math.floor(equipEffects.atkFlat || 0);
     const equipHp = Math.floor(equipEffects.hpFlat || 0);
+    const scaledBase = computeHeroBaseStats(hero);
+    const totalAtk = scaledBase.atk + growth.atk + equipAtk;
+    const totalHp = scaledBase.hp + growth.hp + equipHp;
 
     heroDetail.innerHTML = "";
     heroShowcase.innerHTML = "";
@@ -1701,11 +1743,21 @@
     stat.className = "heroDetailStat";
     stat.innerHTML = `<div class="heroDetailStatGrid">
       <div class="heroStatLine"><span class="heroStatIcon">⚔️</span><span class="heroStatLabel">공격력</span><span class="heroStatValue main attack">${
-        hero.baseAtk + growth.atk + equipAtk
-      }</span><span class="heroStatValue growth">기본 ${hero.baseAtk} + 성장 ${growth.atk} + 장비 ${equipAtk}</span></div>
+        totalAtk
+      }</span><span class="heroStatValue growth">기본 ${hero.baseAtk} + 직업 ${signedValue(
+      scaledBase.roleAtkBonus
+    )} + 등급 ${signedValue(scaledBase.rarityAtkBonus)} + 성장 ${growth.atk} + 장비 ${equipAtk}</span></div>
       <div class="heroStatLine"><span class="heroStatIcon">❤️</span><span class="heroStatLabel">체력</span><span class="heroStatValue main hp">${
-        hero.baseHp + growth.hp + equipHp
-      }</span><span class="heroStatValue growth">기본 ${hero.baseHp} + 성장 ${growth.hp} + 장비 ${equipHp}</span></div>
+        totalHp
+      }</span><span class="heroStatValue growth">기본 ${hero.baseHp} + 직업 ${signedValue(
+      scaledBase.roleHpBonus
+    )} + 등급 ${signedValue(scaledBase.rarityHpBonus)} + 성장 ${growth.hp} + 장비 ${equipHp}</span></div>
+      <div class="heroStatLine"><span class="heroStatIcon">🧭</span><span class="heroStatLabel">직업 보정</span><span class="heroStatValue main target">${hero.role} · 공격 ${signedPercent(
+      scaledBase.roleMod.atk
+    )} / 체력 ${signedPercent(scaledBase.roleMod.hp)}</span></div>
+      <div class="heroStatLine"><span class="heroStatIcon">🏷️</span><span class="heroStatLabel">등급 보정</span><span class="heroStatValue main target">${rarity} · 공격 ${signedPercent(
+      scaledBase.rarityMod.atk
+    )} / 체력 ${signedPercent(scaledBase.rarityMod.hp)}</span></div>
       <div class="heroStatLine"><span class="heroStatIcon">🛠️</span><span class="heroStatLabel">장비 보정</span><span class="heroStatValue main target">${equipmentEffectsText(
         equipEffects
       )}</span></div>
@@ -1796,10 +1848,26 @@
     actions.appendChild(levelBtn);
     heroDetail.appendChild(actions);
 
-    const equipHint = document.createElement("div");
-    equipHint.className = "heroDetailSubTitle";
-    equipHint.textContent = "🛠 장비는 가운데 아이콘을 터치해 상세/교체";
-    heroDetail.appendChild(equipHint);
+    const combatTitle = document.createElement("div");
+    combatTitle.className = "heroDetailSubTitle";
+    combatTitle.textContent = "⚔️ 전투 스킬";
+    heroDetail.appendChild(combatTitle);
+
+    const combatList = document.createElement("div");
+    combatList.className = "heroPassiveList";
+    const normalItem = document.createElement("div");
+    normalItem.className = "heroPassiveItem unlocked";
+    normalItem.innerHTML = `<div class="heroPassiveName">⚔️ 일반공격 · ${hero.normalSkillName || "기본 공격"}</div><div class="heroPassiveDesc">${
+      hero.normalSkillDesc || "기본 타겟 규칙에 따라 적을 공격합니다."
+    }</div>`;
+    combatList.appendChild(normalItem);
+    const ultimateItem = document.createElement("div");
+    ultimateItem.className = "heroPassiveItem unlocked";
+    ultimateItem.innerHTML = `<div class="heroPassiveName">🌟 궁극기 · ${
+      hero.ultimateSkillName || "궁극기"
+    }</div><div class="heroPassiveDesc">${hero.ultimateSkillDesc || "에너지 100%에서 발동합니다."}</div>`;
+    combatList.appendChild(ultimateItem);
+    heroDetail.appendChild(combatList);
 
     const passiveTitle = document.createElement("div");
     passiveTitle.className = "heroDetailSubTitle";
@@ -1860,7 +1928,9 @@
       slotBtn.title = item
         ? `${slot.icon} ${slot.name}\n${item.icon} [${rarityLabel(item.rarity)}] ${item.name}\n${equipmentEffectsText(item.effects)}`
         : `${slot.icon} ${slot.name} 미장착`;
-      slotBtn.innerHTML = `<span class="showEquipSlotGlyph">${item ? item.icon : slot.icon}</span><span class="showEquipSlotName">${slot.name}</span>`;
+      slotBtn.innerHTML = `<span class="showEquipSlotGlyph">${item ? item.icon : slot.icon}</span><span class="showEquipSlotName">${
+        item ? item.name : slot.name
+      }</span>`;
       slotBtn.addEventListener("click", () => showEquipmentSelectModal(hero.id, slot.id));
       showcaseStage.appendChild(slotBtn);
     });
@@ -2019,6 +2089,45 @@
     };
   }
 
+  function heroRoleBaseModifier(role) {
+    return HERO_ROLE_BASE_MOD[role] || { atk: 0, hp: 0 };
+  }
+
+  function heroRarityBaseModifier(rarity) {
+    return HERO_RARITY_BASE_MOD[rarity] || HERO_RARITY_BASE_MOD.R;
+  }
+
+  function computeHeroBaseStats(hero) {
+    const roleMod = heroRoleBaseModifier(hero?.role);
+    const rarityMod = heroRarityBaseModifier(hero?.rarity);
+    const baseAtk = Math.max(1, Math.floor(hero?.baseAtk || 1));
+    const baseHp = Math.max(1, Math.floor(hero?.baseHp || 1));
+    const roleAtkBonus = Math.round(baseAtk * (roleMod.atk || 0));
+    const roleHpBonus = Math.round(baseHp * (roleMod.hp || 0));
+    const rarityAtkBonus = Math.round(baseAtk * (rarityMod.atk || 0));
+    const rarityHpBonus = Math.round(baseHp * (rarityMod.hp || 0));
+    return {
+      atk: Math.max(1, baseAtk + roleAtkBonus + rarityAtkBonus),
+      hp: Math.max(1, baseHp + roleHpBonus + rarityHpBonus),
+      roleMod,
+      rarityMod,
+      roleAtkBonus,
+      roleHpBonus,
+      rarityAtkBonus,
+      rarityHpBonus,
+    };
+  }
+
+  function signedValue(value) {
+    const numeric = Math.round(Number(value) || 0);
+    return numeric >= 0 ? `+${numeric}` : `${numeric}`;
+  }
+
+  function signedPercent(value) {
+    const numeric = Number(value) || 0;
+    return `${numeric >= 0 ? "+" : ""}${Math.round(numeric * 100)}%`;
+  }
+
   function makeHeroState(heroId) {
     const base = heroById(heroId);
     if (!base) return null;
@@ -2029,11 +2138,12 @@
     const passiveEffects = passiveEffectsByLevel(base, level);
     const passiveUnlockedIds = unlockedPassiveList(base, level).map((passive) => passive.id);
     const equipEffects = heroEquipmentEffects(heroId);
+    const scaledBase = computeHeroBaseStats(base);
     const hpBonus = (state.meta?.upgrades?.hp || 0) * 4;
     const atkBonus = state.meta?.upgrades?.atk || 0;
-    const maxHpRaw = base.baseHp + hpBonus + growth.hp + (passiveEffects.hpFlat || 0) + (equipEffects.hpFlat || 0);
+    const maxHpRaw = scaledBase.hp + hpBonus + growth.hp + (passiveEffects.hpFlat || 0) + (equipEffects.hpFlat || 0);
     const maxHp = Math.max(1, Math.floor(maxHpRaw * (1 + (passiveEffects.hpMult || 0))));
-    const atkRaw = base.baseAtk + atkBonus + growth.atk + (passiveEffects.atkFlat || 0) + (equipEffects.atkFlat || 0);
+    const atkRaw = scaledBase.atk + atkBonus + growth.atk + (passiveEffects.atkFlat || 0) + (equipEffects.atkFlat || 0);
     return {
       ...base,
       metaLevel: level,
