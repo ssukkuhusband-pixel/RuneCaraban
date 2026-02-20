@@ -2816,6 +2816,15 @@
         : `🎰 룬=행동 · 🎯 기본타겟 전열${markLabel}`;
   }
 
+  function makeStatusDot(icon, label) {
+    const dot = document.createElement("span");
+    dot.className = "statusDot";
+    dot.textContent = icon;
+    dot.title = label;
+    dot.setAttribute("aria-label", label);
+    return dot;
+  }
+
   function renderHeroes() {
     heroLane.innerHTML = "";
     state.activeHeroes.forEach((hero, index) => {
@@ -2825,13 +2834,55 @@
       if ((hero.sigilTurns || 0) > 0) card.dataset.sigilType = hero.sigilType || hero.id;
       const heroArt = heroVisual(hero.id);
 
+      const hpBar = document.createElement("div");
+      hpBar.className = "hpBar";
+      const hpFill = document.createElement("div");
+      hpFill.className = "hpFill";
+      const ratio = clamp(hero.hp / hero.maxHp, 0, 1);
+      hpFill.style.width = `${ratio * 100}%`;
+      if (ratio < 0.3) hpFill.classList.add("low");
+      hpBar.appendChild(hpFill);
+
       const portrait = document.createElement("div");
       portrait.className = "unitPortrait";
       portrait.title = `${hero.name} ${Math.max(0, hero.hp)}/${hero.maxHp}`;
       portrait.innerHTML = heroArt
         ? `<img class="unitPortraitImage" src="${heroArt}" alt="${hero.name}" loading="lazy" />`
         : `<span class="unitPortraitIcon">${hero.icon}</span>`;
+      if (heroArt) {
+        const badge = document.createElement("span");
+        badge.className = "heroSymbolBadge";
+        badge.textContent = hero.icon;
+        badge.title = `${hero.name} 스핀 심볼`;
+        badge.setAttribute("aria-label", badge.title);
+        portrait.appendChild(badge);
+      }
+
+      const statusRow = document.createElement("div");
+      statusRow.className = "statusDots";
+      if ((hero.focus || 0) > 0) statusRow.appendChild(makeStatusDot("🎯", `집중 ${hero.focus}`));
+      if ((hero.regenTurns || 0) > 0) statusRow.appendChild(makeStatusDot("💧", `재생 ${hero.regenTurns}턴`));
+      if ((hero.shield || 0) > 0) statusRow.appendChild(makeStatusDot("🛡", `보호막 ${hero.shield}`));
+      if ((hero.sigilTurns || 0) > 0) {
+        const profile = heroSigilProfile(hero);
+        const icon = profile?.icon || "◆";
+        const name = profile?.name || "문장";
+        statusRow.appendChild(makeStatusDot(icon, `${name} ${hero.sigilTurns}턴`));
+      }
+      if (state.teamGuardTurns > 0) statusRow.appendChild(makeStatusDot("🧱", `피해 감소 ${state.teamGuardTurns}턴`));
+      if (statusRow.childElementCount === 0) statusRow.appendChild(makeStatusDot("·", "상태 없음"));
+
+      const ultBar = document.createElement("div");
+      ultBar.className = `ultBar${(hero.energy || 0) >= 100 ? " ready" : ""}`;
+      const ultFill = document.createElement("div");
+      ultFill.className = "ultFill";
+      ultFill.style.width = `${clamp((hero.energy || 0) / 100, 0, 1) * 100}%`;
+      ultBar.appendChild(ultFill);
+
+      card.appendChild(hpBar);
       card.appendChild(portrait);
+      card.appendChild(statusRow);
+      card.appendChild(ultBar);
       heroLane.appendChild(card);
     });
   }
@@ -2846,6 +2897,15 @@
       card.dataset.enemyId = enemy.id;
       const enemyArt = enemyVisual(enemy.artKey);
 
+      const hpBar = document.createElement("div");
+      hpBar.className = "hpBar";
+      const hpFill = document.createElement("div");
+      hpFill.className = "hpFill";
+      const ratio = clamp(enemy.hp / enemy.maxHp, 0, 1);
+      hpFill.style.width = `${ratio * 100}%`;
+      if (ratio < 0.3) hpFill.classList.add("low");
+      hpBar.appendChild(hpFill);
+
       const portrait = document.createElement("div");
       portrait.className = "unitPortrait";
       portrait.title = `${enemy.name} ${Math.max(0, enemy.hp)}/${enemy.maxHp}`;
@@ -2853,7 +2913,23 @@
         ? `<img class="unitPortraitImage" src="${enemyArt}" alt="${enemy.name}" loading="lazy" />`
         : `<span class="unitPortraitIcon">${enemy.icon}</span>`;
 
+      const statusRow = document.createElement("div");
+      statusRow.className = "statusDots";
+      if ((enemy.markTurns || 0) > 0) statusRow.appendChild(makeStatusDot("🎯", `표식 ${enemy.markTurns}턴`));
+      if ((enemy.burnTurns || 0) > 0) statusRow.appendChild(makeStatusDot("🔥", `화상 ${enemy.burnTurns}턴`));
+      if ((enemy.weakenTurns || 0) > 0) statusRow.appendChild(makeStatusDot("🕸", `약화 ${enemy.weakenTurns}턴`));
+      if (statusRow.childElementCount === 0) statusRow.appendChild(makeStatusDot("·", "상태 없음"));
+
+      const line3 = document.createElement("div");
+      line3.className = "intentDot";
+      line3.textContent = `${enemy.intent?.icon || "⚔"}`;
+      line3.title = `의도 ${intentSummary(enemy)} · 타겟 ${targetRuleShort(enemy.targetRule || "front")}`;
+      line3.setAttribute("aria-label", line3.title);
+
+      card.appendChild(hpBar);
       card.appendChild(portrait);
+      card.appendChild(statusRow);
+      card.appendChild(line3);
       enemyLane.appendChild(card);
     });
   }
