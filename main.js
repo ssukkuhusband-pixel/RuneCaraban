@@ -679,7 +679,7 @@
       tone: "angry",
       lines: {
         battle_start: ["무릎 꿇어라. 이곳의 왕이 왔다.", "재의 폭군 앞에선 모두 무력하다."],
-        attack: ["짓밟아주마!", "{target}, 재가 되어라!"],
+        attack: ["짓밟아주마!", "{target}, 재가 되어라!", "모두 불타 재가 된다!", "덤벼라, 반격으로 찢어주마!"],
         enraged: ["겁도 없이 날 상처 입혀? 전부 불태운다!", "분노를 깨웠군. 이제 끝이다!"],
         low_hp: ["감히... 나를 몰아붙여?"],
         kill: ["약자다운 최후다."],
@@ -725,8 +725,41 @@
   ];
 
   const BOSS_INTENTS = [
-    { id: "CHARGE", icon: "🔥", name: "폭압 강타", target: "single", mult: 1.26 },
-    { id: "DRAIN", icon: "🩸", name: "흡수 일격", target: "single", mult: 0.9, healRate: 0.55 },
+    { id: "CHARGE", icon: "🔥", name: "폭압 강타", target: "single", mult: 1.58, bossOnly: true },
+    { id: "DRAIN", icon: "🩸", name: "흡수 일격", target: "single", mult: 1.1, healRate: 0.8, bossOnly: true },
+    {
+      id: "INFERNO",
+      icon: "🌋",
+      name: "재앙 폭염",
+      target: "all",
+      mult: 1.2,
+      applyBurnTurns: 3,
+      applyBurnPower: 4,
+      bossOnly: true,
+    },
+    {
+      id: "ANNIHILATE",
+      icon: "☄️",
+      name: "말살 일격",
+      target: "single",
+      mult: 2.25,
+      applyBurnTurns: 2,
+      applyBurnPower: 3,
+      bossOnly: true,
+    },
+    {
+      id: "RETALIATE",
+      icon: "⚡",
+      name: "응징 반격",
+      target: "single",
+      mult: 1.08,
+      selfShield: 12,
+      counterTurns: 1,
+      counterMult: 1.35,
+      counterBurnTurns: 2,
+      counterBurnPower: 3,
+      bossOnly: true,
+    },
   ];
 
   const RELIC_LIBRARY = [
@@ -2263,6 +2296,8 @@
       focus: 0,
       regenTurns: 0,
       regenPower: 0,
+      burnTurns: 0,
+      burnPower: 0,
       sigilType: "",
       sigilTurns: 0,
       targetRule: base.targetRule || "front",
@@ -2294,7 +2329,10 @@
 
   function rollEnemyIntent(nodeIndex, isBoss = false) {
     const intentPool = [...ENEMY_INTENTS];
-    if (isBoss || nodeIndex >= 2) intentPool.push(...BOSS_INTENTS);
+    if (isBoss || nodeIndex >= 2) {
+      const bonus = BOSS_INTENTS.filter((intent) => isBoss || !intent.bossOnly);
+      intentPool.push(...bonus);
+    }
     const picked = intentPool[randInt(intentPool.length)];
     return { ...picked };
   }
@@ -2306,7 +2344,7 @@
     const atkScale = COMBAT_BALANCE.enemyAtkScale * (1 + nodeIndex * COMBAT_BALANCE.enemyAtkPerNode + progressRate * 0.04);
     const bossNode = nodeType === "boss" || nodeIndex === TOTAL_NODES - 1;
     if (bossNode) {
-      const bossHp = Math.floor((122 + nodeIndex * 8) * chapter.enemyHpMult * COMBAT_BALANCE.bossHpScale);
+      const bossHp = Math.floor((122 + nodeIndex * 8) * chapter.enemyHpMult * COMBAT_BALANCE.bossHpScale * 2);
       const bossAtk = Math.max(1, Math.floor((12 + Math.floor(nodeIndex * 0.8)) * chapter.enemyAtkMult * COMBAT_BALANCE.bossAtkScale));
       return [
         {
@@ -2327,6 +2365,10 @@
           burnTurns: 0,
           burnPower: 0,
           weakenTurns: 0,
+          counterTurns: 0,
+          counterPowerMult: 0,
+          counterBurnTurns: 0,
+          counterBurnPower: 0,
         },
       ];
     }
@@ -2368,6 +2410,10 @@
         burnTurns: 0,
         burnPower: 0,
         weakenTurns: 0,
+        counterTurns: 0,
+        counterPowerMult: 0,
+        counterBurnTurns: 0,
+        counterBurnPower: 0,
       });
     }
     return enemies;
@@ -2529,6 +2575,15 @@
     if (!enemy || enemy.hp <= 0) return;
     enemy.burnTurns = Math.max(enemy.burnTurns || 0, Math.floor(turns));
     enemy.burnPower = Math.max(enemy.burnPower || 0, Math.floor(power));
+  }
+
+  function applyHeroBurn(hero, turns = 2, power = 2, sourceEnemy = null) {
+    if (!hero || hero.hp <= 0) return;
+    hero.burnTurns = Math.max(hero.burnTurns || 0, Math.floor(turns));
+    hero.burnPower = Math.max(hero.burnPower || 0, Math.floor(power));
+    if (sourceEnemy) {
+      log(`🔥 ${sourceEnemy.name}의 화상 부여: ${hero.name} ${hero.burnTurns}턴`, true);
+    }
   }
 
   function applyEnemyWeak(enemy, turns = 1) {
@@ -3061,7 +3116,7 @@
     }
   }
 
-  function damageEnemy(enemy, amount, label = "") {
+  function damageEnemy(enemy, amount, label = "", options = {}) {
     const aliveBefore = enemy.hp > 0;
     const prevHp = enemy.hp;
     const shieldAbsorb = Math.min(enemy.shield || 0, amount);
@@ -3077,6 +3132,31 @@
     const nextRatio = enemy.maxHp > 0 ? enemy.hp / enemy.maxHp : 0;
     if (aliveBefore && enemy.hp > 0 && prevRatio > 0.34 && nextRatio <= 0.34) {
       maybeSpeak(enemy, "enemy", "low_hp", {}, { chance: 0.56, priority: 2 });
+    }
+    const sourceHero = options?.sourceHero || null;
+    if (
+      !options?.skipCounter &&
+      finalAmount > 0 &&
+      sourceHero &&
+      sourceHero.hp > 0 &&
+      enemy.hp > 0 &&
+      (enemy.counterTurns || 0) > 0 &&
+      (enemy.counterPowerMult || 0) > 0
+    ) {
+      const targetNode = nodeByHero(sourceHero.id);
+      if (targetNode) spawnHitBurst(targetNode, { impactScale: 1.28 });
+      const counterDamage = Math.max(1, Math.floor(enemy.atk * enemy.counterPowerMult));
+      damageHero(sourceHero, counterDamage, "⚡", enemy);
+      if ((enemy.counterBurnTurns || 0) > 0) {
+        applyHeroBurn(sourceHero, enemy.counterBurnTurns, Math.max(1, enemy.counterBurnPower || 2), enemy);
+      }
+      enemy.counterTurns = Math.max(0, (enemy.counterTurns || 0) - 1);
+      if (enemy.counterTurns <= 0) {
+        enemy.counterPowerMult = 0;
+        enemy.counterBurnTurns = 0;
+        enemy.counterBurnPower = 0;
+      }
+      log(`⚡ ${enemy.name} 반격: ${sourceHero.name} -${counterDamage}`);
     }
     if (aliveBefore && enemy.hp <= 0) log(`${enemy.name} 처치!`);
   }
@@ -3124,7 +3204,7 @@
       if (hero.id === "H1" && hasHeroPotential(hero, "H1_RAGE")) potential.rageReady = true;
       if (hero.id === "H4" && sourceEnemy && sourceEnemy.hp > 0 && hasHeroPotential(hero, "H4_THORNS")) {
         const reflect = Math.max(1, Math.floor(finalAmount * 0.5));
-        damageEnemy(sourceEnemy, reflect, "🪓");
+        damageEnemy(sourceEnemy, reflect, "🪓", { sourceHero: hero, skipCounter: true });
         log(`🪓 ${hero.name} 잠재 발동: 반격 갑주`, true);
       }
       triggerGuardianPrayer(hero);
@@ -3180,6 +3260,16 @@
     });
     if (burnedTargets > 0) log(`화상 피해 적용: ${burnedTargets}명`, true);
 
+    let burnedHeroes = 0;
+    state.activeHeroes.forEach((hero) => {
+      if (hero.hp <= 0) return;
+      if ((hero.burnTurns || 0) <= 0) return;
+      const damage = Math.max(1, hero.burnPower || 0);
+      damageHero(hero, damage, "🔥");
+      burnedHeroes += 1;
+    });
+    if (burnedHeroes > 0) log(`아군 화상 피해 적용: ${burnedHeroes}명`, true);
+
     let regenTargets = 0;
     state.activeHeroes.forEach((hero) => {
       if (hero.hp <= 0) return;
@@ -3203,6 +3293,10 @@
     state.activeHeroes.forEach((hero) => {
       if ((hero.regenTurns || 0) > 0) hero.regenTurns -= 1;
       if ((hero.regenTurns || 0) <= 0) hero.regenPower = 0;
+      if ((hero.burnTurns || 0) > 0) {
+        hero.burnTurns -= 1;
+        if (hero.burnTurns <= 0) hero.burnPower = 0;
+      }
       if ((hero.sigilTurns || 0) > 0) {
         hero.sigilTurns -= 1;
         if (hero.sigilTurns <= 0) {
@@ -3270,7 +3364,7 @@
     const damage = applyHeroDamagePassives(hero, target, raw, { ultimate });
     const aliveBefore = target.hp > 0;
     await animateHit(attackerNode, targetNode, "hero", { finisher: target.hp <= damage, attackStyle, attackFeel });
-    damageEnemy(target, damage, label);
+    damageEnemy(target, damage, label, { sourceHero: hero });
     applyHeroKillPassive(hero, target, aliveBefore);
     applyLifesteal(damage);
     log(`${reason}: ${target.name} (-${damage})`, true);
@@ -3283,7 +3377,7 @@
     const spread = randomAliveEnemyExcept(sourceTarget.id);
     if (!spread) return;
     const splash = Math.max(1, Math.floor(sourceDamage * 0.55));
-    damageEnemy(spread, splash, "💥");
+    damageEnemy(spread, splash, "💥", { sourceHero: hero });
     applyEnemyBurn(spread, 2, Math.max(2, Math.floor(hero.atk * 0.25)));
     log(`💥 ${hero.name} 잠재 발동: 잔류 폭발`, true);
   }
@@ -3401,7 +3495,7 @@
       const dmg = applyHeroDamagePassives(hero, target, raw, { ultimate: true });
       const aliveBefore = target.hp > 0;
       await animateHit(attackerNode, targetNode, "hero", { ultimate: true, finisher: target.hp <= dmg, attackStyle, attackFeel });
-      damageEnemy(target, dmg, "🌟");
+      damageEnemy(target, dmg, "🌟", { sourceHero: hero });
       applyEnemyWeak(target, 2);
       applyHeroKillPassive(hero, target, aliveBefore);
       if (hasHeroPotential(hero, "H1_BREAK") && target.hp > 0) {
@@ -3431,7 +3525,7 @@
         attackStyle,
         attackFeel,
       });
-      damageEnemy(target, dmg, "🌟");
+      damageEnemy(target, dmg, "🌟", { sourceHero: hero });
       applyEnemyMark(target, 3);
       if (hasHeroPotential(hero, "H2_FATAL")) {
         applyEnemyBurn(target, 2, Math.max(2, Math.floor(hero.atk * 0.42)));
@@ -3482,7 +3576,7 @@
           spawnHitBurst(enemyNode, { ultimate: true, impactScale: attackFeel.impactScale });
           setTimeout(() => enemyNode.classList.remove("hit-heavy"), 180);
         }
-        damageEnemy(enemy, dmg, "🌟");
+        damageEnemy(enemy, dmg, "🌟", { sourceHero: hero });
         applyEnemyBurn(enemy, 3, Math.max(2, Math.floor(hero.atk * 0.5)));
         if (burningBefore) triggerMageFlare(hero, enemy, dmg);
         applyHeroKillPassive(hero, enemy, aliveBefore);
@@ -3505,7 +3599,7 @@
       const dmg = applyHeroDamagePassives(hero, target, raw, { ultimate: true });
       const aliveBefore = target.hp > 0;
       await animateHit(attackerNode, targetNode, "hero", { ultimate: true, finisher: target.hp <= dmg, attackStyle, attackFeel });
-      damageEnemy(target, dmg, "🌟");
+      damageEnemy(target, dmg, "🌟", { sourceHero: hero });
       applyHeroKillPassive(hero, target, aliveBefore);
       shieldParty(10 + state.modifiers.shieldBonus + heroPassiveValue(hero, "shieldPowerFlat"), "수호자 궁극기");
       enableTeamGuard(2, 0.18, "수호자 궁극기");
@@ -3526,7 +3620,7 @@
       const dmg = applyHeroDamagePassives(hero, target, raw, { ultimate: true });
       const aliveBefore = target.hp > 0;
       await animateHit(attackerNode, targetNode, "hero", { ultimate: true, finisher: target.hp <= dmg, attackStyle, attackFeel });
-      damageEnemy(target, dmg, "🌟");
+      damageEnemy(target, dmg, "🌟", { sourceHero: hero });
       applyHeroKillPassive(hero, target, aliveBefore);
       healParty(12 + state.modifiers.healBonus + heroPassiveValue(hero, "healPowerFlat"), "치유사 궁극기");
       state.activeHeroes.forEach((ally) => applyHeroRegen(ally, 2, 6));
@@ -3562,7 +3656,7 @@
         const dmg = applyHeroDamagePassives(hero, target, raw, { ultimate: true });
         const aliveBefore = target.hp > 0;
         await animateHit(attackerNode, node, "hero", { ultimate: true, finisher: target.hp <= dmg, attackStyle, attackFeel });
-        damageEnemy(target, dmg, "🌟");
+        damageEnemy(target, dmg, "🌟", { sourceHero: hero });
         applyHeroKillPassive(hero, target, aliveBefore);
         gainHeroFocus(hero, 1);
         const next = randomAliveEnemyExcept(target.id);
@@ -3650,7 +3744,12 @@
   function intentSummary(enemy) {
     const intent = enemy.intent || ENEMY_INTENTS[0];
     const targetLabel = intent.target === "all" ? "전체" : "단일";
-    return `${intent.icon} ${intent.name} ${targetLabel} ${intentDamage(enemy)}`;
+    const extras = [];
+    if (intent.applyBurnTurns) extras.push(`화상 ${intent.applyBurnTurns}턴`);
+    if (intent.counterTurns) extras.push("반격");
+    if (intent.selfShield) extras.push(`보호막 +${intent.selfShield}`);
+    const extraLabel = extras.length > 0 ? ` · ${extras.join(" · ")}` : "";
+    return `${intent.icon} ${intent.name} ${targetLabel} ${intentDamage(enemy)}${extraLabel}`;
   }
 
   function computeRuneWeights() {
@@ -4098,6 +4197,7 @@
       const potential = heroPotentialState(hero);
       if ((hero.focus || 0) > 0) statusRow.appendChild(makeStatusDot("🎯", `집중 ${hero.focus}`));
       if ((hero.regenTurns || 0) > 0) statusRow.appendChild(makeStatusDot("💧", `재생 ${hero.regenTurns}턴`));
+      if ((hero.burnTurns || 0) > 0) statusRow.appendChild(makeStatusDot("🔥", `화상 ${hero.burnTurns}턴`));
       if ((hero.sigilTurns || 0) > 0) {
         const profile = heroSigilProfile(hero);
         const icon = profile?.icon || "◆";
@@ -4160,6 +4260,7 @@
       if ((enemy.markTurns || 0) > 0) statusRow.appendChild(makeStatusDot("🎯", `표식 ${enemy.markTurns}턴`));
       if ((enemy.burnTurns || 0) > 0) statusRow.appendChild(makeStatusDot("🔥", `화상 ${enemy.burnTurns}턴`));
       if ((enemy.weakenTurns || 0) > 0) statusRow.appendChild(makeStatusDot("🕸", `약화 ${enemy.weakenTurns}턴`));
+      if ((enemy.counterTurns || 0) > 0) statusRow.appendChild(makeStatusDot("⚡", "반격 대기"));
       if (statusRow.childElementCount === 0) statusRow.appendChild(makeStatusDot("·", "상태 없음"));
 
       const line3 = document.createElement("div");
@@ -4279,7 +4380,7 @@
           spawnHitBurst(enemyNode, { impactScale: attackFeel.impactScale });
           setTimeout(() => enemyNode.classList.remove("hit-heavy"), 180);
         }
-        damageEnemy(enemy, adjusted, `${hero.icon}`);
+        damageEnemy(enemy, adjusted, `${hero.icon}`, { sourceHero: hero });
         applyEnemyBurn(enemy, 2, Math.max(2, Math.floor(hero.atk * 0.24)));
         if (burningBefore) triggerMageFlare(hero, enemy, adjusted);
         applyHeroKillPassive(hero, enemy, aliveBefore);
@@ -4299,7 +4400,7 @@
       const aliveBefore = target.hp > 0;
       const finisher = target.hp <= dmg;
       await animateHit(attackerNode, targetNode, "hero", { finisher, attackStyle, attackFeel });
-      damageEnemy(target, dmg, "🛡");
+      damageEnemy(target, dmg, "🛡", { sourceHero: hero });
       applyHeroKillPassive(hero, target, aliveBefore);
       shieldParty(4 + state.modifiers.shieldBonus + heroPassiveValue(hero, "shieldPowerFlat"), "수호 태세");
       enableTeamGuard(1, 0.12, "수호 태세");
@@ -4320,7 +4421,7 @@
       const aliveBefore = target.hp > 0;
       const finisher = target.hp <= dmg;
       await animateHit(attackerNode, targetNode, "hero", { finisher, attackStyle, attackFeel });
-      damageEnemy(target, dmg, "✨");
+      damageEnemy(target, dmg, "✨", { sourceHero: hero });
       applyHeroKillPassive(hero, target, aliveBefore);
       healParty(5 + state.modifiers.healBonus + heroPassiveValue(hero, "healPowerFlat") + heroTraitValue(hero, "healBoostFlat"), "치유");
       state.activeHeroes.forEach((ally) => applyHeroRegen(ally, 2, 3));
@@ -4367,7 +4468,7 @@
     const aliveBefore = target.hp > 0;
     const finisher = target.hp <= damage;
     await animateHit(attackerNode, targetNode, "hero", { crit, finisher, attackStyle, attackFeel });
-    damageEnemy(target, damage, hero.id === "H6" ? "🏹" : hero.icon);
+    damageEnemy(target, damage, hero.id === "H6" ? "🏹" : hero.icon, { sourceHero: hero });
     if (hero.id === "H2") {
       applyEnemyMark(target, 2);
       if (crit && hasHeroPotential(hero, "H2_FATAL")) {
@@ -4400,7 +4501,7 @@
         const extraAliveBefore = extraTarget.hp > 0;
         const extraFinish = extraTarget.hp <= extraDamage;
         await animateHit(attackerNode, extraNode, "hero", { finisher: extraFinish, attackStyle, attackFeel });
-        damageEnemy(extraTarget, extraDamage, "⚡");
+        damageEnemy(extraTarget, extraDamage, "⚡", { sourceHero: hero });
         applyHeroKillPassive(hero, extraTarget, extraAliveBefore);
         applyLifesteal(extraDamage);
         gainHeroFocus(hero, 1);
@@ -4435,7 +4536,7 @@
         const splashNode = nodeByEnemy(splashTarget.id);
         const splashDamage = Math.max(1, Math.floor(damage * 0.38));
         await animateHit(attackerNode, splashNode, "hero", { attackStyle, attackFeel });
-        damageEnemy(splashTarget, splashDamage, "⚔");
+        damageEnemy(splashTarget, splashDamage, "⚔", { sourceHero: hero });
       }
     }
     applyHeroActionSupportPassive(hero);
@@ -4543,12 +4644,14 @@
       const enemyAttackFeel = attackFeelOfUnit(enemy, "enemy");
       const weakRate = (enemy.weakenTurns || 0) > 0 ? 0.82 : 1;
       const damage = Math.max(1, Math.floor(intentDamage(enemy) * weakRate));
+      const actedTargets = [];
       log(`${enemy.name} 의도 실행: ${intent.icon} ${intent.name}`);
 
       if (intent.target === "all") {
         const targets = aliveHeroes();
         maybeSpeak(enemy, "enemy", "attack", { intent, target: targets[0] || null }, { chance: 0.24, priority: 2 });
         for (const target of targets) {
+          actedTargets.push(target);
           const targetNode = nodeByHero(target.id);
           const finisher = target.hp <= damage;
           await animateHit(attackerNode, targetNode, "enemy", {
@@ -4564,6 +4667,7 @@
       } else {
         const target = selectHeroTarget(enemy.targetRule || "front");
         if (!target) return;
+        actedTargets.push(target);
         maybeSpeak(enemy, "enemy", "attack", { intent, target }, { chance: 0.28, priority: 2 });
         const targetNode = nodeByHero(target.id);
         const finisher = target.hp <= damage;
@@ -4590,6 +4694,16 @@
         const heal = Math.max(1, Math.floor(damage * intent.healRate));
         healEnemy(enemy, heal, "흡+");
         log(`${enemy.name} 흡수 회복 +${heal}`);
+      }
+      if (intent.applyBurnTurns && intent.applyBurnPower) {
+        actedTargets.forEach((hero) => applyHeroBurn(hero, intent.applyBurnTurns, intent.applyBurnPower, enemy));
+      }
+      if (intent.counterTurns) {
+        enemy.counterTurns = Math.max(enemy.counterTurns || 0, Math.floor(intent.counterTurns));
+        enemy.counterPowerMult = Math.max(enemy.counterPowerMult || 0, Number(intent.counterMult) || 1);
+        enemy.counterBurnTurns = Math.max(enemy.counterBurnTurns || 0, Math.floor(intent.counterBurnTurns || 0));
+        enemy.counterBurnPower = Math.max(enemy.counterBurnPower || 0, Math.floor(intent.counterBurnPower || 0));
+        log(`${enemy.name}가 반격 태세를 취합니다`, true);
       }
 
       enemy.intent = rollEnemyIntent(state.nodeIndex, enemy.id.startsWith("BOSS_"));
