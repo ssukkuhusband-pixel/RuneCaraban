@@ -1744,17 +1744,12 @@
     lobbyLoadoutRow.querySelectorAll(".lobbyTalkBubble").forEach((node) => node.remove());
   }
 
-  function appendLobbyHeroPortrait(container, hero, heroArt) {
+  function appendLobbyHeroPortrait(container, hero) {
     if (!container || !hero) return;
-    if (heroArt) {
-      container.innerHTML = `<img src="${heroArt}" alt="${hero.name}" loading="lazy" />`;
-      const symbol = document.createElement("span");
-      symbol.className = "lobbyLoadoutSlotSymbol";
-      symbol.textContent = hero.icon;
-      container.appendChild(symbol);
-    } else {
-      container.textContent = hero.icon;
-    }
+    const symbol = document.createElement("span");
+    symbol.className = "lobbyLoadoutSlotSymbol";
+    symbol.textContent = hero.icon;
+    container.appendChild(symbol);
   }
 
   function tryAssignLoadoutSlot(slotIndex, heroId = null) {
@@ -1903,13 +1898,12 @@
     for (let slotIndex = 0; slotIndex < MAX_ACTIVE; slotIndex += 1) {
       const heroId = loadout[slotIndex] || "";
       const hero = heroId ? heroById(heroId) : null;
-      const heroArt = hero ? heroVisual(hero.id) : "";
       const slot = document.createElement("button");
       slot.type = "button";
       slot.className = `lobbyLoadoutSlot${hero ? "" : " empty"}`;
       slot.dataset.lobbySlot = `${slotIndex}`;
       slot.title = hero ? `출전 ${slotIndex + 1}번 · ${hero.name}` : `출전 ${slotIndex + 1}번 비어 있음`;
-      if (hero) appendLobbyHeroPortrait(slot, hero, heroArt);
+      if (hero) appendLobbyHeroPortrait(slot, hero);
       slot.addEventListener("click", () => showLobbyLoadoutModal(slotIndex));
       lobbyLoadoutRow.appendChild(slot);
     }
