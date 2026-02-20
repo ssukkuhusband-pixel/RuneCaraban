@@ -825,7 +825,7 @@ body {
 
 .heroStatLine {
   display: grid;
-  grid-template-columns: 14px 52px auto minmax(0, 1fr);
+  grid-template-columns: 14px 52px minmax(0, 1fr);
   align-items: center;
   gap: 4px;
 }

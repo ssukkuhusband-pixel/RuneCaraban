@@ -1998,25 +1998,12 @@
     stat.className = "heroDetailStat";
     stat.innerHTML = `<div class="heroDetailStatGrid">
       <div class="heroStatLine"><span class="heroStatIcon">⚔️</span><span class="heroStatLabel">공격력</span><span class="heroStatValue main attack">${
-        totalAtk
-      }</span><span class="heroStatValue growth">기본 ${hero.baseAtk} + 직업 ${signedValue(
-      scaledBase.roleAtkBonus
-    )} + 등급 ${signedValue(scaledBase.rarityAtkBonus)} + 레벨 ${growth.atk} + 진화 ${evolutionGrowth.atk} + 장비 ${equipAtk}</span></div>
+      totalAtk
+    }</span></div>
       <div class="heroStatLine"><span class="heroStatIcon">❤️</span><span class="heroStatLabel">체력</span><span class="heroStatValue main hp">${
-        totalHp
-      }</span><span class="heroStatValue growth">기본 ${hero.baseHp} + 직업 ${signedValue(
-      scaledBase.roleHpBonus
-    )} + 등급 ${signedValue(scaledBase.rarityHpBonus)} + 레벨 ${growth.hp} + 진화 ${evolutionGrowth.hp} + 장비 ${equipHp}</span></div>
+      totalHp
+    }</span></div>
       <div class="heroStatLine"><span class="heroStatIcon">🧬</span><span class="heroStatLabel">진화 단계</span><span class="heroStatValue main target">${evolution} / ${MAX_HERO_EVOLUTION}</span></div>
-      <div class="heroStatLine"><span class="heroStatIcon">🧭</span><span class="heroStatLabel">직업 보정</span><span class="heroStatValue main target">${hero.role} · 공격 ${signedPercent(
-      scaledBase.roleMod.atk
-    )} / 체력 ${signedPercent(scaledBase.roleMod.hp)}</span></div>
-      <div class="heroStatLine"><span class="heroStatIcon">🏷️</span><span class="heroStatLabel">등급 보정</span><span class="heroStatValue main target">${rarity} · 공격 ${signedPercent(
-      scaledBase.rarityMod.atk
-    )} / 체력 ${signedPercent(scaledBase.rarityMod.hp)}</span></div>
-      <div class="heroStatLine"><span class="heroStatIcon">🛠️</span><span class="heroStatLabel">장비 보정</span><span class="heroStatValue main target">${equipmentEffectsText(
-        equipEffects
-      )}</span></div>
       <div class="heroStatLine"><span class="heroStatIcon">🧩</span><span class="heroStatLabel">조각</span><span class="heroStatValue main resource">${progress.fragments}${
       evolution >= MAX_HERO_EVOLUTION ? "" : ` / ${needEvolutionFragments}`
     }</span></div>
@@ -2418,16 +2405,6 @@
       rarityAtkBonus,
       rarityHpBonus,
     };
-  }
-
-  function signedValue(value) {
-    const numeric = Math.round(Number(value) || 0);
-    return numeric >= 0 ? `+${numeric}` : `${numeric}`;
-  }
-
-  function signedPercent(value) {
-    const numeric = Number(value) || 0;
-    return `${numeric >= 0 ? "+" : ""}${Math.round(numeric * 100)}%`;
   }
 
   function makeHeroState(heroId) {
