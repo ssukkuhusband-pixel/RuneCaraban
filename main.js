@@ -195,11 +195,6 @@
     },
   ];
 
-  const TACTICS = [
-    { id: "T_ASSIST", icon: "🤝", name: "협공" },
-    { id: "T_BRACE", icon: "🧱", name: "방비" },
-  ];
-
   const HERO_TRAITS = {
     H1: { icon: "🗡", name: "전선 압박", desc: "전열 대상 피해 +12%", effects: { frontBurst: 0.12 } },
     H2: { icon: "🩸", name: "처형자", desc: "체력 40% 이하 대상 피해 +18%", effects: { execute: 0.18 } },
@@ -224,63 +219,63 @@
       group: "symbol",
       icon: "🎯",
       title: "심볼 스킬 · x2 표식",
-      desc: "심볼에 x2 표식 부착 확률 +16%. x2 심볼은 2회 행동.",
-      effect: { type: "spinDouble", value: 0.16 },
-      perkTag: { icon: "🎯", name: "x2 표식 +16%" },
+      desc: "심볼에 x2 표식 부착 확률 +21%. x2 심볼은 2회 행동.",
+      effect: { type: "spinDouble", value: 0.21 },
+      perkTag: { icon: "🎯", name: "x2 표식 +21%" },
     },
     {
       id: "perk_spin_reroll",
       group: "symbol",
       icon: "🔄",
       title: "심볼 스킬 · 리롤 표식",
-      desc: "심볼에 리롤 표식 부착 확률 +12%. 발동 시 좌측부터 재해석(턴당 1회).",
-      effect: { type: "spinReroll", value: 0.12 },
-      perkTag: { icon: "🔄", name: "리롤 표식 +12%" },
+      desc: "심볼에 리롤 표식 부착 확률 +16%. 발동 시 좌측부터 재해석(턴당 1회).",
+      effect: { type: "spinReroll", value: 0.16 },
+      perkTag: { icon: "🔄", name: "리롤 표식 +16%" },
     },
     {
       id: "perk_spin_special",
       group: "symbol",
       icon: "🌟",
       title: "심볼 스킬 · 특수 심볼",
-      desc: "룬 결과에 와일드 룬 등장 확률 +10%. 와일드 룬은 최고 공격 영웅 추가 행동.",
-      effect: { type: "specialRune", value: 0.1 },
-      perkTag: { icon: "🌟", name: "와일드 룬 +10%" },
+      desc: "룬 결과에 와일드 룬 등장 확률 +14%. 와일드 룬은 최고 공격 영웅 추가 행동.",
+      effect: { type: "specialRune", value: 0.14 },
+      perkTag: { icon: "🌟", name: "와일드 룬 +14%" },
     },
     {
       id: "perk_spin_charge",
       group: "symbol",
       icon: "⚡",
       title: "심볼 스킬 · 과충전",
-      desc: "심볼에 과충전 표식 부착 확률 +14%. 발동 시 해당 심볼 위력 +35%.",
-      effect: { type: "spinCharge", value: 0.14 },
-      perkTag: { icon: "⚡", name: "과충전 +14%" },
+      desc: "심볼에 과충전 표식 부착 확률 +20%. 발동 시 해당 심볼 위력 +35%.",
+      effect: { type: "spinCharge", value: 0.2 },
+      perkTag: { icon: "⚡", name: "과충전 +20%" },
     },
     {
       id: "perk_spin_echo",
       group: "symbol",
       icon: "🌀",
       title: "심볼 스킬 · 메아리",
-      desc: "심볼에 메아리 표식 부착 확률 +10%. 발동 시 60% 위력으로 1회 추가 발동.",
-      effect: { type: "spinEcho", value: 0.1 },
-      perkTag: { icon: "🌀", name: "메아리 +10%" },
+      desc: "심볼에 메아리 표식 부착 확률 +14%. 발동 시 60% 위력으로 1회 추가 발동.",
+      effect: { type: "spinEcho", value: 0.14 },
+      perkTag: { icon: "🌀", name: "메아리 +14%" },
     },
     {
       id: "perk_spin_forge",
       group: "symbol",
       icon: "🛠️",
       title: "심볼 스킬 · 룬 각인",
-      desc: "스핀마다 20% 확률로 심볼 1개에 각인 효과가 붙어 위력이 강화됩니다.",
-      effect: { type: "spinForge", value: 0.2 },
-      perkTag: { icon: "🛠️", name: "룬 각인 +20%" },
+      desc: "스핀마다 28% 확률로 심볼 1개에 각인 효과가 붙어 위력이 강화됩니다.",
+      effect: { type: "spinForge", value: 0.28 },
+      perkTag: { icon: "🛠️", name: "룬 각인 +28%" },
     },
     {
       id: "perk_spin_sigil",
       group: "symbol",
       icon: "🔮",
       title: "심볼 스킬 · 각성 문장",
-      desc: "영웅 심볼에 22% 확률로 문장 표식이 붙어 2턴 동안 고유 강화 효과를 부여합니다.",
-      effect: { type: "spinHeroSigil", value: 0.22 },
-      perkTag: { icon: "🔮", name: "각성 문장 +22%" },
+      desc: "영웅 심볼에 30% 확률로 문장 표식이 붙어 2턴 동안 고유 강화 효과를 부여합니다.",
+      effect: { type: "spinHeroSigil", value: 0.3 },
+      perkTag: { icon: "🔮", name: "각성 문장 +30%" },
     },
   ];
 
@@ -290,45 +285,45 @@
       group: "slot",
       icon: "🎰",
       title: "슬롯 스킬 · 확장 릴",
-      desc: "스핀마다 22% 확률로 보너스 릴 1칸이 추가 발동됩니다.",
-      effect: { type: "spinBonusReel", value: 0.22 },
-      perkTag: { icon: "🎰", name: "보너스 릴 +22%" },
+      desc: "스핀마다 30% 확률로 보너스 릴 1칸이 추가 발동됩니다.",
+      effect: { type: "spinBonusReel", value: 0.3 },
+      perkTag: { icon: "🎰", name: "보너스 릴 +30%" },
     },
     {
       id: "perk_spin_clone",
       group: "slot",
       icon: "🪞",
       title: "슬롯 스킬 · 선두 복제",
-      desc: "스핀마다 28% 확률로 3번째 심볼이 1번째 심볼로 복제됩니다.",
-      effect: { type: "spinClone", value: 0.28 },
-      perkTag: { icon: "🪞", name: "선두 복제 +28%" },
+      desc: "스핀마다 36% 확률로 3번째 심볼이 1번째 심볼로 복제됩니다.",
+      effect: { type: "spinClone", value: 0.36 },
+      perkTag: { icon: "🪞", name: "선두 복제 +36%" },
     },
     {
       id: "perk_spin_morph",
       group: "slot",
       icon: "🧬",
       title: "슬롯 스킬 · 꽝 정화",
-      desc: "스핀마다 35% 확률로 꽝 심볼 1개가 생존 영웅 심볼로 정화됩니다.",
-      effect: { type: "spinMorph", value: 0.35 },
-      perkTag: { icon: "🧬", name: "꽝 정화 +35%" },
+      desc: "스핀마다 46% 확률로 꽝 심볼 1개가 생존 영웅 심볼로 정화됩니다.",
+      effect: { type: "spinMorph", value: 0.46 },
+      perkTag: { icon: "🧬", name: "꽝 정화 +46%" },
     },
     {
       id: "perk_spin_link",
       group: "slot",
       icon: "⛓️",
       title: "슬롯 스킬 · 연쇄 고리",
-      desc: "스핀마다 24% 확률로 심볼에 연쇄 표식이 붙어 다음 칸이 선행 발동합니다.",
-      effect: { type: "spinLink", value: 0.24 },
-      perkTag: { icon: "⛓️", name: "연쇄 고리 +24%" },
+      desc: "스핀마다 32% 확률로 심볼에 연쇄 표식이 붙어 다음 칸이 선행 발동합니다.",
+      effect: { type: "spinLink", value: 0.32 },
+      perkTag: { icon: "⛓️", name: "연쇄 고리 +32%" },
     },
     {
       id: "perk_spin_slot2",
       group: "slot",
       icon: "2️⃣",
       title: "슬롯 스킬 · 2번 공명",
-      desc: "스핀마다 28% 확률로 2번 슬롯이 강화 상태가 되어 위력이 크게 증가합니다.",
-      effect: { type: "spinSlot2Pulse", value: 0.28 },
-      perkTag: { icon: "2️⃣", name: "2번 슬롯 강화 +28%" },
+      desc: "스핀마다 36% 확률로 2번 슬롯이 강화 상태가 되어 위력이 크게 증가합니다.",
+      effect: { type: "spinSlot2Pulse", value: 0.36 },
+      perkTag: { icon: "2️⃣", name: "2번 슬롯 강화 +36%" },
     },
     {
       id: "perk_dead_fade",
@@ -336,7 +331,7 @@
       icon: "🪦",
       title: "슬롯 스킬 · 추모 정렬",
       desc: "전투불능 영웅 심볼 등장 확률을 크게 낮춥니다.",
-      effect: { type: "deadRunePenaltyReduce", value: 0.2 },
+      effect: { type: "deadRunePenaltyReduce", value: 0.3 },
       perkTag: { icon: "🪦", name: "사망 심볼 감소" },
     },
   ];
@@ -348,7 +343,7 @@
         potentialId: "H1_CHAIN",
         icon: "⚔",
         title: "잠재능력 · 란스: 돌격 연쇄",
-        desc: "란스 공격 적중 후, 다른 적 1명에게 45% 추격 타격을 가합니다.",
+        desc: "란스 공격 적중 후, 다른 적 1명에게 60% 추격 타격을 가합니다.",
         perkTag: { icon: "⚔", name: "란스 잠재 · 돌격 연쇄" },
       },
       {
@@ -364,7 +359,7 @@
         potentialId: "H1_BREAK",
         icon: "🗡",
         title: "잠재능력 · 란스: 갑주 파쇄",
-        desc: "란스 궁극기 적중 시 동일 대상에 60% 추가타를 가하고 약화를 연장합니다.",
+        desc: "란스 궁극기 적중 시 동일 대상에 78% 추가타를 가하고 약화를 연장합니다.",
         perkTag: { icon: "🗡", name: "란스 잠재 · 갑주 파쇄" },
       },
     ],
@@ -374,7 +369,7 @@
         potentialId: "H2_SHADOW",
         icon: "🩸",
         title: "잠재능력 · 베라: 그림자 추격",
-        desc: "베라 행동 후 후열 적 1명에게 55% 그림자 타격을 추가합니다.",
+        desc: "베라 행동 후 후열 적 1명에게 68% 그림자 타격을 추가합니다.",
         perkTag: { icon: "🩸", name: "베라 잠재 · 그림자 추격" },
       },
       {
@@ -478,7 +473,7 @@
         potentialId: "H6_PIERCE",
         icon: "🏹",
         title: "잠재능력 · 킨: 관통 화살",
-        desc: "킨의 단일 타격은 후열 적 1명에게 60% 관통 피해를 추가합니다.",
+        desc: "킨의 단일 타격은 후열 적 1명에게 72% 관통 피해를 추가합니다.",
         perkTag: { icon: "🏹", name: "킨 잠재 · 관통 화살" },
       },
       {
@@ -2879,7 +2874,7 @@
       if (onHitEnergy > 0) gainHeroEnergy(hero, onHitEnergy);
       if (hero.id === "H1" && hasHeroPotential(hero, "H1_RAGE")) potential.rageReady = true;
       if (hero.id === "H4" && sourceEnemy && sourceEnemy.hp > 0 && hasHeroPotential(hero, "H4_THORNS")) {
-        const reflect = Math.max(1, Math.floor(finalAmount * 0.4));
+        const reflect = Math.max(1, Math.floor(finalAmount * 0.5));
         damageEnemy(sourceEnemy, reflect, "🪓");
         log(`🪓 ${hero.name} 잠재 발동: 반격 갑주`, true);
       }
@@ -3005,7 +3000,7 @@
     let mult = 1;
     if (hero.id === "H1" && hasHeroPotential(hero, "H1_RAGE") && runtime.rageReady) {
       runtime.rageReady = false;
-      mult *= 1.45;
+      mult *= 1.6;
       log(`💢 ${hero.name} 잠재 발동: 분노 반격`, true);
       const node = nodeByHero(hero.id);
       if (node) {
@@ -3038,7 +3033,7 @@
     if (!sourceTarget || sourceTarget.hp <= 0) return;
     const spread = randomAliveEnemyExcept(sourceTarget.id);
     if (!spread) return;
-    const splash = Math.max(1, Math.floor(sourceDamage * 0.4));
+    const splash = Math.max(1, Math.floor(sourceDamage * 0.55));
     damageEnemy(spread, splash, "💥");
     applyEnemyBurn(spread, 2, Math.max(2, Math.floor(hero.atk * 0.25)));
     log(`💥 ${hero.name} 잠재 발동: 잔류 폭발`, true);
@@ -3049,8 +3044,8 @@
     const healer = state.activeHeroes.find((hero) => hero.id === "H5" && hero.hp > 0 && hasHeroPotential(hero, "H5_PRAYER"));
     if (!healer) return;
     if (Math.random() >= 0.35) return;
-    healHero(target, 4, "기도+");
-    gainHeroEnergy(healer, 6);
+    healHero(target, 6, "기도+");
+    gainHeroEnergy(healer, 8);
     log(`🙏 ${healer.name} 잠재 발동: 수호 기도`, true);
   }
 
@@ -3065,7 +3060,7 @@
   }
 
   function applyHeroDamagePassives(hero, target, damage, { ultimate = false } = {}) {
-    let adjusted = Math.max(1, Math.floor(damage * (1 + state.modifiers.skillDamageMult)));
+    let adjusted = Math.max(1, Math.floor(damage * (1 + state.modifiers.skillDamageMult + state.modifiers.tacticBonus)));
     adjusted = Math.floor(adjusted * (1 + heroSigilValue(hero, "damageMult")));
     if (target) {
       if (isFrontEnemy(target)) {
@@ -3100,7 +3095,7 @@
     if (hero.id === "H2" && hasHeroPotential(hero, "H2_EXEC")) {
       const runtime = heroPotentialState(hero);
       runtime.nextCrit = true;
-      gainHeroEnergy(hero, 20);
+      gainHeroEnergy(hero, 28);
       log(`🎯 ${hero.name} 잠재 발동: 처형 준비`, true);
     }
   }
@@ -3161,12 +3156,12 @@
       applyEnemyWeak(target, 2);
       applyHeroKillPassive(hero, target, aliveBefore);
       if (hasHeroPotential(hero, "H1_BREAK") && target.hp > 0) {
-        await runPotentialFollowStrike(hero, target, dmg, 0.6, "🗡", "🗡 란스 잠재: 갑주 파쇄", { ultimate: true });
+        await runPotentialFollowStrike(hero, target, dmg, 0.78, "🗡", "🗡 란스 잠재: 갑주 파쇄", { ultimate: true });
         applyEnemyWeak(target, 2);
       }
       if (hasHeroPotential(hero, "H1_CHAIN")) {
         const chase = randomAliveEnemyExcept(target.id);
-        if (chase) await runPotentialFollowStrike(hero, chase, dmg, 0.45, "⚔", "⚔ 란스 잠재: 돌격 연쇄", { ultimate: true });
+        if (chase) await runPotentialFollowStrike(hero, chase, dmg, 0.6, "⚔", "⚔ 란스 잠재: 돌격 연쇄", { ultimate: true });
       }
       applyHeroActionSupportPassive(hero);
       resetHeroEnergy(hero);
@@ -3190,7 +3185,7 @@
       damageEnemy(target, dmg, "🌟");
       applyEnemyMark(target, 3);
       if (hasHeroPotential(hero, "H2_FATAL")) {
-        applyEnemyBurn(target, 2, Math.max(2, Math.floor(hero.atk * 0.34)));
+        applyEnemyBurn(target, 2, Math.max(2, Math.floor(hero.atk * 0.42)));
         log(`☠ ${hero.name} 잠재 발동: 치명 낙인`, true);
       }
       applyHeroKillPassive(hero, target, aliveBefore);
@@ -3198,7 +3193,7 @@
         const backTarget = backAliveEnemy();
         const shadowTarget = backTarget && backTarget.id !== target.id ? backTarget : randomAliveEnemyExcept(target.id);
         if (shadowTarget) {
-          await runPotentialFollowStrike(hero, shadowTarget, dmg, 0.55, "🩸", "🩸 베라 잠재: 그림자 추격", { ultimate: true });
+          await runPotentialFollowStrike(hero, shadowTarget, dmg, 0.68, "🩸", "🩸 베라 잠재: 그림자 추격", { ultimate: true });
         }
       }
       applyHeroActionSupportPassive(hero);
@@ -3237,7 +3232,7 @@
           setTimeout(() => enemyNode.classList.remove("hit-heavy"), 180);
         }
         damageEnemy(enemy, dmg, "🌟");
-        applyEnemyBurn(enemy, 3, Math.max(2, Math.floor(hero.atk * 0.4)));
+        applyEnemyBurn(enemy, 3, Math.max(2, Math.floor(hero.atk * 0.5)));
         if (burningBefore) triggerMageFlare(hero, enemy, dmg);
         applyHeroKillPassive(hero, enemy, aliveBefore);
       });
@@ -3287,7 +3282,7 @@
       if (hasHeroPotential(hero, "H5_CHAIN")) {
         const weakest = lowestHpHero();
         if (weakest) {
-          healHero(weakest, 8, "파동+");
+          healHero(weakest, 11, "파동+");
           applyHeroRegen(weakest, 2, 5);
           log(`💚 ${hero.name} 잠재 발동: 생명의 파동`, true);
         }
@@ -3296,7 +3291,7 @@
         const downed = state.activeHeroes.filter((entry) => entry.hp <= 0);
         if (downed.length > 0) {
           const revived = downed[randInt(downed.length)];
-          revived.hp = Math.max(1, Math.floor(revived.maxHp * 0.35));
+          revived.hp = Math.max(1, Math.floor(revived.maxHp * 0.45));
           revived.shield = 0;
           revived.energy = 30;
           log(`🕯 ${hero.name} 잠재 발동: ${revived.name} 부활`, true);
@@ -3329,7 +3324,7 @@
       if (hasHeroPotential(hero, "H6_PIERCE")) {
         const pierceTarget = backAliveEnemy();
         if (pierceTarget && pierceTarget.hp > 0) {
-          await runPotentialFollowStrike(hero, pierceTarget, hero.atk * combo * turnMult, 0.6, "🏹", "🏹 킨 잠재: 관통 화살", {
+          await runPotentialFollowStrike(hero, pierceTarget, hero.atk * combo * turnMult, 0.72, "🏹", "🏹 킨 잠재: 관통 화살", {
             ultimate: true,
           });
         }
@@ -3648,7 +3643,21 @@
       reel.innerHTML = "";
       const glyph = document.createElement("span");
       glyph.className = "reelGlyph";
-      glyph.textContent = rune ? rune.icon : "?";
+      if (rune?.kind === "hero") {
+        const heroArt = heroVisual(rune.id);
+        if (heroArt) {
+          const image = document.createElement("img");
+          image.className = "reelGlyphImage";
+          image.src = heroArt;
+          image.alt = rune.name;
+          image.loading = "lazy";
+          glyph.appendChild(image);
+        } else {
+          glyph.textContent = rune.icon;
+        }
+      } else {
+        glyph.textContent = rune ? rune.icon : "?";
+      }
       reel.appendChild(glyph);
       if (rune && !spinning) {
         const marks = document.createElement("span");
@@ -3721,10 +3730,13 @@
         }
         if (marks.childElementCount > 0) reel.appendChild(marks);
       }
+      const heroState = rune?.kind === "hero" ? state.activeHeroes.find((hero) => hero.id === rune.id) : null;
+      const isDeadHeroRune = Boolean(heroState && heroState.hp <= 0);
       reel.classList.toggle("spinning", spinning);
       reel.classList.toggle("locked", Boolean(rune) && !spinning);
       reel.classList.toggle("empowered", Boolean(rune?.effects?.charge) && !spinning);
       reel.classList.toggle("slot-pulse", Boolean(rune?.effects?.slot2Pulse) && !spinning);
+      reel.classList.toggle("dead-rune", isDeadHeroRune && !spinning);
     });
   }
 
@@ -4041,7 +4053,7 @@
       if (hasHeroPotential(hero, "H5_CHAIN")) {
         const weakest = lowestHpHero();
         if (weakest) {
-          healHero(weakest, 6, "파동+");
+          healHero(weakest, 8, "파동+");
           applyHeroRegen(weakest, 2, 4);
           log(`💚 ${hero.name} 잠재 발동: 생명의 파동`, true);
         }
@@ -4086,7 +4098,7 @@
       applyEnemyMark(target, 2);
       if (crit && hasHeroPotential(hero, "H2_FATAL")) {
         applyEnemyMark(target, 3);
-        applyEnemyBurn(target, 2, Math.max(2, Math.floor(hero.atk * 0.34)));
+        applyEnemyBurn(target, 2, Math.max(2, Math.floor(hero.atk * 0.42)));
         log(`☠ ${hero.name} 잠재 발동: 치명 낙인`, true);
       }
     }
@@ -4125,21 +4137,21 @@
     if (hero.id === "H1" && hasHeroPotential(hero, "H1_CHAIN")) {
       const chase = randomAliveEnemyExcept(target.id);
       if (chase) {
-        await runPotentialFollowStrike(hero, chase, damage, 0.45, "⚔", "⚔ 란스 잠재: 돌격 연쇄");
+        await runPotentialFollowStrike(hero, chase, damage, 0.6, "⚔", "⚔ 란스 잠재: 돌격 연쇄");
       }
     }
     if (hero.id === "H2" && hasHeroPotential(hero, "H2_SHADOW")) {
       const backTarget = backAliveEnemy();
       const shadowTarget = backTarget && backTarget.id !== target.id ? backTarget : randomAliveEnemyExcept(target.id);
       if (shadowTarget) {
-        await runPotentialFollowStrike(hero, shadowTarget, damage, 0.55, "🩸", "🩸 베라 잠재: 그림자 추격");
+        await runPotentialFollowStrike(hero, shadowTarget, damage, 0.68, "🩸", "🩸 베라 잠재: 그림자 추격");
       }
     }
     if (hero.id === "H6" && hasHeroPotential(hero, "H6_PIERCE")) {
       const backTarget = backAliveEnemy();
       const pierceTarget = backTarget && backTarget.id !== target.id ? backTarget : randomAliveEnemyExcept(target.id);
       if (pierceTarget) {
-        await runPotentialFollowStrike(hero, pierceTarget, damage, 0.6, "🏹", "🏹 킨 잠재: 관통 화살");
+        await runPotentialFollowStrike(hero, pierceTarget, damage, 0.72, "🏹", "🏹 킨 잠재: 관통 화살");
       }
     }
 
@@ -4154,55 +4166,6 @@
     }
     applyHeroActionSupportPassive(hero);
     applyHeroSigilActionEffect(hero);
-  }
-
-  async function runTacticAction(tacticId, options = {}) {
-    const powerMult = clamp(Number.isFinite(options.powerMult) ? options.powerMult : 1, 0.35, 3);
-    if (tacticId === "T_BRACE") {
-      const alive = aliveHeroes();
-      alive.forEach((hero) => {
-        const node = nodeByHero(hero.id);
-        if (node) node.classList.add("targeted");
-      });
-      await wait(120);
-      alive.forEach((hero) => {
-        const node = nodeByHero(hero.id);
-        if (node) node.classList.remove("targeted");
-      });
-      shieldParty(Math.max(1, Math.floor((4 + state.modifiers.shieldBonus) * powerMult)), "방비");
-      healParty(Math.max(1, Math.floor((3 + state.modifiers.healBonus) * powerMult)), "방비");
-      enableTeamGuard(1, 0.1 + Math.max(0, (powerMult - 1) * 0.05), "방비");
-      return;
-    }
-
-    const hero = randomAliveHero();
-    const enemy = selectEnemyTarget("front");
-    if (!hero || !enemy) return;
-    const heroNode = nodeByHero(hero.id);
-    const enemyNode = nodeByEnemy(enemy.id);
-    const supportStyle = attackStyleOfHero(hero);
-    const supportFeel = attackFeelOfUnit(hero, "hero");
-    const turnMult = state.turnBuff.damageMult || 1;
-    const relicMult = relicDamageMultiplier();
-    const damage = Math.max(
-      1,
-      Math.floor(
-        (hero.atk + state.modifiers.atkFlat + moraleBonusAtk()) *
-          (0.7 + state.modifiers.tacticBonus + (state.turnBuff.tacticBonus || 0)) *
-          comboMultiplier() *
-          turnMult *
-          relicMult *
-          powerMult
-      )
-    );
-    const markedRate = (enemy.markTurns || 0) > 0 ? 1 + state.modifiers.markDamageBonus : 1;
-    const finalDamage = Math.max(1, Math.floor(damage * markedRate));
-    const finisher = enemy.hp <= finalDamage;
-    await animateHit(heroNode, enemyNode, "hero", { finisher, attackStyle: supportStyle, attackFeel: supportFeel });
-    damageEnemy(enemy, finalDamage, "🤝");
-    applyLifesteal(finalDamage);
-    log(`협공 발동: ${hero.name} → ${enemy.name} (-${finalDamage})`);
-    gainHeroEnergy(hero, 18);
   }
 
   async function runSpecialRuneAction(rune, options = {}) {
@@ -4248,15 +4211,15 @@
     const allowEcho = options.allowEcho !== false;
     let powerMult = clamp(Number.isFinite(options.powerMult) ? options.powerMult : 1, 0.35, 3);
     if (rune?.effects?.charge) {
-      powerMult *= 1.35;
+      powerMult *= 1.45;
       log(`▲ 과충전 표식: ${rune.name} 위력 강화`, true);
     }
     if (rune?.effects?.slot2Pulse) {
-      powerMult *= 1.5;
+      powerMult *= 1.65;
       log(`Ⅱ 2번 슬롯 공명: ${rune.name} 위력 폭증`, true);
     }
     if (rune?.effects?.forge) {
-      powerMult *= 1.22;
+      powerMult *= 1.32;
       log(`✶+ 룬 각인: ${rune.name} 강화`, true);
     }
 
@@ -4264,7 +4227,7 @@
       await runSpecialRuneAction(rune, { powerMult });
       if (allowEcho && rune?.effects?.echo && aliveEnemies().length > 0) {
         log(`∞ 메아리 표식: ${rune.name} 잔향 발동`, true);
-        await runSpecialRuneAction(rune, { powerMult: powerMult * 0.6 });
+        await runSpecialRuneAction(rune, { powerMult: powerMult * 0.75 });
       }
       return;
     }
@@ -4282,7 +4245,7 @@
     await runHeroAction(hero, { powerMult });
     if (allowEcho && rune?.effects?.echo && aliveEnemies().length > 0) {
       log(`∞ 메아리 표식: ${hero.name} 후속 공격`, true);
-      await runHeroAction(hero, { powerMult: powerMult * 0.6 });
+      await runHeroAction(hero, { powerMult: powerMult * 0.75 });
     }
   }
 
@@ -5056,7 +5019,7 @@
             log(`⇉ 연쇄 표식: 다음 심볼 선행 발동`, true);
             setResolvingReel(runeIndex + 1);
             await wait(90);
-            await resolveRune(linkedRune, { powerMult: 0.58, allowEcho: false });
+            await resolveRune(linkedRune, { powerMult: 0.72, allowEcho: false });
             state.comboStep = Math.min(5, state.comboStep + 1);
             renderAll();
             await wait(80);
