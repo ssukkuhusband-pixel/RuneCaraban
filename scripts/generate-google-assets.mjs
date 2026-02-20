@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const apiKey = process.env.GOOGLE_API_KEY || process.env.NANOBANANA_API_KEY || "";
-const model = process.env.GOOGLE_IMAGE_MODEL || "gemini-2.0-flash-exp-image-generation";
+const model = process.env.GOOGLE_IMAGE_MODEL || "gemini-3-pro-image-preview";
 const assetFilterRaw = process.env.ASSET_KEYS || "";
 const backgroundReferenceRaw = process.env.BACKGROUND_REFERENCE_FILES || "assets/reference/back_refer.jpeg";
 const heroReferenceRaw = process.env.HERO_REFERENCE_FILES || "assets/reference/hero_refer.png";

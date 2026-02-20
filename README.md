@@ -30,7 +30,7 @@ python3 -m http.server 5173
 
 ## AI 이미지 생성(반자동)
 - 생성 스크립트: `scripts/generate-google-assets.mjs`
-- 사용 모델 기본값: `gemini-2.0-flash-exp-image-generation`
+- 사용 모델 기본값: `gemini-3-pro-image-preview`
 - 모델 변경: `GOOGLE_IMAGE_MODEL` 환경변수 사용 (예: `gemini-3-pro-preview`)
 - 배경 레퍼런스 입력: `BACKGROUND_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/back_refer.jpeg`)
 - 영웅 레퍼런스 입력: `HERO_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/hero_refer.png`)
