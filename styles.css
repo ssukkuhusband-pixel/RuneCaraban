@@ -1173,6 +1173,39 @@ body {
   animation: hitHeavy 180ms ease-out;
 }
 
+.unit.sigil-active .unitPortrait {
+  box-shadow: 0 0 0 2px rgba(180, 126, 255, 0.3), 0 0 14px rgba(143, 86, 235, 0.35);
+  animation: sigilAura 1.2s ease-in-out infinite;
+}
+
+.unit.sigil-active[data-sigil-type="H1"] .unitPortrait {
+  box-shadow: 0 0 0 2px rgba(255, 164, 98, 0.36), 0 0 14px rgba(255, 119, 90, 0.34);
+}
+
+.unit.sigil-active[data-sigil-type="H2"] .unitPortrait {
+  box-shadow: 0 0 0 2px rgba(255, 110, 156, 0.35), 0 0 14px rgba(255, 77, 138, 0.33);
+}
+
+.unit.sigil-active[data-sigil-type="H3"] .unitPortrait {
+  box-shadow: 0 0 0 2px rgba(122, 174, 255, 0.35), 0 0 14px rgba(108, 130, 255, 0.33);
+}
+
+.unit.sigil-active[data-sigil-type="H4"] .unitPortrait {
+  box-shadow: 0 0 0 2px rgba(115, 230, 195, 0.35), 0 0 14px rgba(86, 208, 184, 0.34);
+}
+
+.unit.sigil-active[data-sigil-type="H5"] .unitPortrait {
+  box-shadow: 0 0 0 2px rgba(126, 232, 213, 0.35), 0 0 14px rgba(92, 215, 227, 0.33);
+}
+
+.unit.sigil-active[data-sigil-type="H6"] .unitPortrait {
+  box-shadow: 0 0 0 2px rgba(255, 211, 116, 0.36), 0 0 14px rgba(255, 184, 74, 0.34);
+}
+
+.unit.sigil-pulse .unitPortrait {
+  animation: sigilPulseCard 420ms ease-out;
+}
+
 @keyframes pulse {
   0% {
     filter: brightness(1);
@@ -1182,6 +1215,28 @@ body {
   }
   100% {
     filter: brightness(1);
+  }
+}
+
+@keyframes sigilAura {
+  0%,
+  100% {
+    filter: saturate(1) brightness(1);
+  }
+  50% {
+    filter: saturate(1.2) brightness(1.08);
+  }
+}
+
+@keyframes sigilPulseCard {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
@@ -1582,6 +1637,22 @@ body {
   border-color: rgba(124, 231, 189, 0.72);
 }
 
+.reelMark.forge {
+  border-color: rgba(255, 163, 89, 0.72);
+}
+
+.reelMark.link {
+  border-color: rgba(106, 207, 255, 0.74);
+}
+
+.reelMark.slot2 {
+  border-color: rgba(255, 214, 112, 0.76);
+}
+
+.reelMark.sigil {
+  border-color: rgba(191, 132, 255, 0.74);
+}
+
 .reel.locked {
   animation: reelLock 210ms ease-out;
   border-color: rgba(247, 201, 72, 0.72);
@@ -1601,6 +1672,11 @@ body {
 .reel.empowered {
   border-color: rgba(247, 201, 72, 0.76);
   box-shadow: 0 0 0 2px rgba(247, 201, 72, 0.26), 0 8px 14px rgba(0, 0, 0, 0.32);
+}
+
+.reel.slot-pulse {
+  border-color: rgba(255, 215, 122, 0.82);
+  box-shadow: 0 0 0 2px rgba(255, 215, 122, 0.3), 0 0 16px rgba(255, 184, 86, 0.3);
 }
 
 .reel.dimmed {
@@ -1636,6 +1712,37 @@ body {
 
 .floatLayer {
   z-index: 5;
+}
+
+.sigilPulse {
+  position: absolute;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(196, 133, 255, 0.72);
+  background: radial-gradient(circle at 35% 35%, rgba(255, 244, 204, 0.95), rgba(184, 109, 255, 0.74));
+  color: #1f0e3d;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 900;
+  transform: translate(-50%, -50%) scale(0.7);
+  animation: sigilFx 440ms ease-out forwards;
+  box-shadow: 0 0 14px rgba(176, 118, 255, 0.5);
+}
+
+@keyframes sigilFx {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
 }
 
 .skillCueLayer {

@@ -202,6 +202,15 @@
     H6: { icon: "🎯", name: "헌터 본능", desc: "전투 시작 집중 +1, 추가 사격 +6%", effects: { startFocus: 1, extraShot: 0.06 } },
   };
 
+  const HERO_SIGIL_PROFILE = {
+    H1: { icon: "⚔", name: "돌격 문장", effects: { damageMult: 0.12 } },
+    H2: { icon: "🗡", name: "암살 문장", effects: { critChance: 0.16, damageMult: 0.06 } },
+    H3: { icon: "🔮", name: "비전 문장", effects: { aoePower: 0.2, damageMult: 0.08 } },
+    H4: { icon: "🛡", name: "수호 문장", effects: { actionShield: 4 } },
+    H5: { icon: "✨", name: "치유 문장", effects: { actionHeal: 5 } },
+    H6: { icon: "🏹", name: "집중 문장", effects: { extraShot: 0.2, damageMult: 0.08, focusGain: 1 } },
+  };
+
   const HERO_ATTACK_FEEL = {
     H1: { dashScale: 1.05, dashMs: 120, lungeMs: 110, contactMs: 100, recoverMs: 90, impactScale: 1.08, shake: 1.05 },
     H2: { dashScale: 1.26, dashMs: 92, lungeMs: 84, contactMs: 78, recoverMs: 64, impactScale: 1.12, shake: 0.95 },
@@ -363,6 +372,18 @@
   function heroTraitValue(hero, type) {
     if (!hero || !hero.traitEffects || !type) return 0;
     const value = hero.traitEffects[type];
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function heroSigilProfile(hero) {
+    if (!hero || (hero.sigilTurns || 0) <= 0) return null;
+    return HERO_SIGIL_PROFILE[hero.sigilType || hero.id] || null;
+  }
+
+  function heroSigilValue(hero, effectType) {
+    const profile = heroSigilProfile(hero);
+    if (!profile || !profile.effects) return 0;
+    const value = profile.effects[effectType];
     return Number.isFinite(value) ? value : 0;
   }
 
@@ -580,6 +601,10 @@
       spinBonusReelChance: 0,
       spinCloneChance: 0,
       spinMorphChance: 0,
+      spinForgeChance: 0,
+      spinLinkChance: 0,
+      spinSlot2PulseChance: 0,
+      spinHeroSigilChance: 0,
       runeWeightDelta: {},
     },
   };
@@ -1090,6 +1115,8 @@
       focus: 0,
       regenTurns: 0,
       regenPower: 0,
+      sigilType: "",
+      sigilTurns: 0,
       targetRule: base.targetRule || "front",
       trait,
       traitEffects: trait?.effects || {},
@@ -1365,6 +1392,39 @@
     log(`${source}: 아군 피해 감소 ${(state.teamGuardRate * 100).toFixed(0)}%`, true);
   }
 
+  function applyHeroSigil(hero, source = "문장") {
+    if (!hero || hero.hp <= 0) return;
+    const profile = HERO_SIGIL_PROFILE[hero.id];
+    if (!profile) return;
+    hero.sigilType = hero.id;
+    hero.sigilTurns = Math.max(hero.sigilTurns || 0, 2);
+    gainHeroEnergy(hero, 8);
+    const node = nodeByHero(hero.id);
+    if (node) {
+      node.classList.add("sigil-pulse");
+      setTimeout(() => node.classList.remove("sigil-pulse"), 440);
+      spawnSigilPulse(node, profile.icon);
+    }
+    log(`◆ ${hero.name} ${profile.name} 활성화 (${source})`, true);
+  }
+
+  function applyHeroSigilActionEffect(hero) {
+    if (!hero || hero.hp <= 0 || (hero.sigilTurns || 0) <= 0) return;
+    const shieldGain = Math.floor(heroSigilValue(hero, "actionShield"));
+    const healGain = Math.floor(heroSigilValue(hero, "actionHeal"));
+    const focusGain = Math.floor(heroSigilValue(hero, "focusGain"));
+    if (shieldGain > 0) {
+      hero.shield += shieldGain;
+      const node = nodeByHero(hero.id);
+      if (node) floatNumber(node, `문+${shieldGain}`, "shield");
+    }
+    if (healGain > 0) {
+      const target = lowestHpHero();
+      if (target) healHero(target, healGain, "문+");
+    }
+    if (focusGain > 0) gainHeroFocus(hero, focusGain);
+  }
+
   function nodeByHero(heroId) {
     return heroLane.querySelector(`[data-hero-id="${heroId}"]`);
   }
@@ -1468,6 +1528,18 @@
       clearTimeout(timer);
       pin.remove();
     };
+  }
+
+  function spawnSigilPulse(targetNode, icon = "◆") {
+    const point = pointInRect(targetNode);
+    if (!point) return;
+    const pulse = document.createElement("div");
+    pulse.className = "sigilPulse";
+    pulse.textContent = icon;
+    pulse.style.left = `${point.x}px`;
+    pulse.style.top = `${point.y}px`;
+    fxLayer.appendChild(pulse);
+    setTimeout(() => pulse.remove(), 460);
   }
 
   function spawnTrail(attackerNode, targetNode, team, variant = "normal", options = {}) {
@@ -1743,6 +1815,14 @@
     state.activeHeroes.forEach((hero) => {
       if ((hero.regenTurns || 0) > 0) hero.regenTurns -= 1;
       if ((hero.regenTurns || 0) <= 0) hero.regenPower = 0;
+      if ((hero.sigilTurns || 0) > 0) {
+        hero.sigilTurns -= 1;
+        if (hero.sigilTurns <= 0) {
+          const expiredProfile = HERO_SIGIL_PROFILE[hero.sigilType] || HERO_SIGIL_PROFILE[hero.id];
+          if (expiredProfile) log(`◇ ${hero.name} ${expiredProfile.name} 종료`, true);
+          hero.sigilType = "";
+        }
+      }
     });
     if (state.teamGuardTurns > 0) state.teamGuardTurns -= 1;
     if (state.teamGuardTurns <= 0) state.teamGuardRate = 0;
@@ -1777,6 +1857,7 @@
 
   function applyHeroDamagePassives(hero, target, damage, { ultimate = false } = {}) {
     let adjusted = Math.max(1, Math.floor(damage * (1 + state.modifiers.skillDamageMult)));
+    adjusted = Math.floor(adjusted * (1 + heroSigilValue(hero, "damageMult")));
     if (target) {
       if (isFrontEnemy(target)) {
         adjusted = Math.floor(adjusted * (1 + heroPassiveValue(hero, "frontDamage") + heroTraitValue(hero, "frontBurst")));
@@ -1788,6 +1869,7 @@
       if ((target.markTurns || 0) > 0 || (target.burnTurns || 0) > 0 || (target.weakenTurns || 0) > 0) {
         adjusted = Math.floor(adjusted * (1 + heroTraitValue(hero, "statusHunter")));
       }
+      if (hero.id === "H3") adjusted = Math.floor(adjusted * (1 + heroSigilValue(hero, "aoePower")));
       if ((target.markTurns || 0) > 0) adjusted = Math.floor(adjusted * (1 + 0.12 + state.modifiers.markDamageBonus));
       if ((target.weakenTurns || 0) > 0) adjusted = Math.floor(adjusted * 1.06);
     }
@@ -2110,6 +2192,8 @@
     const specialChance = clamp(state.modifiers.specialRuneChance || 0, 0, 0.65);
     const chargeChance = clamp(state.modifiers.spinChargeChance || 0, 0, 0.6);
     const echoChance = clamp(state.modifiers.spinEchoChance || 0, 0, 0.5);
+    const forgeChance = clamp(state.modifiers.spinForgeChance || 0, 0, 0.75);
+    const sigilChance = clamp(state.modifiers.spinHeroSigilChance || 0, 0, 0.7);
     const result = runes.map((rune) => ({
       ...rune,
       effects: {
@@ -2120,6 +2204,30 @@
         echo: Math.random() < echoChance,
       },
     }));
+
+    result.forEach((rune, index) => {
+      if (rune.kind !== "hero") return;
+      if (Math.random() < sigilChance) {
+        result[index] = {
+          ...rune,
+          effects: {
+            ...(rune.effects || {}),
+            sigil: true,
+          },
+        };
+      }
+    });
+
+    if (Math.random() < forgeChance && result.length > 0) {
+      const forgeIndex = randInt(result.length);
+      result[forgeIndex] = {
+        ...result[forgeIndex],
+        effects: {
+          ...(result[forgeIndex].effects || {}),
+          forge: true,
+        },
+      };
+    }
 
     if (Math.random() < specialChance) {
       const index = randInt(result.length);
@@ -2164,6 +2272,7 @@
 
     const morphChance = clamp(state.modifiers.spinMorphChance || 0, 0, 0.85);
     const cloneChance = clamp(state.modifiers.spinCloneChance || 0, 0, 0.75);
+    const linkChance = clamp(state.modifiers.spinLinkChance || 0, 0, 0.8);
     const aliveIds = aliveHeroes().map((hero) => hero.id);
 
     if (Math.random() < morphChance && aliveIds.length > 0) {
@@ -2187,6 +2296,14 @@
         effects: { ...(runes[2]?.effects || {}), clone: true },
       };
     }
+
+    if (Math.random() < linkChance && runes.length >= 2) {
+      const startIndex = randInt(Math.min(2, runes.length - 1));
+      runes[startIndex] = {
+        ...runes[startIndex],
+        effects: { ...(runes[startIndex]?.effects || {}), linkNext: true },
+      };
+    }
   }
 
   function runeLabelWithEffects(rune) {
@@ -2198,6 +2315,10 @@
     if (rune.effects?.echo) tags.push("∞");
     if (rune.effects?.clone) tags.push("⧉");
     if (rune.effects?.morph) tags.push("🧬");
+    if (rune.effects?.forge) tags.push("✶+");
+    if (rune.effects?.linkNext) tags.push("⇉");
+    if (rune.effects?.slot2Pulse) tags.push("Ⅱ");
+    if (rune.effects?.sigil) tags.push("◆");
     if (rune.effects?.bonus) tags.push("+");
     return `${rune.icon}${tags.length > 0 ? `(${tags.join(",")})` : ""}`;
   }
@@ -2208,6 +2329,16 @@
     for (let idx = 0; idx < 3; idx += 1) result.push(runeById(pickWeighted(weights)));
     applySpinTransformEffects(result);
     const primaryRunes = ensurePlayableHeroRunes(decorateRunesWithSpinEffects(result));
+    const slot2PulseChance = clamp(state.modifiers.spinSlot2PulseChance || 0, 0, 0.9);
+    if (primaryRunes[1] && Math.random() < slot2PulseChance) {
+      primaryRunes[1] = {
+        ...primaryRunes[1],
+        effects: {
+          ...(primaryRunes[1].effects || {}),
+          slot2Pulse: true,
+        },
+      };
+    }
 
     const extraRunes = [];
     const bonusReelChance = clamp(state.modifiers.spinBonusReelChance || 0, 0, 0.95);
@@ -2273,6 +2404,30 @@
           tag.textContent = "🧬";
           marks.appendChild(tag);
         }
+        if (rune.effects?.forge) {
+          const tag = document.createElement("span");
+          tag.className = "reelMark forge";
+          tag.textContent = "✶+";
+          marks.appendChild(tag);
+        }
+        if (rune.effects?.linkNext) {
+          const tag = document.createElement("span");
+          tag.className = "reelMark link";
+          tag.textContent = "⇉";
+          marks.appendChild(tag);
+        }
+        if (rune.effects?.slot2Pulse) {
+          const tag = document.createElement("span");
+          tag.className = "reelMark slot2";
+          tag.textContent = "Ⅱ";
+          marks.appendChild(tag);
+        }
+        if (rune.effects?.sigil) {
+          const tag = document.createElement("span");
+          tag.className = "reelMark sigil";
+          tag.textContent = "◆";
+          marks.appendChild(tag);
+        }
         if (rune.kind === "special") {
           const tag = document.createElement("span");
           tag.className = "reelMark special";
@@ -2284,6 +2439,7 @@
       reel.classList.toggle("spinning", spinning);
       reel.classList.toggle("locked", Boolean(rune) && !spinning);
       reel.classList.toggle("empowered", Boolean(rune?.effects?.charge) && !spinning);
+      reel.classList.toggle("slot-pulse", Boolean(rune?.effects?.slot2Pulse) && !spinning);
     });
   }
 
@@ -2318,6 +2474,10 @@
     if (state.modifiers.spinBonusReelChance > 0) spinMarks.push("+1릴");
     if (state.modifiers.spinCloneChance > 0) spinMarks.push("⧉");
     if (state.modifiers.spinMorphChance > 0) spinMarks.push("🧬");
+    if (state.modifiers.spinForgeChance > 0) spinMarks.push("✶+");
+    if (state.modifiers.spinLinkChance > 0) spinMarks.push("⇉");
+    if (state.modifiers.spinSlot2PulseChance > 0) spinMarks.push("Ⅱ");
+    if (state.modifiers.spinHeroSigilChance > 0) spinMarks.push("◆");
     const markLabel = spinMarks.length > 0 ? ` · 표식 ${spinMarks.join("/")}` : "";
     rulePill.textContent =
       state.teamGuardTurns > 0
@@ -2338,8 +2498,9 @@
     heroLane.innerHTML = "";
     state.activeHeroes.forEach((hero, index) => {
       const card = document.createElement("div");
-      card.className = `unit hero${hero.hp <= 0 ? " dead" : ""}`;
+      card.className = `unit hero${hero.hp <= 0 ? " dead" : ""}${(hero.sigilTurns || 0) > 0 ? " sigil-active" : ""}`;
       card.dataset.heroId = hero.id;
+      if ((hero.sigilTurns || 0) > 0) card.dataset.sigilType = hero.sigilType || hero.id;
       const heroArt = heroVisual(hero.id);
 
       const hpBar = document.createElement("div");
@@ -2371,6 +2532,12 @@
       if ((hero.focus || 0) > 0) statusRow.appendChild(makeStatusDot("🎯", `집중 ${hero.focus}`));
       if ((hero.regenTurns || 0) > 0) statusRow.appendChild(makeStatusDot("💧", `재생 ${hero.regenTurns}턴`));
       if ((hero.shield || 0) > 0) statusRow.appendChild(makeStatusDot("🛡", `보호막 ${hero.shield}`));
+      if ((hero.sigilTurns || 0) > 0) {
+        const profile = heroSigilProfile(hero);
+        const icon = profile?.icon || "◆";
+        const name = profile?.name || "문장";
+        statusRow.appendChild(makeStatusDot(icon, `${name} ${hero.sigilTurns}턴`));
+      }
       if (state.teamGuardTurns > 0) statusRow.appendChild(makeStatusDot("🧱", `피해 감소 ${state.teamGuardTurns}턴`));
       if (statusRow.childElementCount === 0) statusRow.appendChild(makeStatusDot("·", "상태 없음"));
 
@@ -2497,7 +2664,10 @@
     const moraleAtk = moraleBonusAtk();
 
     const usedUltimate = await runHeroUltimate(hero, attackerNode, turnMult * relicMult, combo, moraleAtk);
-    if (usedUltimate) return;
+    if (usedUltimate) {
+      applyHeroSigilActionEffect(hero);
+      return;
+    }
 
     if (hero.id === "H3") {
       const aoePassive = heroPassiveValue(hero, "aoePower");
@@ -2538,6 +2708,7 @@
       log(`${hero.name}의 비전 폭발 (${dmg}씩)`);
       gainHeroEnergy(hero, 36);
       applyHeroActionSupportPassive(hero);
+      applyHeroSigilActionEffect(hero);
       return;
     }
 
@@ -2554,6 +2725,7 @@
       log(`${hero.name}이 타격 후 방어 태세를 전개합니다`);
       gainHeroEnergy(hero, 36);
       applyHeroActionSupportPassive(hero);
+      applyHeroSigilActionEffect(hero);
       return;
     }
 
@@ -2570,6 +2742,7 @@
       log(`${hero.name}이 파티를 회복시켰습니다`);
       gainHeroEnergy(hero, 36);
       applyHeroActionSupportPassive(hero);
+      applyHeroSigilActionEffect(hero);
       return;
     }
 
@@ -2577,7 +2750,11 @@
     let crit = false;
     if (hero.id === "H2") {
       const chance = clamp(
-        0.2 + state.modifiers.critBonus + (state.turnBuff.critBonus || 0) + heroPassiveValue(hero, "critChance"),
+        0.2 +
+          state.modifiers.critBonus +
+          (state.turnBuff.critBonus || 0) +
+          heroPassiveValue(hero, "critChance") +
+          heroSigilValue(hero, "critChance"),
         0,
         0.95
       );
@@ -2605,7 +2782,11 @@
 
     if (
       hero.id === "H6" &&
-      Math.random() < state.modifiers.extraShotChance + heroPassiveValue(hero, "extraShot") + heroTraitValue(hero, "extraShot") &&
+      Math.random() <
+        state.modifiers.extraShotChance +
+          heroPassiveValue(hero, "extraShot") +
+          heroTraitValue(hero, "extraShot") +
+          heroSigilValue(hero, "extraShot") &&
       aliveEnemies().length > 0
     ) {
       const extraTarget = selectEnemyTarget(hero.targetRule || "front");
@@ -2634,6 +2815,7 @@
       }
     }
     applyHeroActionSupportPassive(hero);
+    applyHeroSigilActionEffect(hero);
   }
 
   async function runTacticAction(tacticId, options = {}) {
@@ -2709,6 +2891,14 @@
       powerMult *= 1.35;
       log(`▲ 과충전 표식: ${rune.name} 위력 강화`, true);
     }
+    if (rune?.effects?.slot2Pulse) {
+      powerMult *= 1.5;
+      log(`Ⅱ 2번 슬롯 공명: ${rune.name} 위력 폭증`, true);
+    }
+    if (rune?.effects?.forge) {
+      powerMult *= 1.22;
+      log(`✶+ 룬 각인: ${rune.name} 강화`, true);
+    }
 
     if (rune.kind === "special") {
       await runSpecialRuneAction(rune, { powerMult });
@@ -2732,6 +2922,7 @@
       log(`${rune.icon} ${rune.name} 룬은 현재 발동할 수 없습니다`, true);
       return;
     }
+    if (rune?.effects?.sigil) applyHeroSigil(hero, "심볼 문장");
     await runHeroAction(hero, { powerMult });
     if (allowEcho && rune?.effects?.echo && aliveEnemies().length > 0) {
       log(`∞ 메아리 표식: ${hero.name} 후속 공격`, true);
@@ -2837,6 +3028,10 @@
     if (effect.type === "spinBonusReel") state.modifiers.spinBonusReelChance += effect.value;
     if (effect.type === "spinClone") state.modifiers.spinCloneChance += effect.value;
     if (effect.type === "spinMorph") state.modifiers.spinMorphChance += effect.value;
+    if (effect.type === "spinForge") state.modifiers.spinForgeChance += effect.value;
+    if (effect.type === "spinLink") state.modifiers.spinLinkChance += effect.value;
+    if (effect.type === "spinSlot2Pulse") state.modifiers.spinSlot2PulseChance += effect.value;
+    if (effect.type === "spinHeroSigil") state.modifiers.spinHeroSigilChance += effect.value;
     if (effect.type === "weight") {
       state.modifiers.runeWeightDelta[effect.id] = (state.modifiers.runeWeightDelta[effect.id] || 0) + effect.value;
     }
@@ -3173,6 +3368,42 @@
         perkTag: { icon: "🧬", name: "전술 변환 +35%" },
       },
       {
+        id: "perk_spin_forge",
+        group: "spin",
+        icon: "✶+",
+        title: "룬 각인",
+        desc: "스핀마다 20% 확률로 심볼 1개에 각인 효과가 붙어 위력이 강화됩니다.",
+        apply: () => applyPerk({ type: "spinForge", value: 0.2 }),
+        perkTag: { icon: "✶+", name: "룬 각인 +20%" },
+      },
+      {
+        id: "perk_spin_link",
+        group: "spin",
+        icon: "⇉",
+        title: "연쇄 고리",
+        desc: "스핀마다 24% 확률로 심볼에 연쇄 표식이 붙어 다음 칸이 선행 발동합니다.",
+        apply: () => applyPerk({ type: "spinLink", value: 0.24 }),
+        perkTag: { icon: "⇉", name: "연쇄 고리 +24%" },
+      },
+      {
+        id: "perk_spin_slot2",
+        group: "spin",
+        icon: "Ⅱ",
+        title: "2번 슬롯 공명",
+        desc: "스핀마다 28% 확률로 2번 슬롯이 강화 상태가 되어 위력이 크게 증가합니다.",
+        apply: () => applyPerk({ type: "spinSlot2Pulse", value: 0.28 }),
+        perkTag: { icon: "Ⅱ", name: "2번 슬롯 강화 +28%" },
+      },
+      {
+        id: "perk_spin_sigil",
+        group: "spin",
+        icon: "◆",
+        title: "각성 문장",
+        desc: "영웅 심볼에 22% 확률로 문장 표식이 붙어 2턴 동안 고유 강화 효과를 부여합니다.",
+        apply: () => applyPerk({ type: "spinHeroSigil", value: 0.22 }),
+        perkTag: { icon: "◆", name: "문장 표식 +22%" },
+      },
+      {
         id: "perk_rune_hero",
         icon: "🎲",
         title: "영웅 편중",
@@ -3199,6 +3430,10 @@
       "perk_spin_bonus_reel",
       "perk_spin_clone",
       "perk_spin_morph",
+      "perk_spin_forge",
+      "perk_spin_link",
+      "perk_spin_slot2",
+      "perk_spin_sigil",
       "perk_rune_hero",
     ]);
     if (eliteReward || progressRate >= 0.66) {
@@ -3416,6 +3651,8 @@
       hero.regenTurns = 0;
       hero.regenPower = 0;
       hero.focus = 0;
+      hero.sigilType = "";
+      hero.sigilTurns = 0;
     });
     applyBattleStartEffects();
     state.slotResult = [];
@@ -3560,6 +3797,21 @@
           if (hasWonBattle()) break;
         }
         if (hasWonBattle()) break;
+
+        if (rune?.effects?.linkNext && runeIndex < state.slotResult.length - 1) {
+          const linkedRune = state.slotResult[runeIndex + 1];
+          if (linkedRune) {
+            log(`⇉ 연쇄 표식: 다음 심볼 선행 발동`, true);
+            setResolvingReel(runeIndex + 1);
+            await wait(90);
+            await resolveRune(linkedRune, { powerMult: 0.58, allowEcho: false });
+            state.comboStep = Math.min(5, state.comboStep + 1);
+            renderAll();
+            await wait(80);
+            setResolvingReel(runeIndex);
+          }
+          if (hasWonBattle()) break;
+        }
 
         if (rune?.effects?.reroll && !rerollUsed) {
           rerollUsed = true;
@@ -3718,6 +3970,10 @@
       spinBonusReelChance: 0,
       spinCloneChance: 0,
       spinMorphChance: 0,
+      spinForgeChance: 0,
+      spinLinkChance: 0,
+      spinSlot2PulseChance: 0,
+      spinHeroSigilChance: 0,
       runeWeightDelta: {},
     };
 
