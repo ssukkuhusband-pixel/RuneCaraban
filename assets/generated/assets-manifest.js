@@ -1,5 +1,5 @@
 window.PROTO_ASSETS = {
-  "generatedAt": "2026-02-20T16:44:36.088Z",
+  "generatedAt": "2026-02-20T17:01:22.992Z",
   "model": "gemini-3-pro-image-preview",
   "hero": {
     "H1": "./assets/generated/heroes/H1.png",
@@ -19,5 +19,19 @@ window.PROTO_ASSETS = {
   "background": {
     "battlefield": "./assets/generated/backgrounds/battlefield.png",
     "lobby_campfire": "./assets/generated/backgrounds/lobby_campfire.png"
+  },
+  "equipment": {
+    "W_RUST": "./assets/generated/equipment/W_RUST.png",
+    "W_EDGE": "./assets/generated/equipment/W_EDGE.png",
+    "W_RUNE": "./assets/generated/equipment/W_RUNE.png",
+    "H_HIDE": "./assets/generated/equipment/H_HIDE.png",
+    "H_GUARD": "./assets/generated/equipment/H_GUARD.png",
+    "H_CROWN": "./assets/generated/equipment/H_CROWN.png",
+    "A_CHAIN": "./assets/generated/equipment/A_CHAIN.png",
+    "A_PLATE": "./assets/generated/equipment/A_PLATE.png",
+    "A_ABYSS": "./assets/generated/equipment/A_ABYSS.png",
+    "X_RING": "./assets/generated/equipment/X_RING.png",
+    "X_CHARM": "./assets/generated/equipment/X_CHARM.png",
+    "X_CLOCK": "./assets/generated/equipment/X_CLOCK.png"
   }
 };

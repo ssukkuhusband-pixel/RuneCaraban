@@ -806,6 +806,7 @@
     hero: generatedAssets.hero || {},
     enemy: generatedAssets.enemy || {},
     background: generatedAssets.background || {},
+    equipment: generatedAssets.equipment || {},
   };
 
   function visualPath(path) {
@@ -946,6 +947,11 @@
 
   function enemyVisual(enemyKey) {
     return visualPath(ASSET_MAP.enemy?.[enemyKey] || "");
+  }
+
+  function equipmentVisual(baseId) {
+    if (!baseId) return "";
+    return visualPath(ASSET_MAP.equipment?.[baseId] || "");
   }
 
   function applyBattlefieldVisual() {
@@ -1423,6 +1429,25 @@
     return allEquipmentItems().find((item) => item.uid === uid) || null;
   }
 
+  function makeEquipmentIconNode(item, fallbackIcon = "🧩", className = "equipIconImage") {
+    const baseId = typeof item === "string" ? item : item?.baseId;
+    const icon = typeof item === "string" ? fallbackIcon : item?.icon || fallbackIcon;
+    const name = typeof item === "string" ? baseId || "장비" : item?.name || "장비";
+    const visual = equipmentVisual(baseId);
+    if (!visual) {
+      const text = document.createElement("span");
+      text.className = className;
+      text.textContent = icon;
+      return text;
+    }
+    const img = document.createElement("img");
+    img.className = className;
+    img.src = visual;
+    img.alt = name;
+    img.loading = "lazy";
+    return img;
+  }
+
   function heroEquipmentLoadout(heroId) {
     if (!heroId) return emptyEquipmentLoadout();
     const raw = state.meta?.equipmentLoadout?.[heroId];
@@ -1682,9 +1707,18 @@
           card.className = "rewardCard";
           card.style.setProperty("--entry-delay", `${index * 40}ms`);
           if (item.uid === currentUid) card.classList.add("selected");
-          card.innerHTML = `<div class="rewardTitle">${item.icon} [${rarityLabel(item.rarity)}] ${item.name}</div><div class="rewardDesc">${equipmentEffectsText(
-            item.effects
-          )}</div>`;
+          const title = document.createElement("div");
+          title.className = "rewardTitle";
+          const iconNode = makeEquipmentIconNode(item, item.icon, "equipInlineIcon");
+          title.appendChild(iconNode);
+          const titleText = document.createElement("span");
+          titleText.textContent = `[${rarityLabel(item.rarity)}] ${item.name}`;
+          title.appendChild(titleText);
+          const desc = document.createElement("div");
+          desc.className = "rewardDesc";
+          desc.textContent = equipmentEffectsText(item.effects);
+          card.appendChild(title);
+          card.appendChild(desc);
           card.addEventListener("click", () => {
             const result = tryEquipHeroItem(heroId, slotId, item.uid);
             if (!result.ok) return;
@@ -1934,9 +1968,18 @@
       slotBtn.title = item
         ? `${slot.icon} ${slot.name}\n${item.icon} [${rarityLabel(item.rarity)}] ${item.name}\n${equipmentEffectsText(item.effects)}`
         : `${slot.icon} ${slot.name} 미장착`;
-      slotBtn.innerHTML = `<span class="showEquipSlotGlyph">${item ? item.icon : slot.icon}</span><span class="showEquipSlotName">${
-        item ? item.name : slot.name
-      }</span>`;
+      const glyph = document.createElement("span");
+      glyph.className = "showEquipSlotGlyph";
+      if (item) {
+        glyph.appendChild(makeEquipmentIconNode(item, item.icon, "showEquipSlotGlyphImage"));
+      } else {
+        glyph.textContent = slot.icon;
+      }
+      const name = document.createElement("span");
+      name.className = "showEquipSlotName";
+      name.textContent = item ? item.name : slot.name;
+      slotBtn.appendChild(glyph);
+      slotBtn.appendChild(name);
       slotBtn.addEventListener("click", () => showEquipmentSelectModal(hero.id, slot.id));
       showcaseStage.appendChild(slotBtn);
     });
@@ -2007,7 +2050,13 @@
       const line = document.createElement("div");
       line.className = "summonLine";
       if (entry.kind === "equip") {
-        line.textContent = `🛠 ${entry.icon} ${entry.name} [${entry.rarity}] · ${entry.desc}`;
+        const equipRow = document.createElement("span");
+        equipRow.className = "summonEquipRow";
+        equipRow.appendChild(makeEquipmentIconNode(entry.baseId || "", entry.icon || "🛠", "summonEquipIcon"));
+        const text = document.createElement("span");
+        text.textContent = ` ${entry.name} [${entry.rarity}] · ${entry.desc}`;
+        equipRow.appendChild(text);
+        line.appendChild(equipRow);
       } else {
         line.textContent = `${entry.icon} ${entry.name} [${entry.rarity}] ${entry.duplicate ? "중복" : "신규"} · 조각 +${
           entry.fragments
@@ -2066,6 +2115,7 @@
       if (!result.ok) break;
       results.push({
         kind: "equip",
+        baseId: result.item.baseId,
         icon: result.item.icon,
         name: result.item.name,
         rarity: rarityLabel(result.item.rarity),

@@ -34,6 +34,7 @@ python3 -m http.server 5173
 - 모델 변경: `GOOGLE_IMAGE_MODEL` 환경변수 사용 (예: `gemini-3-pro-preview`)
 - 배경 레퍼런스 입력: `BACKGROUND_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/back_refer.jpeg`)
 - 영웅 레퍼런스 입력: `HERO_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/hero_refer.png`)
+- 장비 레퍼런스 입력: `EQUIPMENT_REFERENCE_FILES` 환경변수 사용 (기본값: `assets/reference/hero_refer.png,assets/reference/back_refer.jpeg`)
 - 실행(프로토 폴더에서):
 
 ```bash
@@ -53,6 +54,11 @@ GOOGLE_API_KEY=\"<YOUR_KEY>\" GOOGLE_IMAGE_MODEL=\"gemini-3-pro-preview\" BACKGR
 - 영웅 레퍼런스로 영웅 초상 6종만 재생성:
 ```bash
 GOOGLE_API_KEY=\"<YOUR_KEY>\" GOOGLE_IMAGE_MODEL=\"gemini-3-pro-image-preview\" HERO_REFERENCE_FILES=\"assets/reference/hero_refer.png\" ASSET_KEYS=\"hero.H1,hero.H2,hero.H3,hero.H4,hero.H5,hero.H6\" node ./scripts/generate-google-assets.mjs
+```
+
+- 레퍼런스 풍으로 장비 아이콘 12종만 재생성:
+```bash
+GOOGLE_API_KEY=\"<YOUR_KEY>\" GOOGLE_IMAGE_MODEL=\"gemini-3-pro-image-preview\" EQUIPMENT_REFERENCE_FILES=\"assets/reference/hero_refer.png,assets/reference/back_refer.jpeg\" ASSET_KEYS=\"equipment.W_RUST,equipment.W_EDGE,equipment.W_RUNE,equipment.H_HIDE,equipment.H_GUARD,equipment.H_CROWN,equipment.A_CHAIN,equipment.A_PLATE,equipment.A_ABYSS,equipment.X_RING,equipment.X_CHARM,equipment.X_CLOCK\" node ./scripts/generate-google-assets.mjs
 ```
 
 - 생성 결과:
@@ -86,6 +92,7 @@ GOOGLE_API_KEY=\"<YOUR_KEY>\" GOOGLE_IMAGE_MODEL=\"gemini-3-pro-image-preview\" 
 - 중앙의 장비 아이콘(무기/투구/갑옷/장신구)을 터치하면 장비 상세/교체 팝업이 열림
 - 장착된 장비 아이콘에는 장비 이름이 함께 표시됨
 - 장비 교체 목록에는 `다른 영웅이 이미 장착 중인 장비`가 표시되지 않음
+- 장비 아이콘은 생성된 픽셀아트 장비 이미지(`assets/generated/equipment`)를 우선 사용함(없으면 이모지 폴백)
 - 출전중인 영웅은 `뒤로 이동/앞으로 이동`으로 편성 순서를 조정 가능
   - 편성 순서 기준: `1번=후열`, `마지막 번호=전열`
 - 상세 화면에서 영웅별 패시브 3개와 해금 레벨 확인 가능

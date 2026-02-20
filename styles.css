@@ -510,6 +510,20 @@ body {
 .showEquipSlotGlyph {
   font-size: 22px;
   line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.showEquipSlotGlyphImage {
+  width: 26px;
+  height: 26px;
+  object-fit: cover;
+  border-radius: 6px;
+  image-rendering: pixelated;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: inline-grid;
+  place-items: center;
+  font-size: 18px;
 }
 
 .showEquipSlotName {
@@ -886,6 +900,24 @@ body {
   border-radius: 8px;
   background: rgba(32, 33, 55, 0.85);
   padding: 5px 6px;
+}
+
+.summonEquipRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.summonEquipIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 4px;
+  image-rendering: pixelated;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
 }
 
 #stage::before {
@@ -2703,6 +2735,22 @@ body {
   font-size: 13px;
   font-weight: 900;
   text-shadow: 0 0 10px rgba(124, 92, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.equipInlineIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: cover;
+  border-radius: 5px;
+  image-rendering: pixelated;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: inline-grid;
+  place-items: center;
+  font-size: 13px;
 }
 
 .rewardDesc {
